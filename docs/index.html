@@ -93,6 +93,7 @@
     <div class="section">
       <div class="row center">
         <h4 class="center">Group Members</h4>
+		<div id="memberPool">
 		<div class="col s6 m4">
 			<div class="card">
 				<div class="card-image">
@@ -150,6 +151,7 @@
 				</div>
 			</div>
         </div>
+		</div>
       </div>
     </div>
   </div>
@@ -198,6 +200,31 @@
   <script src="js/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
+  <script>
+	$(function(){
+		initMember();
+	});
+
+	function initMember(){
+		let pool = $("#memberPool");
+		pool.html("");
+		function addMember(img, name, description, links){
+			let head = $('<div class="card-image"><img src="imgs/head/' + img + '"></div>');
+			let content = $('<div class="card-content"><h5>' + name + '</h5><p>' + description + '</p></div>');
+			let footer = $('<div class="card-action"></div>');
+			let n = links.length;
+			for (let i=0; i<n; i++)
+				footer.append($('<a href="' + links[i]["link"] + '">' + links[i]["name"] + '</a>'));
+			let card = $('<div class="card"></div>');
+			card.append(head);
+			card.append(content);
+			card.append(footer);
+			pool.append($('<div class="col s6 m4"></div>').append(card));
+		}
+		/* Add Your Personal Info Here */
+		addMember("WNJXYK.jpg", "Zhi Zhou", "A student from TAQ class of JLU who is interested in Coding and Algorithm Competion.", [{"name":"Blog", "link":"https://blog.wnjxyk.cn"}, {"name":"Github", "link":"https://github.com/WNJXYK"}]);
+	}
+  </script>
 
   </body>
 </html>
