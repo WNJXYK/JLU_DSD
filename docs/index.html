@@ -44,7 +44,7 @@
         <br><br>
       </div>
     </div>
-    <div class="parallax"><img src="imgs/background1.jpg" alt="Unsplashed background img 1"></div>
+    <div class="parallax" id="picturePool"><img src="imgs/background1.jpg" alt="Unsplashed background img 1"></div>
   </div>
 
   <!-- Features -->
@@ -168,6 +168,20 @@
 		addMember("u049.jpg", "Zimu Hu", "A student from TAQ class of JLU who is interested in computer programing.", [{"name":"Github", "link":"https://github.com/u049"}]);
 		addMember("HGZDG.jpg", "Renxiang Zhu", "A student from TAQ class of JLU who is interested in programing and music.", [{"name":"Github", "link":"https://github.com/HGZDG"}]);
 	}
+  </script>
+
+  <script>
+  	$(function(){
+  		initPictures();
+  		initImages();
+  	});
+  	let pics = ["background1.jpg", "background2.jpg", "background3.jpg"];
+  	function initPictures(){
+  		let pool = $("#picturePool");
+  		pool.html("");
+  		for (let img in pics)
+  			pool.append($('<img src="imgs/pictures/' + img + '" id="' + img + '" style="visibility:hidden;">'));
+  	}
   </script>
 
   </body>
