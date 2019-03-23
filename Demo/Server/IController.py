@@ -1,4 +1,6 @@
+import jsonify
 from Demo.Database import Database
+
 
 class IController(object):
     def __init__(self, hardware, controller, socket):
@@ -6,9 +8,12 @@ class IController(object):
         self.controller = controller
         self.socket = socket
 
-    # Intelligence Controller
-    def IC_generateRoom(self, rid):
-        # Generate List
+    def room_info(self, rid):
+        '''
+        获取房间内传感器数据与设备编号 / Get sensors' data and device ID in the room
+        :param rid: 房间编号 / Room ID
+        :returns: 传感器数据列表, 设备编号 / Sensors's data list, Device ID
+        '''
         hardware_list = Database.get_hardwareList(rid)
         device_id = Database.get_roomDevice(rid)
         sensors = []
@@ -17,33 +22,72 @@ class IController(object):
             sensors.append(self.hardware.get(hid))
         return sensors, device_id
 
-    def IC_report(self, id):
-        # Get Affected Room
-        rooms = Database.get_roomList(id, False)
-        for room in rooms:
-            sensors, device = self.IC_generateRoom(room)
-            if id == device: continue
-            msg = self.controller.Run({"sensors":sensors, "device": self.hardware.get(device), "cmd" : "", "authority": 0})
-            print(device, msg)
-            try:
-                self.socket[device].send(msg.encode("utf8"))
-            except: pass
+    def report(self, hid):
+        '''
+        传感器、设备更新时，更新受影响的房间的设备状态 / When sensors' and device's data changed, update the state of device in affected rooms
+        :param hid: 硬件ID / Hardware ID
+        '''
 
-    def IC_command(self, hid, uid, cmd):
-        info = Database.get_hardwareInfo(hid)
-        if info["type"] != 1 : return '{"status":-2, "msg":"You can not operate a sensor."}'
-        # Get Affected Room
-        rooms = Database.get_roomList(hid, False)
-        # Get User
-        user = Database.get_user(uid)
-        for room in rooms:
-            print(hid, room)
-            sensors, device = self.IC_generateRoom(room)
-            msg = self.controller.Cmd({"sensors":sensors, "device": self.hardware.get(device), "cmd" : cmd, "authority": user["authority"]})
-            print(device, msg)
-            try:
+        info = Database.get_hardwareInfo(hid)  # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
+        if info["type"] != 1:
+            return
+
+        rooms = Database.get_roomList(hid, False)  # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+
+        for rid in rooms:
+            sensors, device = self.room_info(rid)  # 生成控制数据 / Generate data which controller needed
+            param = {
+                "sensors": sensors,
+                "device": self.hardware.get(device),
+            }
+
+            msg = self.controller.Run(param)  # 控制 / Control
+
+            try:  # 向设备发送控制信号 / Send a signal to hardware
+                self.socket[device].send(msg.encode("utf8"))
+            except Exception as err:
+                print("IController Error : %s" % err)
+
+    def command(self, hid, uid, cmd):
+        '''
+        用户发出指令时，更新受影响的房间的设备状态 / When user has sent a command, update the state of device in affected rooms
+
+        状态 / Status :
+        -1 : 硬件忙碌或离线 / Device busy or offline
+        -2 : 不允许操作的硬件 / This hardware cannot be operated
+        0 : 操作成功 / operate successfully
+
+        :param hid: 硬件ID / Hardware ID
+        :param uid: 用户ID / User ID
+        :param cmd: 命令 / Command
+        :return: 操作状态 / result
+        '''
+        info = Database.get_hardwareInfo(hid) # 不允许用户操作传感器 / User cannot operator a sensor
+        if info["type"] != 1 :
+            ret = {
+                "status": -2,
+                "msg": "You can not operate a sensor."
+            }
+            return ret
+
+        rooms = Database.get_roomList(hid, False)  # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+
+        user = Database.get_user(uid) # 获取用户信息 / Get User Info
+
+        for rid in rooms:
+            sensors, device = self.room_info(rid)  # 生成控制数据 / Generate data which controller needed
+            param = {
+                "sensors": sensors,
+                "device": self.hardware.get(device),
+                "cmd": cmd,
+                "authority": user["authority"]
+            }
+
+            msg = self.controller.Cmd(param)  # 控制 / Control
+
+            try:  # 向设备发送控制信号 / Send a signal to hardware
                 self.socket[device].send(msg.encode("utf8"))
             except:
-                return '{"status":-1, "msg":"Device busy or offline."}'
+                return { "status": -1, "msg": "Device busy or offline." }  
 
-        return '{"status":0, "msg":"Message sent."}'
+        return { "status":0, "msg":"Message sent." }

@@ -42,7 +42,7 @@ def api_command():
     hid = request.args.get("hid")
     cmd = request.args.get("cmd")
     if not Database.check_userAuthority(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
-    return jsonify(iController.IC_command(hid, uid, cmd))
+    return jsonify(iController.command(hid, uid, cmd))
 
 
 # Socket Service
@@ -95,7 +95,7 @@ def socket_handle(client):
                     return
                 else:
                     hardware.report(id, bytes)
-                    iController.IC_report(id)
+                    iController.report(id)
 
 
         # Register Sender
