@@ -1,7 +1,10 @@
 import socket, json
 from multiprocessing import Process, Manager
 from threading import Thread
+
 import flask
+
+from Demo.Database import Database
 
 # Global
 manager = Manager()
@@ -46,10 +49,18 @@ def socket_handle(client):
         hello = json.loads(client.recv(1024))
         id, type, auth = hello["id"], hello["type"], hello["auth"]
 
+        # Authenticate Key
         if auth != "Auth":
             client.send('{"status":-1, "msg":"Authenticate Failed."}'.encode("utf8"))
             client.close
             print("%s(%s) : Authenticate Failed" % (type, id))
+            return
+
+        # Authenticate Hardware
+        if not Database.is_hardware(id):
+            client.send('{"status":-3, "msg":"Not An Registered Hardware."}'.encode("utf8"))
+            print("%s(%s) : Not A Registered Hardware." % (type, id))
+            client.close()
             return
 
         # Receive Data
@@ -68,8 +79,9 @@ def socket_handle(client):
 
         # Register Sender
         if hello["socket"] == "out":
-            if id not in socket_connection:
-                client.send('{"status":-2, "msg":"Not Allowed Receiving."}'.encode("utf8"))
+            # Authenticate Device
+            if not Database.is_device(id):
+                client.send('{"status":-2, "msg":"Not An Registered Device."}'.encode("utf8"))
                 print("%s(%s) : Not A Registered Device." % (type, id))
                 client.close()
                 return
@@ -80,8 +92,8 @@ def socket_handle(client):
     except: pass
 
 def main():
-    # Init Database
-    database_init()
+    # Virtual Init Database
+    Database.virtual_init()
 
     # Init Server
     ADDRESS = ('127.0.0.1', 1033)
