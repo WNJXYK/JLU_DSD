@@ -29,7 +29,7 @@ def report_socket(SERVER_ADDRESS, id, type):
                 print("Server Error(Reporter) : %s" % hello["msg"])
                 continue
             else:
-                print("Server Error(Reporter) : Connected")
+                print("Server(Reporter) : Connected")
             camera_change.value = 1
 
 

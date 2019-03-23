@@ -5,13 +5,13 @@ import json, time
 
 manager = Manager()
 light_state = manager.Value('b', False)
-light_change = manager.Value('i', 0)
+light_change = manager.Value('b', False)
 
 # Be Controlled Physically
 def physics():
     global light_state, light_change
     light_state.value = not light_state.value
-    light_change.value = light_change.value + 1
+    light_change.value = True
 
 
 # Report State
@@ -30,14 +30,14 @@ def report_socket(SERVER_ADDRESS, id, type):
                 print("Server Error(Reporter) : %s" % hello["msg"])
                 continue
             else:
-                print("Server Error(Reporter) : Connected")
-            light_change.value = 1
+                print("Server(Reporter) : Connected")
+            light_change.value = True
 
             # Solve
             while True:
-                if light_change.value > 0:
+                if light_change.value:
                     socket_out.send(('{"data":"%s"}'%str(light_state.value)).encode("utf8"))
-                    light_change.value = 0
+                    light_change.value = False
                 time.sleep(0.5)
 
         except: pass
@@ -63,7 +63,7 @@ def receive_socket(SERVER_ADDRESS, id, type):
             if int(hello["status"]) != 0:
                 print("Server Error(Receiver) : %s"%hello["msg"])
                 continue
-            else: print("Server Error(Receiver) : Connected")
+            else: print("Server(Receiver) : Connected")
 
             # Solve
             while True:
@@ -71,14 +71,20 @@ def receive_socket(SERVER_ADDRESS, id, type):
                     cmd = socket_in.recv(1024)
                     if len(cmd) == 0 : break
                     cmd = json.loads(cmd)
+                    goal = None
                     if cmd['data'] == 'on':
                         print("Light : On")
-                        light_state.value = True
-                        light_change.value = 0
+                        goal = True
                     if cmd['data'] == 'off':
                         print("Light : Off")
-                        light_state.value = False
-                        light_change.value = 0
+                        goal = False
+
+                    if goal!=None and light_state.value != goal:
+                        light_state.value = goal
+                        light_change.value = True
+                    else:
+                        light_change.value = False
+
                 except: print("Command Error : %s\n" % cmd)
 
         except: pass
