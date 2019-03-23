@@ -1,12 +1,15 @@
-import socket, time
-from multiprocessing import Process, Manager
+import socket, json
+from multiprocessing import Manager
 from threading import Thread
 from flask import Flask, request, json, jsonify
 from flask_cors import *
 
+
 from Demo.Database import Database
-from Demo.Controller import Controller
+from Demo.Controller.Controller import Controller
 from Demo.Server.Hardware import Hardware
+from Demo.Server.IController import IController
+
 
 # Global
 manager = Manager()
@@ -14,69 +17,23 @@ socket_connection = manager.dict()
 socket_server = None
 
 hardware = Hardware(manager)
+controller = Controller()
+iController = IController(hardware, controller, socket_connection)
 
-# Intelligence Controller
-def IC_generateRoom(id):
-    # Generate List
-    hardwares = Database.get_hardwareList(id)
-    device = Database.get_roomDevice(id)
-    sensors = []
-    for hid in hardwares:
-        if device == hid: continue
-        sensors.append(hardware.get(hid))
-    return sensors, device
 
-def IC_report(id):
-    # Get Affected Room
-    rooms = Database.get_roomList(id, False)
-    for room in rooms:
-        sensors, device = IC_generateRoom(room)
-        if id == device: continue
-        msg = Controller.Run({"sensors":sensors, "device": hardware.get(device), "cmd" : "", "authority": 0})
-        print(device, msg)
-        try:
-            socket_connection[device].send(msg.encode("utf8"))
-        except: pass
 
-def IC_command(hid, uid, cmd):
-    info = Database.get_hardwareInfo(hid)
-    if info["type"] != 1 : return '{"status":-2, "msg":"You can not operate a sensor."}'
-    # Get Affected Room
-    rooms = Database.get_roomList(hid, False)
-    # Get User
-    user = Database.get_user(uid)
-    for room in rooms:
-        print(hid, room)
-        sensors, device = IC_generateRoom(room)
-        msg = Controller.Cmd({"sensors":sensors, "device": hardware.get(device), "cmd" : cmd, "authority": user["authority"]})
-        print(device, msg)
-        try:
-            socket_connection[device].send(msg.encode("utf8"))
-        except:
-            return '{"status":-1, "msg":"Device busy or offline."}'
-
-    return '{"status":0, "msg":"Message sent."}'
-
-# Flask
+# API Service
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-
-
-# def generate_response(text):
-#     response = make_response(text)
-#     response.headers['Access-Control-Allow-Origin'] = '*'
-#     response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
-#     response.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
-#     return response
-
+CORS(app)
 
 @app.route('/api/hardware')
 def api_hardware():
     uid = request.args.get("uid")
     sid = request.args.get("sid")
     hid = request.args.get("hid")
-    if not Database.check_userAuthority(uid, sid, hid): return '{"status":-1, "msg":"Access Denied."}'
+    if not Database.check_userAuthority(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
     return jsonify(hardware.query(hid))
+
 
 @app.route('/api/command')
 def api_command():
@@ -84,9 +41,8 @@ def api_command():
     sid = request.args.get("sid")
     hid = request.args.get("hid")
     cmd = request.args.get("cmd")
-    if not Database.check_userAuthority(uid, sid, hid): return '{"status":-1, "msg":"Access Denied."}'
-    return jsonify(IC_command(hid, uid, cmd))
-
+    if not Database.check_userAuthority(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
+    return jsonify(iController.IC_command(hid, uid, cmd))
 
 
 # Socket Service
@@ -134,12 +90,12 @@ def socket_handle(client):
                 bytes = client.recv(1024)
                 if len(bytes) == 0:
                     client.close()
-                    # hardware.offline(id)
+                    hardware.offline(id)
                     print("%s(%s) : Offline"%(type, id))
                     return
                 else:
-                    # hardware.report(id, bytes)
-                    IC_report(id)
+                    hardware.report(id, bytes)
+                    iController.IC_report(id)
 
 
         # Register Sender
@@ -162,7 +118,7 @@ def main():
     Database.virtual_init()
 
     # Init Server
-    ADDRESS = ('127.0.0.1', 1033)
+    ADDRESS = ('127.0.0.1', 1024)
     socket_init(ADDRESS)
     server = Thread(target=socket_accept)
     server.setDaemon(True)
@@ -170,16 +126,6 @@ def main():
 
     # Init Flask
     app.run()
-
-
-    while True:
-        cmd = input()
-        if cmd == "Exit":
-            socket_server.close()
-            exit()
-        msg = input()
-        if socket_connection[cmd] != None:
-            socket_connection[cmd].send(('{"data":"%s"}'%msg).encode("utf8"))
 
 
 if __name__ == '__main__': main()
