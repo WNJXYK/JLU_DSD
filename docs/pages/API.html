@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="utf8">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Intelligent Lighting System</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="white" role="navigation">
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="#" class="brand-logo">Mogic</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="https://github.com/WNJXYK/JLU_DSD">Github</a></li>
+		<li><a href="https://github.com/WNJXYK/JLU_DSD/wiki">Documents</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="side-nav">
+        <li><a href="https://github.com/WNJXYK/JLU_DSD">Github</a></li>
+		<li><a href="https://github.com/WNJXYK/JLU_DSD/wiki">Documents</a></li>
+      </ul>
+      <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+  
+	<div class="container">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title activator grey-text text-darken-4">Authenicate API Setting<i class="material-icons right">more_vert</i></span>
+				<div class="container">
+					<div class="input-field col s12">
+						<input placeholder="127.0.0.1:5000" id="server" type="text" class="validate" value="127.0.0.1:5000">
+						<label for="server">Server Location</label>
+					</div>
+					</br>
+					<div class="row">
+					<div class="input-field col s6">
+						<input id="uid" type="tel" class="validate">
+						<label for="uid">User ID</label>
+					</div>
+					<div class="input-field col s6">
+						<input id="sid" type="tel" class="validate">
+						<label for="sid">Security ID</label>
+					</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-reveal">
+			<span class="card-title grey-text text-darken-4">Explaination<i class="material-icons right">close</i></span>
+			<p>
+				<b>Server Location</b> is the IP:Port where the server is running on.<br>
+				<b>Server Location</b> 是服务运行的网络地址。<br>
+				<b>User ID</b> is the identification of the account you gonna use.<br>
+				<b>User ID</b> 是即将使用的用户身份标识。<br>
+				<b>Security ID</b> is the token to authenicate your identification.<br>
+				<b>Security ID</b> 是用来验证登陆身份的令牌。
+			</p>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="card col s4 offset-s1">
+				<div class="card-content">
+					<span class="card-title activator grey-text text-darken-4">Query Hardware Status<i class="material-icons right">more_vert</i></span>
+					<div class="input-field col s12">
+						<input disabled placeholder="127.0.0.1:5000" type="text" class="validate" id="query_api" value="/api/hardware">
+						<label>API</label>
+					</div>
+					</br>
+					<div class="input-field col s12">
+						<input id="hardware_hid" type="tel" class="validate">
+						<label>Hardware ID</label>
+					</div>
+					<div class="center"><button class="btn waves-effect waves-light" type="submit" name="action" id="query">提交</button></div>
+				</div>
+				<div class="card-reveal">
+				<span class="card-title grey-text text-darken-4"><i class="material-icons right">close</i></span>
+				<p>
+
+				</p>
+				</div>
+			</div>
+			
+			<div class="card col s4 offset-s2">
+				<div class="card-content">
+					<span class="card-title activator grey-text text-darken-4">Send Command To Hardware<i class="material-icons right">more_vert</i></span>
+					<div class="input-field col s12">
+						<input disabled placeholder="127.0.0.1:5000" type="text" class="validate" value="/api/hardware" id="command_api">
+						<label>API</label>
+					</div>
+					</br>
+					<div class="input-field col s12">
+						<input id="command_hid" type="tel" class="validate">
+						<label>Hardware ID</label>
+					</div>
+					<div class="input-field col s12">
+						<input id="command_cmd" type="tel" class="validate">
+						<label>Command</label>
+					</div>
+					<div class="center"><button class="btn waves-effect waves-light" type="submit" name="action" id="command">提交</button></div>
+				</div>
+				<div class="card-reveal">
+				<span class="card-title grey-text text-darken-4">Explaination<i class="material-icons right">close</i></span>
+				<p>
+
+				</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+  
+  
+  <footer class="page-footer teal">
+    <!-- Contact US-->
+	<div class="container" id="Contactus">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Contact US</h5>
+          <p class="grey-text text-lighten-4">
+		  E-mail:  WNJXYK@Gmail.com<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp958288137@qq.com<br>
+										Address: Jilin University, Changchun, Jilin<br>
+										Tel:     137****9229 &nbsp; &nbsp; &nbsp; &nbsp;Mr Zhou
+		  </p>
+        </div>
+        <div class="col offset-l3 l3 s12">
+          <h5 class="white-text">Links</h5>
+          <ul>
+            <li><a class="white-text" href="http://materializecss.com">Materialize</a></li>
+            <li><a class="white-text" href="https://github.com">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container center">
+      Made by <a class="brown-text text-lighten-3" href="https://blog.wnjxyk.cn">WNJXYK</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/materialize.js"></script>
+  <script src="../js/init.js"></script>
+  <!-- Info -->
+  <script>
+	$("#query").click(function(){
+		let url = "http://" + $("#server").val() + $("#query_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#hardware_hid").val();
+		$.get(url, function(result){
+			alert(result);
+		});
+	});
+	
+	$("#command").click(function(){
+		let url = "http://" + $("#server").val() + $("#command_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
+		$.get(url, function(result){
+			alert(result);
+		});
+	});
+  </script>
+
+  </body>
+</html>
