@@ -1,12 +1,14 @@
 
-cnt = 0
-def Run(info):
-    global cnt
-    print(info)
-    cnt = cnt+1
-    if cnt%2 == 0: return '{"data":"on"}'
-    return '{"data":"off"}'
+class Controller(object):
+    def __init__(self):
+        self.cnt = 0
 
-def Cmd(info):
-    print(info)
-    return '{"data":"%s"}'%info["cmd"]
+    def Run(self, info):
+        print(info)
+        self.cnt = self.cnt+1
+        if self.cnt%2 == 0: return '{"data":"on"}'
+        return '{"data":"off"}'
+
+    def Cmd(self, info):
+        print(info)
+        return '{"data":"%s"}'%info["cmd"]
