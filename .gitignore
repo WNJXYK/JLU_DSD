@@ -1,3 +1,5 @@
 .idea/*
-Demp/Controller/__pycache__/*
-Demp/Database/__pycache__/*
+Demo/Database/__pycache__/*
+Demo/Controller/__pycache__/*
+Demo/Server/__pycache__/*
+Demo/Hardware/__pycache__/*
