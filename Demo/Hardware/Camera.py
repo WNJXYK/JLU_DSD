@@ -48,7 +48,7 @@ def report_socket(SERVER_ADDRESS, id, type):
             time.sleep(5)
 
 def main():
-    SERVER_ADDRESS = ('127.0.0.1', 1033)
+    SERVER_ADDRESS = ('127.0.0.1', 1024)
 
     report = Thread(target=report_socket, args=(SERVER_ADDRESS, "popoqqq", "Camera", ))
     report.setDaemon(True)

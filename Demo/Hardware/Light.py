@@ -96,7 +96,7 @@ def receive_socket(SERVER_ADDRESS, id, type):
 
 
 def main():
-    SERVER_ADDRESS = ('127.0.0.1', 1033)
+    SERVER_ADDRESS = ('127.0.0.1', 1024)
 
     receive = Thread(target=receive_socket, args=(SERVER_ADDRESS, "qwerty", "LightDevice", ))
     receive.setDaemon(True)
