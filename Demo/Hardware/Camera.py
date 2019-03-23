@@ -7,13 +7,13 @@ manager = Manager()
 camera_state = manager.Value('b', False)
 camera_change = manager.Value('i', 0)
 
-
+# Detect Something
 def detected():
     global camera_state, camera_change
     camera_state.value = not camera_state.value
     camera_change.value = camera_change.value + 1
 
-
+# Report State
 def report_socket(SERVER_ADDRESS, id, type):
     global camera_state, camera_change
     while True:
@@ -38,7 +38,7 @@ def report_socket(SERVER_ADDRESS, id, type):
                 if camera_change.value > 0:
                     socket_out.send(('{"data":"%s"}'%str(camera_state.value)).encode("utf8"))
                     camera_change.value = 0
-                time.sleep(0.1)
+                time.sleep(0.5)
 
         except: pass
         finally:

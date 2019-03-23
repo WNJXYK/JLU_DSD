@@ -7,13 +7,14 @@ manager = Manager()
 light_state = manager.Value('b', False)
 light_change = manager.Value('i', 0)
 
-
+# Be Controlled Physically
 def physics():
     global light_state, light_change
     light_state.value = not light_state.value
     light_change.value = light_change.value + 1
 
 
+# Report State
 def report_socket(SERVER_ADDRESS, id, type):
     global light_state, light_change
     while True:
@@ -37,7 +38,7 @@ def report_socket(SERVER_ADDRESS, id, type):
                 if light_change.value > 0:
                     socket_out.send(('{"data":"%s"}'%str(light_state.value)).encode("utf8"))
                     light_change.value = 0
-                time.sleep(0.1)
+                time.sleep(0.5)
 
         except: pass
         finally:
@@ -47,6 +48,7 @@ def report_socket(SERVER_ADDRESS, id, type):
             time.sleep(5)
 
 
+# Receive Command
 def receive_socket(SERVER_ADDRESS, id, type):
     global light_state, light_change
     while True:
@@ -86,6 +88,7 @@ def receive_socket(SERVER_ADDRESS, id, type):
             socket_in.close()
             print("Server Error(Receiver) : Wait 5s & Reconnecting...")
             time.sleep(5)
+
 
 def main():
     SERVER_ADDRESS = ('127.0.0.1', 1033)
