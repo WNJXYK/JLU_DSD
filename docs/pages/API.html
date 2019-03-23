@@ -153,7 +153,7 @@
 	$("#query").click(function(){
 		let url_str = "http://" + $("#server").val() + $("#query_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#hardware_hid").val();
 		$.ajax({
-			type : "get",
+			type : "post",
 			url : url_str,
 			dataType : "jsonp",
 			success : function(json){ 
@@ -164,15 +164,22 @@
 	
 	
 	$("#command").click(function(){
-		let url_str = "http://" + $("#server").val() + $("#command_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
+		let url_str = $("#server").val() + $("#command_api").val();
 		$.ajax({
-			type : "get",
+			type : "POST",
+			data : {
+				sid : $("#sid").val(),
+				uid : $("#uid").val(),
+				hid : $("#command_hid").val(),
+				cmd : $("#command_cmd").val()
+			},
 			url : url_str,
 			dataType : "jsonp",
-			success : function(json){ 
-				alert(json); 
+			success : function(data){ 
+				alert(data); 
 			} 
 		}); 
+		
 	});
   </script>
 
