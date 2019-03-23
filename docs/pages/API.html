@@ -151,17 +151,28 @@
   <!-- Info -->
   <script>
 	$("#query").click(function(){
-		let url = "http://" + $("#server").val() + $("#query_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#hardware_hid").val();
-		$.get(url, function(result){
-			alert(result);
-		});
+		let url_str = "http://" + $("#server").val() + $("#query_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#hardware_hid").val();
+		$.ajax({
+			type : "get",
+			url : url_str,
+			dataType : "jsonp",
+			success : function(json){ 
+				alert(json); 
+			} 
+		}); 
 	});
 	
+	
 	$("#command").click(function(){
-		let url = "http://" + $("#server").val() + $("#command_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
-		$.get(url, function(result){
-			alert(result);
-		});
+		let url_str = "http://" + $("#server").val() + $("#command_api").val() + "?" + "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
+		$.ajax({
+			type : "get",
+			url : url_str,
+			dataType : "jsonp",
+			success : function(json){ 
+				alert(json); 
+			} 
+		}); 
 	});
   </script>
 
