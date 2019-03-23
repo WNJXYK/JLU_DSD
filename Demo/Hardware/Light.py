@@ -65,7 +65,6 @@ def receive_socket(SERVER_ADDRESS, id, type):
                 continue
             else: print("Server Error(Receiver) : Connected")
 
-
             # Solve
             while True:
                 try:

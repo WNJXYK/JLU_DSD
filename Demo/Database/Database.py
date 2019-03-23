@@ -24,7 +24,7 @@ def virtual_init():
 # Hardware
 
 def is_hardware(id): return (id in hardware)
-def is_device(id): return ((id in hardware) and (hardware["hardware"]==1))
+def is_device(id): return ((id in hardware) and (hardware[id]["hardware"]==1))
 
 # Params: User Id
 # Return: Room Id List
