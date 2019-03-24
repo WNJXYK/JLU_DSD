@@ -60,7 +60,8 @@ class Hardware(object):
                         self.change.value = False
                     time.sleep(0.5)
 
-            except: pass
+            except Exception as err:
+                print(err)
             finally:
                 # 掉线重连 / Reconnect
                 socket_out.close()
