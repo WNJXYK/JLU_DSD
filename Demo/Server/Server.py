@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../../")
+
 from multiprocessing import Manager
 from flask import Flask, request, jsonify
 from flask_cors import *
