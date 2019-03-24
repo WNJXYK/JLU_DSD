@@ -5,23 +5,42 @@ import json, time
 
 
 class Hardware(object):
+
     def __init__(self, addr, hid, typ, auth):
+        '''
+        构造函数 / Construction
+        :param addr: 服务器地址 / Server IP:Port
+        :param hid: 硬件ID / Hardware ID
+        :param typ: 硬件类型 / Hardware Type
+        :param auth: 验证口令 / Authenticate Key
+        '''
         self.manager = Manager()
-        self.value = self.manager.Value('b', False)
         self.change = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
         self.auth = auth
 
-    # Report State
-    def report_socket(self, address, hid, typ, auth, func):
+    def commit_report(self):
+        '''
+        确定向服务器提交数据
+        Commit data to server
+        :return:
+        '''
+        self.change.value = True
+
+    def report_socket(self, func):
+        '''
+        向服务器汇报数据线程
+        Thread for reporting data to server
+        :param func: 获取发送数据的函数 / Function for get reported data
+        '''
         while True:
             try:
                 # 连接并发送注册数据包 / Connect and send register package
                 socket_out = socket.socket()
-                socket_out.connect(address)
-                socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(hid, typ, auth)).encode("utf8"))
+                socket_out.connect(self.addr)
+                socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024))
@@ -48,15 +67,18 @@ class Hardware(object):
                 print("Reporter Error : Wait 2s & Reconnecting...")
                 time.sleep(2)
 
-    # Receive Command
-    def receive_socket(self, address, hid, typ, auth, func):
-        global light_state, light_change
+    def receive_socket(self, func):
+        '''
+        从服务器接收命令
+        Receive command from server
+        :param func: 处理命令的函数 / Function for handling command
+        '''
         while True:
             try:
                 # 连接并发送注册数据包 / Connect and send register package
                 socket_in = socket.socket()
-                socket_in.connect(address)
-                socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (hid, typ, auth)).encode("utf8"))
+                socket_in.connect(self.addr)
+                socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_in.recv(1024))
@@ -82,12 +104,23 @@ class Hardware(object):
                 time.sleep(2)
 
     def receive(self, func):
-        thread = Thread(target=self.receive_socket, args=(self.addr, self.hid, self.typ, self.auth, func))
+        '''
+        开启接收命令线程
+        Start the thread for receiving command
+        :param func: 获取发送数据的函数 / Function for get reported data
+        '''
+        thread = Thread(target=self.receive_socket, args=(func, ))
         thread.setDaemon(True)
         thread.start()
 
     def report(self, func):
-        report = Thread(target=self.report_socket, args=(self.addr, self.hid, self.typ, self.auth, func))
+        '''
+        开启发送数据线程
+        Start the thread for sending data
+        :param func: 处理命令的函数 / Function for handling command
+        :return:
+        '''
+        report = Thread(target=self.report_socket, args=(func, ))
         report.setDaemon(True)
         report.start()
 
