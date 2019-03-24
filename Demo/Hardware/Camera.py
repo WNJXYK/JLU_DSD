@@ -1,63 +1,40 @@
-import socket
-from multiprocessing import Manager
-from threading import Thread
-import json, time
-
-manager = Manager()
-camera_state = manager.Value('b', False)
-camera_change = manager.Value('i', 0)
-
-# Detect Something
-def detected():
-    global camera_state, camera_change
-    camera_state.value = not camera_state.value
-    camera_change.value = camera_change.value + 1
-
-# Report State
-def report_socket(SERVER_ADDRESS, id, type):
-    global camera_state, camera_change
-    while True:
-        try:
-            # Connect & Hello
-            socket_out = socket.socket()
-            socket_out.connect(SERVER_ADDRESS)
-            socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"Auth"}'%(id, type)).encode("utf8"))
-
-            # Hello
-            hello = json.loads(socket_out.recv(1024))
-            if int(hello["status"]) != 0:
-                print("Server Error(Reporter) : %s" % hello["msg"])
-                continue
-            else:
-                print("Server(Reporter) : Connected")
-            camera_change.value = 1
+import time
+from Demo.Hardware.Hardware import Hardware
 
 
-            # Solve
-            while True:
-                if camera_change.value > 0:
-                    socket_out.send(('{"data":"%s"}'%str(camera_state.value)).encode("utf8"))
-                    camera_change.value = 0
-                time.sleep(0.5)
+class Camera(Hardware):
 
-        except: pass
-        finally:
-            # Wait & Reconnect
-            socket_out.close()
-            print("Server Error(Reporter) : Wait 5s & Reconnecting...")
-            time.sleep(5)
+    def __init__(self, addr, hid, typ, auth):
+        '''
+        声明一些硬件所需要的数据
+        Declare some values which is needed
+        '''
+        super(Camera, self).__init__(addr, hid, typ, auth)
+        self.value = self.manager.Value('b', False)
+
+    def get_reportdata(self):
+        '''
+        获取汇报服务器的数据
+        Get(or generate) the data which is aim for reporting
+        :return: data
+        '''
+        return '{"data":"%s"}' % str(self.value.value)
 
 def main():
-    SERVER_ADDRESS = ('127.0.0.1', 1024)
 
-    report = Thread(target=report_socket, args=(SERVER_ADDRESS, "popoqqq", "Camera", ))
-    report.setDaemon(True)
-    report.start()
+    # 新建硬件对象 / Create hardware object
+    # 服务器地址, 硬件ID, 硬件类型, 验证口令
+    # Server, Hardware Id, Hardware type, Authenicate key
+    camera = Camera(('127.0.0.1', 1024), "popoqqq", "Camera", "Auth")
 
+    # 开启发送数据线程 / Start the thread for reporting data
+    camera.report(camera.get_reportdata)
+
+    # 保持运行 & 额外处理 / Keep & Do something else
     while True:
         input()
-        detected()
+        camera.value.value = not camera.value.value
+        camera.change.value = True
         time.sleep(1)
 
 if __name__ == '__main__': main()
-
