@@ -45,7 +45,7 @@ def main():
     # 新建硬件对象 / Create hardware object
     # 服务器地址, 硬件ID, 硬件类型, 验证口令
     # Server, Hardware Id, Hardware type, Authenicate key
-    light = Light(('127.0.0.1', 1024), "qwerty", "LightDevice", "Auth")
+    light = Light(('127.0.0.1', 10000), "qwerty", "LightDevice", "WNJXYK")
 
     # 开启发送数据线程 / Start the thread for reporting data
     light.report(light.get_reportdata)

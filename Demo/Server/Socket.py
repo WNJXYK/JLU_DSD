@@ -10,13 +10,16 @@ class Socket(object):
         self.hardware = hardware
         self.inQue = manager.Queue(100)
         self.outQue = manager.Queue(100)
+        self.auth = "WNJXYK"
 
-    def run(self, address=('127.0.0.1', 1024)):
+    def run(self, address=('0.0.0.0', 10000), auth = "WNJXYK"):
         '''
         启动负责与硬件互联的套接字
         Start the socket which is responsible for communicating with hardware
         :param address: 运行地址 / Listening Address
         '''
+
+        self.auth = auth
 
         # 新建 Socket / Create a socket
         self.socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,7 +74,7 @@ class Socket(object):
             hid, typ, auth = hello["id"], hello["type"], hello["auth"]
 
             # 校验口令 / Authenticate
-            if auth != "Auth":
+            if auth != self.auth:
                 client.send('{"status":-1, "msg":"Authenticate Failed."}'.encode("utf8"))
                 client.close()
                 print("%s(%s) authenticate failed" % (typ, hid))
