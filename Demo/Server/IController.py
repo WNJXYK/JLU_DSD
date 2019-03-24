@@ -1,12 +1,26 @@
-import jsonify
+from threading import Thread
 from Demo.Database import Database
 
 
 class IController(object):
+    '''
+    与智能控制模块的接口
+    Interface between controller and server
+    '''
+
     def __init__(self, hardware, controller, socket):
         self.hardware = hardware
         self.controller = controller
         self.socket = socket
+
+        thread = Thread(target=self.report_thread)
+        thread.setDaemon(True)
+        thread.start()
+
+    def report_thread(self):
+        while True:
+            hid = self.socket.inQue.get(True)
+            self.report(hid)
 
     def room_info(self, rid):
         '''
@@ -27,9 +41,8 @@ class IController(object):
         传感器、设备更新时，更新受影响的房间的设备状态 / When sensors' and device's data changed, update the state of device in affected rooms
         :param hid: 硬件ID / Hardware ID
         '''
-
         info = Database.get_hardwareInfo(hid)  # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
-        if info["type"] != 1:
+        if info["type"] == 1:
             return
 
         rooms = Database.get_roomList(hid, False)  # 获取受影响房间编号列表 / Get the list of affected rooms' ID
@@ -43,18 +56,14 @@ class IController(object):
 
             msg = self.controller.Run(param)  # 控制 / Control
 
-            try:  # 向设备发送控制信号 / Send a signal to hardware
-                self.socket[device].send(msg.encode("utf8"))
-            except Exception as err:
-                print("IController Error : %s" % err)
+            self.socket.outQue.put((device, msg)) # 向设备发送控制信号 / Send a signal to hardware
 
     def command(self, hid, uid, cmd):
         '''
         用户发出指令时，更新受影响的房间的设备状态 / When user has sent a command, update the state of device in affected rooms
 
         状态 / Status :
-        -1 : 硬件忙碌或离线 / Device busy or offline
-        -2 : 不允许操作的硬件 / This hardware cannot be operated
+        -1 : 不允许操作的硬件 / This hardware cannot be operated
         0 : 操作成功 / operate successfully
 
         :param hid: 硬件ID / Hardware ID
@@ -65,7 +74,7 @@ class IController(object):
         info = Database.get_hardwareInfo(hid) # 不允许用户操作传感器 / User cannot operator a sensor
         if info["type"] != 1 :
             ret = {
-                "status": -2,
+                "status": -1,
                 "msg": "You can not operate a sensor."
             }
             return ret
@@ -85,9 +94,6 @@ class IController(object):
 
             msg = self.controller.Cmd(param)  # 控制 / Control
 
-            try:  # 向设备发送控制信号 / Send a signal to hardware
-                self.socket[device].send(msg.encode("utf8"))
-            except:
-                return { "status": -1, "msg": "Device busy or offline." }  
+            self.socket.outQue.put((device, msg)) # 向设备发送控制信号 / Send a signal to hardware
 
-        return { "status":0, "msg":"Message sent." }
+        return { "status":0, "msg":"Message sent."}
