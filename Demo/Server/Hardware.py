@@ -14,7 +14,6 @@ class Hardware(object):
         :param manager: 为了创建线程安全变量 / For creating thread-safe variable
         '''
         self.data = manager.dict()
-        # self.database = db
 
     def init(self, hid):
         '''

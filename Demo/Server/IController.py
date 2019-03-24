@@ -13,11 +13,16 @@ class IController(object):
         self.controller = controller
         self.socket = socket
 
+        # 监听硬件消息线程 / A thread that listening message from hardware
         thread = Thread(target=self.report_thread)
         thread.setDaemon(True)
         thread.start()
 
     def report_thread(self):
+        '''
+        持续读取硬件消息队列线程
+        Thread for reading queue of hardware' message
+        '''
         while True:
             hid = self.socket.inQue.get(True)
             self.report(hid)
@@ -41,22 +46,28 @@ class IController(object):
         传感器、设备更新时，更新受影响的房间的设备状态 / When sensors' and device's data changed, update the state of device in affected rooms
         :param hid: 硬件ID / Hardware ID
         '''
-        info = Database.get_hardwareInfo(hid)  # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
+
+        # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
+        info = Database.get_hardwareInfo(hid)
         if info["type"] == 1:
             return
 
-        rooms = Database.get_roomList(hid, False)  # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+        # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+        rooms = Database.get_roomList(hid, False)
 
         for rid in rooms:
-            sensors, device = self.room_info(rid)  # 生成控制数据 / Generate data which controller needed
+            # 生成控制数据 / Generate data which controller needed
+            sensors, device = self.room_info(rid)
             param = {
                 "sensors": sensors,
                 "device": self.hardware.get(device),
             }
 
-            msg = self.controller.Run(param)  # 控制 / Control
+            # 控制 / Control
+            msg = self.controller.Run(param)
 
-            self.socket.outQue.put((device, msg)) # 向设备发送控制信号 / Send a signal to hardware
+            # 向设备发送控制信号 / Send a signal to hardware
+            self.socket.outQue.put((device, msg))
 
     def command(self, hid, uid, cmd):
         '''
@@ -64,6 +75,7 @@ class IController(object):
 
         状态 / Status :
         -1 : 不允许操作的硬件 / This hardware cannot be operated
+        -2 : 设备离线 / Device offline
         0 : 操作成功 / operate successfully
 
         :param hid: 硬件ID / Hardware ID
@@ -71,20 +83,23 @@ class IController(object):
         :param cmd: 命令 / Command
         :return: 操作状态 / result
         '''
-        info = Database.get_hardwareInfo(hid) # 不允许用户操作传感器 / User cannot operator a sensor
+
+        # 不允许用户操作传感器 / User cannot operator a sensor
+        info = Database.get_hardwareInfo(hid)
         if info["type"] != 1 :
-            ret = {
-                "status": -1,
-                "msg": "You can not operate a sensor."
-            }
-            return ret
+            return { "status": -1, "msg": "You can not operate a sensor."}
+        if self.hardware.get(hid)["online"] == 0:
+            return {"status": -2, "msg": "Device is offline."}
 
-        rooms = Database.get_roomList(hid, False)  # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+        # 获取受影响房间编号列表 / Get the list of affected rooms' ID
+        rooms = Database.get_roomList(hid, False)
 
-        user = Database.get_user(uid) # 获取用户信息 / Get User Info
+        # 获取用户信息 / Get User Info
+        user = Database.get_user(uid)
 
         for rid in rooms:
-            sensors, device = self.room_info(rid)  # 生成控制数据 / Generate data which controller needed
+            # 生成控制数据 / Generate data which controller needed
+            sensors, device = self.room_info(rid)
             param = {
                 "sensors": sensors,
                 "device": self.hardware.get(device),
@@ -92,8 +107,10 @@ class IController(object):
                 "authority": user["authority"]
             }
 
-            msg = self.controller.Cmd(param)  # 控制 / Control
+            # 控制 / Control
+            msg = self.controller.Cmd(param)
 
-            self.socket.outQue.put((device, msg)) # 向设备发送控制信号 / Send a signal to hardware
+            # 向设备发送控制信号 / Send a signal to hardware
+            self.socket.outQue.put((device, msg))
 
-        return { "status":0, "msg":"Message sent."}
+        return {"status": 0, "msg": "Message sent."}
