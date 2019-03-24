@@ -1,4 +1,5 @@
 import sys
+sys.path.append("../..")
 sys.path.append("..")
 sys.path.append("./")
 
@@ -51,7 +52,7 @@ def main():
     socket.run()
 
     # Init API
-    api.run()
+    api.run(host = '0.0.0.0', port = 50000, debug = True, threaded=True)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

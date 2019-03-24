@@ -12,7 +12,7 @@ class Socket(object):
         self.outQue = manager.Queue(100)
         self.auth = "WNJXYK"
 
-    def run(self, address=('0.0.0.0', 10000), auth = "WNJXYK"):
+    def run(self, address=('0.0.0.0', 3389), auth = "WNJXYK"):
         '''
         启动负责与硬件互联的套接字
         Start the socket which is responsible for communicating with hardware
