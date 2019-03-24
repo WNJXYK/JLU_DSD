@@ -44,15 +44,19 @@ def api_command():
     return jsonify(iController.command(hid, uid, cmd))
 
 
-def main():
+def main(argv):
     # Virtual Init Database
     Database.virtual_init()
 
     # Init Server
-    socket.run()
+    addr = ('127.0.0.1', 3389)
+    auth = "WNJXYK"
+    if len(argv) >= 3: addr = (argv[1], int(argv[2]))
+    if len(argv) >= 4: auth = argv[3]
+    socket.run(addr, auth)
 
     # Init API
-    api.run(host = '0.0.0.0', port = 50000, debug = True, threaded=True)
-
+    api.run(host = '0.0.0.0', port = 50000, threaded=True)
+    
 if __name__ == '__main__':
     main(sys.argv)
