@@ -1,5 +1,6 @@
 import sys
-sys.path.append("../../")
+sys.path.append("..")
+sys.path.append("./")
 
 from multiprocessing import Manager
 from flask import Flask, request, jsonify
