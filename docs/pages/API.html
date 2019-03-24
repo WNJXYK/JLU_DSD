@@ -158,7 +158,7 @@
 	
 	
 	$("#command").click(function(){
-		let url = "http://" + $("#command").val() + $("#command_api").val();
+		let url = "http://" + $("#server").val() + $("#command_api").val();
 		let param = "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
 		window.open(url + "?" + param);
 	});
