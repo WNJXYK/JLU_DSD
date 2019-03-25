@@ -44,7 +44,7 @@ class Hardware(object):
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(socket_out.recv(1024))
+                hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Reporter Error : %s" % hello["msg"])
                     continue
@@ -85,7 +85,7 @@ class Hardware(object):
                 socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(socket_in.recv(1024))
+                hello = json.loads(socket_in.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Receiver Error : %s" % hello["msg"])
                     continue
@@ -94,7 +94,7 @@ class Hardware(object):
                 # 循环接收命令状态 / Receive command in a loop
                 while True:
                     try:
-                        cmd = socket_in.recv(1024)
+                        cmd = socket_in.recv(1024).decode("utf8")
                         if len(cmd) == 0: break  # 掉线判断 / Judge whether offline
                         cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
