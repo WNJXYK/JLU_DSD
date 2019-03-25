@@ -1,3 +1,8 @@
+import sys
+sys.path.append("./../..")
+sys.path.append("./..")
+sys.path.append("./")
+
 import time
 import RPi.GPIO as GPIO
 from Demo.Hardware.Hardware import Hardware
