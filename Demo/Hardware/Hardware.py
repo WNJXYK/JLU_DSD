@@ -16,6 +16,7 @@ class Hardware(object):
         '''
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
+        self.online = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
@@ -54,6 +55,7 @@ class Hardware(object):
 
                 # 循环汇报状态 / Report data in a loop
                 while True:
+                    self.online.value = True # 设置自身在线判断 / Set online or offline
                     if self.change.value:
                         msg = func()  # 生成汇报数据 / Generate reported data
                         socket_out.send(msg.encode("utf8"))
@@ -63,6 +65,7 @@ class Hardware(object):
             except Exception as err:
                 print(err)
             finally:
+                self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
                 print("Reporter Error : Wait 2s & Reconnecting...")
