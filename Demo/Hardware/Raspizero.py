@@ -65,15 +65,18 @@ def main():
     light.receive(light.handle_cmd)
 
     # 保持运行 & 额外处理 / Keep & Do something else
-    while True:
-        if not light.online.value:
-            GPIO.output(lightGPIO, GPIO.LOW)
-            GPIO.output(lightGPIO[0], GPIO.HIGH)
-        else:
-            if light.value.value:
-                GPIO.output(lightGPIO, GPIO.HIGH)
-            else:
+    try:
+        while True:
+            if not light.online.value:
                 GPIO.output(lightGPIO, GPIO.LOW)
-        time.sleep(0.5)
+                GPIO.output(lightGPIO[0], GPIO.HIGH)
+            else:
+                if light.value.value:
+                    GPIO.output(lightGPIO, GPIO.HIGH)
+                else:
+                    GPIO.output(lightGPIO, GPIO.LOW)
+    finally:
+        GPIO.output(lightGPIO, GPIO.LOW)
+        GPIO.cleanup()
 
 if __name__ == '__main__': main()
