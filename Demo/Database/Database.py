@@ -10,20 +10,23 @@ user_room = {}
 def virtual_init():
     hardware["qwerty"] = {"nickname":"寝室灯", "type": 1}
     hardware["popoqqq"] = {"nickname": "寝室摄像头", "type": 0}
+    hardware["raspi"] = {"nickname": "Raspi_Light", "type": 1}
+
 
     hardware_room["qwerty"] = ["0001"]
     hardware_room["popoqqq"] = ["0001", "0002", "0003"]
+    hardware_room["raspi"] = ["0002"]
     room_hardware["0001"] = ["qwerty", "popoqqq"]
-    room_hardware["0002"] = ["popoqqq"]
+    room_hardware["0002"] = ["popoqqq", "raspi"]
     room_hardware["0003"] = ["popoqqq"]
     room_device["0001"] = "qwerty"
-    room_device["0002"] = None
+    room_device["0002"] = "raspi"
     room_device["0003"] = None
 
     user["admin"] = { "password":"admin", "nickname":"管理员", "authority" : 3 , "email":"admin@admin.com", "sid":"123", "code":""}
     user["wnjxyk"] = {"password": "wnjxyk", "nickname": "喂你脚下有坑", "authority": 2, "email": "wnjxyk@gmail.com", "sid": "123", "code":""}
 
-    user_room["wnjxyk"] = ["0001"]
+    user_room["wnjxyk"] = ["0001", "0002"]
 
 # Hardware
 
