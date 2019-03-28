@@ -153,14 +153,32 @@
 	$("#query").click(function(){
 		let url = "http://" + $("#server").val() + $("#query_api").val();
 		let param = "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#hardware_hid").val();
-		window.open(url + "?" + param);
+		// window.open(url + "?" + param);
+		$.ajax({
+		  type: 'GET',
+		  url: url,
+		  data: param,
+		  success: function(ret){
+		    alert(ret);
+		  },
+		  dataType: "text"
+		});
 	});
 	
 	
 	$("#command").click(function(){
 		let url = "http://" + $("#server").val() + $("#command_api").val();
 		let param = "sid=" + $("#sid").val() + "&uid=" + $("#uid").val() + "&hid=" + $("#command_hid").val() + "&cmd=" + $("#command_cmd").val();
-		window.open(url + "?" + param);
+		// window.open(url + "?" + param);
+		$.ajax({
+		  type: 'GET',
+		  url: url,
+		  data: param,
+		  success: function(ret){
+		    alert(ret);
+		  },
+		  dataType: "text"
+		});
 	});
   </script>
 
