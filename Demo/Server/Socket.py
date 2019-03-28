@@ -70,7 +70,7 @@ class Socket(object):
         '''
         try:
             # 硬件注册消息 / Hardware register message
-            hello = json.loads(client.recv(1024).encode("utf8"))
+            hello = json.loads(client.recv(1024).deconde("utf8"))
             hid, typ, auth = hello["id"], hello["type"], hello["auth"]
 
             # 校验口令 / Authenticate
@@ -114,7 +114,7 @@ class Socket(object):
 
         # 循环处理消息 / Solve message in a loop
         while True:
-            bytes = client.recv(1024).encode("utf8")
+            bytes = client.recv(1024).decode("utf8")
             if len(bytes) == 0:
                 client.close()  # 关闭连接 / Close socket
                 self.hardware.offline(hid)  # 硬件下线 / Hardware offline
