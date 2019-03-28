@@ -43,13 +43,10 @@ class Hardware(object):
                 # 连接并发送注册数据包 / Connect and send register package
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
-                print("OK")
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-                print("Sent")
+
                 # 收取服务器握手信息 / Receive server conform message
-                s = socket_out.recv(1024).decode("utf8")
-                print("Recv %s"%s)
-                hello = json.loads(s)
+                hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Reporter Error : %s" % hello["msg"])
                     continue

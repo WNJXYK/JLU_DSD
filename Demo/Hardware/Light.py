@@ -80,6 +80,6 @@ def main():
         input()
         light.value.value = not light.value.value
         light.commit_report()
-        time.sleep(1)
+        time.sleep(0.1)
 
 if __name__ == '__main__': main()

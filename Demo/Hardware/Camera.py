@@ -49,8 +49,9 @@ def main():
     # 保持运行 & 额外处理 / Keep & Do something else
     while True:
         input()
+        print("Sent")
         camera.value.value = not camera.value.value
         camera.commit_report()
-        time.sleep(1)
+        time.sleep(0.1)
 
 if __name__ == '__main__': main()
