@@ -8,12 +8,13 @@ class Hardware(object):
     Hardware Class: Aim for updating, saving and sensors's and devices's data And packing them when needed.
     '''
 
-    def __init__(self, manager):
+    def __init__(self, manager, heartbeat=5):
         '''
         构造函数 / Construct function
         :param manager: 为了创建线程安全变量 / For creating thread-safe variable
         '''
         self.data = manager.dict()
+        self.heartbeat = heartbeat
 
     def init(self, hid):
         '''
@@ -26,8 +27,24 @@ class Hardware(object):
                 "online": 0,
                 "type": "???",
                 "data": "offline",
-                "last": time.time()
+                "last": 0.0
             }
+
+    def verify_online(self, hid):
+        '''
+        使用心跳包检测硬件是否在线
+        Verify online state with heartbeat package
+        :param hid: 硬件ID / Hardware ID
+        '''
+        if self.heartbeat < 0: return
+        self.init(hid)
+        info = self.data[hid]
+        if info["online"] == 1 and time.time()-info["last"] > self.heartbeat:
+            print("Reporter : %s(%s) is lost" % (info["type"], hid))
+            self.modify(hid, "online", 0)
+        if info["online"] == 0 and time.time()-info["last"] < self.heartbeat:
+            print("Reporter : %s(%s) is back" % (info["type"], hid))
+            self.modify(hid, "online", 1)
 
     def modify(self, hid, key, value):
         '''
@@ -47,6 +64,7 @@ class Hardware(object):
         :return: 硬件数据 / Hardware data
         '''
         self.init(hid)
+        self.verify_online(hid)
         return self.data[hid]
 
     def online(self, hid, typ):
@@ -77,10 +95,15 @@ class Hardware(object):
         :param raw: 原数据 / Raw data
         '''
         msg = json.loads(raw)
+
+        # 硬件数据 / Hardware data
         if "data" in msg:
             self.modify(hid, "data", msg["data"])
+
+        # 硬件上一条指令 / hardware's last command
         if "cmd" in msg:
             self.modify(hid, "cmd", msg["cmd"])
+
         self.modify(hid, "last", time.time())
 
     def query(self, hid):
