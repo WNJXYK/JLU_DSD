@@ -114,7 +114,6 @@ class Socket(object):
         # 循环处理消息 / Solve message in a loop
         while True:
             bytes = client.recv(1024)
-            print(bytes)
             if len(bytes) == 0:
                 client.close()  # 关闭连接 / Close socket
                 self.hardware.offline(hid)  # 硬件下线 / Hardware offline

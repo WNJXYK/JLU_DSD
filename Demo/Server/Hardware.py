@@ -77,8 +77,10 @@ class Hardware(object):
         :param raw: 原数据 / Raw data
         '''
         msg = json.loads(raw)
-        if "data" in msg: self.modify(hid, "data", msg["data"])
-        if "cmd" in msg: self.modify(hid, "data", msg["cmd"])
+        if "data" in msg:
+            self.modify(hid, "data", msg["data"])
+        if "cmd" in msg:
+            self.modify(hid, "cmd", msg["cmd"])
         self.modify(hid, "last", time.time())
 
     def query(self, hid):
@@ -98,4 +100,5 @@ class Hardware(object):
             ret["data"] = info["data"]
             ret["type"] = info["type"]
             ret["last"] = info["last"]
+
         return ret

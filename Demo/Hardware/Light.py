@@ -2,7 +2,7 @@ import sys, getopt
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
-import time
+import time, json
 from Demo.Hardware.Hardware import Hardware
 
 class Light(Hardware):
@@ -14,6 +14,7 @@ class Light(Hardware):
         '''
         super(Light, self).__init__(addr, hid, typ, auth)
         self.value = self.manager.Value('b', False)
+        self.msg = self.manager.dict()
 
     def get_reportdata(self):
         '''
@@ -21,14 +22,19 @@ class Light(Hardware):
         Get(or generate) the data which is aim for reporting
         :return: data
         '''
-        return '{"data":"%s"}' % str(self.value.value)
+        msg = self.msg.copy()
+        self.msg.clear()
+        msg["data"] = str(self.value.value)
+        return json.dumps(msg)
 
-    def handle_cmd(self, cmd):
+    def handle_cmd(self, cmd_str):
         '''
         处理来自服务器的指令
         Handle the command from server
-        :param cmd: 指令 / Command
+        :param cmd_str: 指令 / Command
         '''
+        cmd = json.loads(cmd_str)
+
         goal = None
         if cmd['data'] == 'on':
             print("Light : On")
@@ -39,9 +45,10 @@ class Light(Hardware):
 
         if (goal is not None) and self.value.value != goal:
             self.value.value = goal
-            self.change.value = True
-        else:
-            self.change.value = False
+            msg = self.msg.copy()
+            msg["cmd"] = cmd_str
+            self.msg = msg
+            self.commit_report()
 
 def main():
     # 获取调用参数 / Get Option
@@ -72,7 +79,7 @@ def main():
     while True:
         input()
         light.value.value = not light.value.value
-        light.change.value = True
+        light.commit_report()
         time.sleep(1)
 
 if __name__ == '__main__': main()

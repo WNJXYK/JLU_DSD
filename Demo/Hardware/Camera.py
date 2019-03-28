@@ -50,7 +50,7 @@ def main():
     while True:
         input()
         camera.value.value = not camera.value.value
-        camera.change.value = True
+        camera.commit_report()
         time.sleep(1)
 
 if __name__ == '__main__': main()
