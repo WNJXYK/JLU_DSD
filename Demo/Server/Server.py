@@ -1,4 +1,4 @@
-import sys
+import sys, getopt
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
@@ -43,19 +43,26 @@ def api_command():
     return jsonify(iController.command(hid, uid, cmd))
 
 
-def main(argv):
+def main():
     # Virtual Init Database
     Database.virtual_init()
 
-    # Init Server
-    addr = ('127.0.0.1', 3389)
+    # Get Option
+    addr = ('0.0.0.0', 1024)
     auth = "WNJXYK"
-    if len(argv) >= 3: addr = (argv[1], int(argv[2]))
-    if len(argv) >= 4: auth = argv[3]
+    opts, args = getopt.getopt(sys.argv[1:], "i:p:k:")
+    for op, value in opts:
+        if op == "-i": addr = (value, addr[1])
+        if op == "-p": addr = (addr[0], int(value))
+        if op == "-k": auth = value
+
+    # Init Socket
     socket.run(addr, auth)
+
+    # Heartbeat to IC
+    iController.heartbeat(5)
 
     # Init API
     api.run(host = '0.0.0.0', port = 50000, threaded=True)
 
-if __name__ == '__main__':
-    main(sys.argv)
+if __name__ == '__main__': main()

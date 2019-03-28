@@ -146,6 +146,11 @@ class IController(object):
             except: pass
 
     def heartbeat(self, duration):
+        '''
+        开启向服务器发送心跳包线程
+        Start the thread for send server heartbeat
+        :param duration: 延时 / delay
+        '''
         thread = Thread(target = self.heartbeat_thread, args = (duration, ))
         thread.setDaemon(True)
         thread.start()

@@ -6,8 +6,10 @@ room_hardware = {}
 room_device = {}
 user = {}
 user_room = {}
+room = []
 
 def virtual_init():
+    global room
     hardware["qwerty"] = {"nickname":"寝室灯", "type": 1}
     hardware["popoqqq"] = {"nickname": "寝室摄像头", "type": 0}
     hardware["raspi"] = {"nickname": "Raspi_Light", "type": 1}
@@ -22,6 +24,7 @@ def virtual_init():
     room_device["0001"] = "qwerty"
     room_device["0002"] = "raspi"
     room_device["0003"] = None
+
     room = ["0001", "0002", "0003"]
 
     user["admin"] = { "password":"admin", "nickname":"管理员", "authority" : 3 , "email":"admin@admin.com", "sid":"123", "code":""}
@@ -34,7 +37,9 @@ def virtual_init():
 def is_hardware(id): return (id in hardware)
 def is_device(id): return ((id in hardware) and (hardware[id]["type"]==1))
 
-def get_allRoom(): return room
+def get_allRoom():
+    global room
+    return room
 def get_allHardware(): return hardware.keys()
 def get_user(id):
     if id not in user: return {}

@@ -1,6 +1,9 @@
+import sys, getopt
+sys.path.append(sys.path[0] + "/../..")
+sys.path.append(sys.path[0] + "/..")
+
 import time
 from Demo.Hardware.Hardware import Hardware
-
 
 class Light(Hardware):
 
@@ -41,11 +44,23 @@ class Light(Hardware):
             self.change.value = False
 
 def main():
+    # 获取调用参数 / Get Option
+    addr = ('127.0.0.1', 1024)
+    auth = "WNJXYK"
+    hid = "qwerty"
+    typ = "LightDevice"
+    opts, args = getopt.getopt(sys.argv[1:], "i:p:k:t:h:")
+    for op, value in opts:
+        if op == "-i": addr = (value, addr[1])
+        if op == "-p": addr = (addr[0], int(value))
+        if op == "-k": auth = value
+        if op == "-t": typ = value
+        if op == "-h": hid = value
 
     # 新建硬件对象 / Create hardware object
     # 服务器地址, 硬件ID, 硬件类型, 验证口令
     # Server, Hardware Id, Hardware type, Authenicate key
-    light = Light(('95.179.154.249', 50001), "qwerty", "LightDevice", "QQQ")
+    light = Light(addr, hid, typ, auth)
 
     # 开启发送数据线程 / Start the thread for reporting data
     light.report(light.get_reportdata)
