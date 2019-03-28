@@ -71,6 +71,7 @@ class Socket(object):
         try:
             # 硬件注册消息 / Hardware register message
             hello = json.loads(client.recv(1024))
+            print(hello)
             hid, typ, auth = hello["id"], hello["type"], hello["auth"]
 
             # 校验口令 / Authenticate

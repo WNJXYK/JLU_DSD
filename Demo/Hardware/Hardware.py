@@ -43,10 +43,13 @@ class Hardware(object):
                 # 连接并发送注册数据包 / Connect and send register package
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
+                print("OK")
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-
+                print("Sent")
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(socket_out.recv(1024).decode("utf8"))
+                s = socket_out.recv(1024).decode("utf8")
+                print("Recv %s"%s)
+                hello = json.loads(s)
                 if int(hello["status"]) != 0:
                     print("Reporter Error : %s" % hello["msg"])
                     continue
@@ -109,7 +112,8 @@ class Hardware(object):
                         func(cmd)  # 执行指令
                     except: print("Unknown command : %s" % cmd)
 
-            except: pass
+            except Exception as err:
+                print(err)
             finally:
                 # 掉线重连 / Reconnect
                 socket_in.close()
