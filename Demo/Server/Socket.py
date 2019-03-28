@@ -114,6 +114,7 @@ class Socket(object):
         # 循环处理消息 / Solve message in a loop
         while True:
             bytes = client.recv(1024)
+            print(bytes)
             if len(bytes) == 0:
                 client.close()  # 关闭连接 / Close socket
                 self.hardware.offline(hid)  # 硬件下线 / Hardware offline
@@ -121,7 +122,8 @@ class Socket(object):
                 return
             else:
                 self.hardware.report(hid, bytes)  # 存储硬件数据 / Save hardware data
-                self.inQue.put(hid)  # 消息进入待处理队列 / Push into queue and wait for handling
+                if len(bytes) > 2:
+                    self.inQue.put(hid)  # 消息进入待处理队列 / Push into queue and wait for handling
 
     def register_out(self, client, hid, typ):
         '''

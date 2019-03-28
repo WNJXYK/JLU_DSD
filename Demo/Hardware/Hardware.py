@@ -6,7 +6,7 @@ import json, time
 
 class Hardware(object):
 
-    def __init__(self, addr, hid, typ, auth):
+    def __init__(self, addr, hid, typ, auth, heartbeat=2):
         '''
         构造函数 / Construction
         :param addr: 服务器地址 / Server IP:Port
@@ -21,6 +21,8 @@ class Hardware(object):
         self.hid = hid
         self.typ = typ
         self.auth = auth
+        self.heartbeat = heartbeat
+        self.heartbeat_rate = 0
 
     def commit_report(self):
         '''
@@ -60,6 +62,13 @@ class Hardware(object):
                         msg = func()  # 生成汇报数据 / Generate reported data
                         socket_out.send(msg.encode("utf8"))
                         self.change.value = False
+                        self.heartbeat_rate = 0
+
+                    if self.heartbeat_rate > self.heartbeat > 0:
+                        socket_out.send("{}".encode("utf8"))
+                        self.heartbeat_rate = 0
+
+                    self.heartbeat_rate += 0.5
                     time.sleep(0.5)
 
             except Exception as err:

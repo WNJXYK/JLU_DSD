@@ -76,7 +76,9 @@ class Hardware(object):
         :param hid: 硬件ID / Hardware ID
         :param raw: 原数据 / Raw data
         '''
-        self.modify(hid, "data", json.loads(raw)["data"])
+        msg = json.loads(raw)
+        if "data" in msg: self.modify(hid, "data", msg["data"])
+        if "cmd" in msg: self.modify(hid, "data", msg["cmd"])
         self.modify(hid, "last", time.time())
 
     def query(self, hid):
