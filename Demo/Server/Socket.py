@@ -97,7 +97,8 @@ class Socket(object):
                 self.register_out(client, hid, typ)
 
 
-        except: pass
+        except Exception as err:
+            print(err)
 
     def handle_in(self, client, hid, typ):
         '''
