@@ -9,10 +9,101 @@
     <title>文档 - MDUI 开发文档, Material Design 前端框架</title>
     <link rel="stylesheet" href="./css/mdui.min.css?v=0.4.2"/>
   </head>
-  <body class="mdui-drawer-body-left mdui-appbar-with-toolbar  mdui-theme-primary-indigo mdui-theme-accent-pink">
+  <body class="mdui-bottom-nav-fixed">
+    <!-- 底部导航栏 -->
+    <div class="mdui-bottom-nav mdui-bottom-nav-text-auto mdui-tab" mdui-tab>
+      <a href="#example1-tab2" class="mdui-ripple">
+        <i class="mdui-icon material-icons">live_tv</i>
+        <label>Movies</label>
+      </a>
+      <a href="#example1-tab3" class="mdui-ripple">
+        <i class="mdui-icon material-icons">music_note</i>
+        <label>Music</label>
+      </a>
+      <a href="#example1-tab1" class="mdui-ripple">
+        <i class="mdui-icon material-icons">book</i>
+        <label>Books</label>
+      </a>
+      <a href="#tab-user" class="mdui-ripple" id="tab_user_button">
+        <i class="mdui-icon material-icons">&#xe851;</i>
+        <label>Account</label>
+      </a>
+    </div>
 
+    <div class="mdui-container">
+      <div id="example1-tab1" class="mdui-p-a-2">aeb content</div>
+      <div id="example1-tab3" class="mdui-p-a-2">mages content</div>
+      <div id="example1-tab2" class="mdui-p-a-2">shopping content</div>
+      <div id="tab-user" class="mdui-p-a-2"></div>
+    </div>
 
     <script src="./js/mdui.min.js?v=0.4.2"></script>
-    <script>var $$ = mdui.JQ;</script>
+    <script src="./js/md5.js"></script>
+    <script>
+      var $$=mdui.JQ;
+
+      // Extend Cookie Function
+      $$.extend({
+        setCookie: function setCookie(name, value, days){
+          var exp = new Date();
+          exp.setTime(exp.getTime() + days*24*60*60*1000);
+          document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+        }, 
+        getCookie: function getCookie(){
+          var arr, reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+          if(arr=document.cookie.match(reg)){
+            return unescape(arr[2]);
+          }else return null;
+        }
+      });
+    </script>
+    <script type="text/javascript">
+        var UID=null, SID=null;
+        let SERVER = "http://127.0.0.1:50004";
+        $$(function(){
+          $$("#tab_user_button").trigger("click");
+          if ($$.getCookie("UID")!=null && $$.getCookie("SID")!=null){
+            UID = $$.getCookie("UID");
+            SID = $$.getCookie("SID");
+            console.log("UID:"+UID+"\n"+"SID:"+SID);
+          }else{
+            // Login Form
+            mdui.dialog({
+              title: 'Login',
+              content: '<div class="mdui-textfield">\
+                          <label class="mdui-textfield-label">E-Mail</label>\
+                          <input class="mdui-textfield-input" type="text" id="login_email"/>\
+                        </div>\
+                        <br>\
+                        <div class="mdui-textfield">\
+                          <label class="mdui-textfield-label">Password</label>\
+                          <input class="mdui-textfield-input" type="password" id="login_password"/>\
+                        </div>',
+              buttons: [
+                {
+                  text: '取消'
+                },
+                {
+                  text: '确认',
+                  onClick: function(inst){
+                    event.preventDefault();
+                    $$.ajax({
+                      method: 'GET',
+                      url: 'SERVER' + "/api/user/login",
+                      data: {
+                        email: $$("#login_email").val(),
+                        password: hex_md5($$("#login_password").val()),
+                      },
+                      success: function (data) {
+                        console.log(data);
+                      }
+                    });
+                  }
+                }
+              ]
+            });
+          }
+        });
+    </script>
   </body>
 </html>
