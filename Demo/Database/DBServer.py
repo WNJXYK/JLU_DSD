@@ -5,6 +5,7 @@ sys.path.append(sys.path[0] + "/..")
 import hashlib, sqlite3, time
 from flask import Flask, request, jsonify
 from flask_cors import *
+from Demo.Database import DBInit
 
 # Constant
 PATH = "./database.db"
@@ -13,6 +14,22 @@ PATH = "./database.db"
 api = Flask(__name__)
 CORS(api)
 
+def md5(s):
+    ret = hashlib.md5()
+    ret.update(s.encode("utf8"))
+    return ret.hexdigest()
+
+def db_connection(name, params, func):
+    try:
+        conn = sqlite3.connect(PATH)
+        c = conn.cursor()
+        return func(c, params)
+    except Exception as err:
+        print(name, err)
+        return jsonify({"status": -2, "msg": "Server Error"})
+    finally:
+        c.close()
+        conn.close()
 
 @api.route('/user/login', methods = ['GET', 'POST'])
 def user_login():
@@ -30,7 +47,7 @@ def user_login():
             email = request.form.get('email')
             password = request.form.get('password')
         if email is None or password is None:
-            return jsonify({"status": -1, "msg": "Incorrect Email or Password"})
+            return jsonify({"status": -1, "msg": "Invalid Request"})
 
         print("Login", email, password)
 
@@ -38,7 +55,7 @@ def user_login():
         res = cursor.fetchone()
 
         if res is None:
-            return jsonify({"status":-1, "msg":"Incorrect Email or Password"})
+            return jsonify({"status":-3, "msg":"Incorrect Email or Password"})
 
         UID, Authority, Nickname = res[0], res[1], res[2]
         SID = md5(str(time.time()) + password)
@@ -72,15 +89,14 @@ def user_verify():
             UID = request.form.get('UID')
             SID = request.form.get('SID')
         if UID is None or SID is None:
-            return jsonify({"status": -1, "msg": "Invalid User"})
+            return jsonify({"status": -1, "msg": "Invalid Request"})
 
         print("Verify", UID, SID)
 
         cursor = c.execute("SELECT UID, Authority, Nickname from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
 
-        if res is None:
-            return jsonify({"status":-1, "msg":"Invalid SID"})
+        if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
 
         UID, Authority, Nickname = res[0], res[1], res[2]
         return jsonify({"status": 0, "msg": "Valid User", "info": {"UID": UID, "Authority": Authority, "Nickname": Nickname}})
@@ -93,44 +109,46 @@ def user_verify():
         c.close()
         conn.close()
 
+@api.route('/user/room', methods = ['GET', 'POST'])
+def user_room():
+    def func(c, params):
+        if ("SID" not in params) or ("UID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID = params["SID"], params["UID"]
 
-# Database
-global conn
-conn = None
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
+        Authority = res[0]
 
-def md5(s):
-    ret = hashlib.md5()
-    ret.update(s.encode("utf8"))
-    return ret.hexdigest()
+        if Authority >= 3:
+            cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details FROM Room")
+        else:
+            cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details FROM Room \
+                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?)", (UID))
+        ret = []
+        while True:
+            res = cursor.fetchone()
+            if res is None: break
+            ret.append({"RID": res[0], "Nickname": res[1], "sCNT": res[2], "dCNT": res[3], "Details": res[4]})
 
+        return jsonify({"status": 0, "info": ret})
 
-def create():
-    global conn, PATH
-    conn = sqlite3.connect(PATH)
-
-    # Create User Table
-    c = conn.cursor()
-    c.execute('''CREATE TABLE User
-           (UID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-           Nickname TEXT NOT NULL,
-           Password TEXT NOT NULL,
-           Email TEXT NOT NULL,
-           SID TEXT,
-           Authority INT NOT NULL);
-           ''')
-    c.execute("INSERT INTO User (Nickname, Password, Email, SID, Authority) \
-            VALUES ('Administrator', '%s', 'wnjxyk@gmail.com', '%s', 4)" % (md5("admin"), md5(str(time.time()))))
-    conn.commit()
-
-    conn.close()
-
+    if request.method == 'GET':
+        return db_connection("Room", request.args.to_dict(), func)
+    if request.method == 'POST':
+        return db_connection("Room", request.form.to_dict(), func)
 
 def main():
-    print(md5("admin"))
+    print(DBInit.md5("admin"))
 
     global PATH, conn
     try:
-        if not os.path.isfile(PATH): create()
+        if not os.path.isfile(PATH):
+            DBInit.create_user_table()
+            DBInit.create_room_table()
+            DBInit.create_hardware_table()
+            DBInit.create_rHardware_table()
+            DBInit.create_rUser_table()
 
         # Init Server
         api.run(host='0.0.0.0', port=50001, threaded=True)

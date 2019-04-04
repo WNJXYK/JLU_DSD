@@ -33,6 +33,7 @@ function loginVerify(){
         SID: SID,
         UID: UID
       },
+      async: false,
       success: function (data) {
         let objs = JSON.parse(data);
         if (objs["status"]==0){
@@ -60,8 +61,7 @@ function loginDialog(){
                 <input class="mdui-textfield-input" type="password" id="login_password"/>\
               </div>',
     buttons: [
-      { text: 'Cancer',
-      	onClick: function(inst){ self.location.reload(); } 
+      { text: 'Cancel'
       },
       {
         text: 'Login',
@@ -120,7 +120,7 @@ function updateUserTab(){
 		    </div>\
 		    <!-- 用户登出操作 -->\
 		  	<!-- Logout -->\
-			  <div class="mdui-card-menu">\
+			  <div class="mdui-card-menu" mdui-tooltip="{content: \'Logout\'}">\
 			    <button class="mdui-btn mdui-btn-icon mdui-text-color-white" onclick="logout();"><i class="mdui-icon material-icons">&#xe14c;</i></button>\
 			  </div>\
 		  </div>\
@@ -141,6 +141,6 @@ function updateUserTab(){
 		</div>\
 	');
 
-	$$("#tab-user").html();
+	$$("#tab-user").html("");
 	$$("#tab-user").append(user_tab);
 }
