@@ -14,30 +14,39 @@ api = Flask(__name__)
 CORS(api)
 
 
-@api.route('/api/user/login', methods = ['GET'])
+@api.route('/user/login', methods = ['GET', 'POST'])
 def user_login():
+
     try:
         conn = sqlite3.connect(PATH)
         c = conn.cursor()
 
-        email = request.args.get('email')
-        password = request.args.get('password')
+        email = None
+        password = None
+        if request.method == 'GET':
+            email = request.args.get('email')
+            password = request.args.get('password')
+        if request.method == 'POST':
+            email = request.form.get('email')
+            password = request.form.get('password')
+        if email is None or password is None:
+            return jsonify({"status": -1, "msg": "Incorrect Email or Password"})
+
         print("Login", email, password)
 
-        cursor = c.execute("SELECT UID, Authority from User where Email=? and Password=?", (email, password))
+        cursor = c.execute("SELECT UID, Authority, Nickname from User where Email=? and Password=?", (email, password))
         res = cursor.fetchone()
 
         if res is None:
             return jsonify({"status":-1, "msg":"Incorrect Email or Password"})
 
-        UID = res[0]
-        Authority = res[1]
-        SID = md5(str(time.time()))
+        UID, Authority, Nickname = res[0], res[1], res[2]
+        SID = md5(str(time.time()) + password)
 
         c.execute("UPDATE User SET SID = '%s' WHERE UID = %d" % (SID, UID))
         conn.commit()
 
-        return jsonify({"status": 0, "msg": "Login", "info": {"UID": UID, "SID": SID, "Authority": Authority}})
+        return jsonify({"status": 0, "msg": "Login", "info": {"UID": UID, "SID": SID, "Authority": Authority, "Nickname": Nickname}})
 
     except Exception as err:
         print("Login", err)
@@ -48,26 +57,33 @@ def user_login():
         conn.close()
 
 
-@api.route('/api/user/verify', methods = ['GET'])
+@api.route('/user/verify', methods = ['GET', 'POST'])
 def user_verify():
     try:
         conn = sqlite3.connect(PATH)
         c = conn.cursor()
 
-        UID = request.args.get('UID')
-        SID = request.args.get('SID')
+        UID = None
+        SID = None
+        if request.method == 'GET':
+            UID = request.args.get('UID')
+            SID = request.args.get('SID')
+        if request.method == 'POST':
+            UID = request.form.get('UID')
+            SID = request.form.get('SID')
+        if UID is None or SID is None:
+            return jsonify({"status": -1, "msg": "Invalid User"})
+
         print("Verify", UID, SID)
 
-        cursor = c.execute("SELECT UID, Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT UID, Authority, Nickname from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
 
         if res is None:
-            return jsonify({"status":-1, "msg":"Invalid User"})
+            return jsonify({"status":-1, "msg":"Invalid SID"})
 
-        UID = res[0]
-        Authority = res[1]
-
-        return jsonify({"status": 0, "msg": "Valid User", "info": {"UID": UID, "Authority": Authority}})
+        UID, Authority, Nickname = res[0], res[1], res[2]
+        return jsonify({"status": 0, "msg": "Valid User", "info": {"UID": UID, "Authority": Authority, "Nickname": Nickname}})
 
     except Exception as err:
         print("Verify", err)
@@ -117,7 +133,7 @@ def main():
         if not os.path.isfile(PATH): create()
 
         # Init Server
-        api.run(host='0.0.0.0', port=50004, threaded=True)
+        api.run(host='0.0.0.0', port=50001, threaded=True)
     finally: conn.close()
 
 

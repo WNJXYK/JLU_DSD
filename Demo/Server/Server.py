@@ -6,6 +6,8 @@ from multiprocessing import Manager
 from flask import Flask, request, jsonify
 from flask_cors import *
 
+import urllib
+
 from Demo.Database import Database
 from Demo.Controller.Controller import Controller
 from Demo.Server.Hardware import Hardware
@@ -19,6 +21,7 @@ hardware = Hardware(manager)
 socket = Socket(manager, hardware)
 controller = Controller()
 iController = IController(hardware, controller, socket)
+DB_SERVER = "http://0.0.0.0:50001"
 
 # API Service
 api = Flask(__name__)
@@ -43,6 +46,31 @@ def api_command():
     return jsonify(iController.command(hid, uid, cmd))
 
 
+@api.route('/interface/<typ>/<task>', methods = ['GET', 'POST'])
+def redirect(typ, task):
+    global DB_SERVER
+    url = DB_SERVER + '/' + typ + '/' + task
+
+    if request.method == 'GET':
+        data = urllib.parse.urlencode(request.args.to_dict())
+        header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'}
+        req = urllib.request.Request(url='%s%s%s' % (url, '?', data), headers=header_dict)
+        res = urllib.request.urlopen(req)
+        res = res.read()
+        return res
+
+    if request.method == 'POST':
+        data = urllib.parse.urlencode(request.form.to_dict()).encode(encoding='utf-8')
+        header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
+        req = urllib.request.Request(url=url, data=data, headers=header_dict)
+        res = urllib.request.urlopen(req)
+        res = res.read()
+        return res
+
+    return "Access Denied."
+
+
+
 def main():
     # Virtual Init Database
     Database.virtual_init()
@@ -63,6 +91,6 @@ def main():
     iController.heartbeat(5)
 
     # Init API
-    api.run(host = '0.0.0.0', port = 50000, threaded=True)
+    api.run(host = '0.0.0.0', port = 443, threaded=True)
 
 if __name__ == '__main__': main()
