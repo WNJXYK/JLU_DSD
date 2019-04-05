@@ -18,7 +18,7 @@
         <a href="javascript:;" class="mdui-typo-headline">Intelligent Hardware</a>
         <div class="mdui-toolbar-spacer"></div>
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon" onclick="getRoom();"><i class="mdui-icon material-icons">refresh</i></a>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
         <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
       </div>
       <!-- 分页栏 -->
@@ -44,7 +44,8 @@
         <i class="mdui-icon mdui-fab-opened material-icons">&#xe5d8;</i>
       </button>
       <div class="mdui-fab-dial">
-        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-green"><i class="mdui-icon material-icons">&#xe5d5;</i></button>
+        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-blue" onclick="modifyRoomDelta();"><i class="mdui-icon material-icons">&#xe8b8;</i></button>
+        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-green" onclick="updateRoomPage();"><i class="mdui-icon material-icons">&#xe5d5;</i></button>
       </div>
     </div>
 
@@ -52,13 +53,15 @@
       <div class="mdui-row">
         <div class="mdui-col-xs-12 mdui-col-sm-8 mdui-col-md-6 mdui-col-offset-sm-2 mdui-col-offset-md-3">
           <div id="tab-room" class="mdui-p-a-2">
-            <div class="mdui-col">
-              <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple">block</button>
+            <div class="mdui-row-xs-3">
+              <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="prevRoomPage();">Prev</button></div>
+              <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="room-info" disabled>...</button></div>
+              <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="nextRoomPage();">Next</button></div>
             </div>
             <br>
             <div class="mdui-divider"></div>
             <br>
-            <ul class="mdui-list">
+            <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}">
               <li class="mdui-list-item mdui-ripple">
                 <div class="mdui-list-item-content">
                   <div class="mdui-list-item-title">Brunch this weekend?</div>
@@ -94,6 +97,7 @@
         </div>
       </div>
     </div>
+
     <script src="./js/mdui.min.js?v=0.4.2"></script>
     <script>
       var $$=mdui.JQ;
@@ -101,18 +105,18 @@
       var SERVER = "http://127.0.0.1:443";
     </script>
 
-    <script src="./js/md5.js"></script>
+    <script src="./js/utils/md5.js"></script>
     <script src="./js/utils/cookie.js"></script>
-    <script src="./js/user/login.js"></script>
-    <script src="./js/user/room.js"></script>
+    <script src="./js/web/login.js"></script>
+    <script src="./js/web/room.js"></script>
 
     <script type="text/javascript">
         $$(function(){
           loginWelcome();
-
+          
+          // 给导航 TAB 增加监听事件
           document.getElementById('nav-tab').addEventListener('change.mdui.tab', function (event) {
             let idx = event._detail.index;
-            console.log(idx);
             changeTabForRoom(idx);
           });
         });

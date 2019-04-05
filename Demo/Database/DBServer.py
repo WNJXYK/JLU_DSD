@@ -114,29 +114,72 @@ def user_room():
     def func(c, params):
         if ("SID" not in params) or ("UID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID = params["SID"], params["UID"]
+        Offset, Delta = 0, 10
+        if "Offset" in params: Offset = params["Offset"]
+        if "Delta" in params: Delta = params["Delta"]
 
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
         Authority = res[0]
 
+        cnt = 0
         if Authority >= 3:
-            cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details FROM Room")
+            cursor = c.execute("SELECT COUNT(*) FROM Room")
+        else:
+            cursor = c.execute("SELECT COUNT(*) FROM Room \
+                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?)", (UID))
+        cnt = cursor.fetchone()[0]
+
+        if Authority >= 3:
+            cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details FROM Room LIMIT ? OFFSET ?", (Delta, Offset))
         else:
             cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details FROM Room \
-                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?)", (UID))
+                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?) LIMIT ? OFFSET ?", (UID, Delta, Offset))
         ret = []
         while True:
             res = cursor.fetchone()
             if res is None: break
             ret.append({"RID": res[0], "Nickname": res[1], "sCNT": res[2], "dCNT": res[3], "Details": res[4]})
 
-        return jsonify({"status": 0, "info": ret})
+        auth = 0
+        if Authority == 4: auth = 1
+
+        return jsonify({"status": 0, "info": {"arr":ret, "cnt":cnt, "allow": auth}})
 
     if request.method == 'GET':
         return db_connection("Room", request.args.to_dict(), func)
     if request.method == 'POST':
         return db_connection("Room", request.form.to_dict(), func)
+
+
+@api.route('/user/modify_room', methods = ['GET', 'POST'])
+def user_modify_room():
+    def func(c, params):
+        if ("SID" not in params) or ("UID" not in params) or ("RID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, RID = params["SID"], params["UID"], params["UID"]
+        Delete, Details = 0, None
+        if "Delete" in params: Delete = params["Offset"]
+        if "Details" in params: Details = params["Delta"]
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < 4: return jsonify({"status": -4, "msg": "Invalid Authority"})
+
+        if Delete == 1:
+            cursor = c.execute("DELETE from Room where RID=?", (RID))
+            conn.commit()
+        elif Details is not None:
+            cursor = c.execute("UPDATE Room set Details = ? where RID=?", (Details, RID))
+            conn.commit()
+
+        return jsonify({"status": 0, "info": conn.total_changes})
+
+    if request.method == 'GET':
+        return db_connection("Modify_Room", request.args.to_dict(), func)
+    if request.method == 'POST':
+        return db_connection("Modify_Room", request.form.to_dict(), func)
 
 def main():
     print(DBInit.md5("admin"))

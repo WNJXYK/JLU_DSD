@@ -8,10 +8,8 @@ function loginWelcome(){
   if (UID!=null && SID!=null){
     mdui.snackbar({message: 'Welcome ' + Nickname});
     updateUserTab();
-  }else{
-    $$("#tab_user_button").trigger("click");
-    loginDialog();
-  }
+  }else loginDialog();
+  $$("#tab_user_button").trigger("click");
 }
 
 // 检验用户登陆状态
