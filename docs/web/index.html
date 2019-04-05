@@ -44,7 +44,8 @@
         <i class="mdui-icon mdui-fab-opened material-icons">&#xe5d8;</i>
       </button>
       <div class="mdui-fab-dial">
-        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-blue" onclick="modifyRoomDelta();"><i class="mdui-icon material-icons">&#xe8b8;</i></button>
+        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-red" onclick="addRoomDialog();"><i class="mdui-icon material-icons">&#xe145;</i></button>
+        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-blue" onclick="modifyRoomDeltaDialog();"><i class="mdui-icon material-icons">&#xe8b8;</i></button>
         <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-green" onclick="updateRoomPage();"><i class="mdui-icon material-icons">&#xe5d5;</i></button>
       </div>
     </div>
@@ -58,33 +59,8 @@
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="room-info" disabled>...</button></div>
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="nextRoomPage();">Next</button></div>
             </div>
-            <br>
-            <div class="mdui-divider"></div>
-            <br>
-            <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}">
-              <li class="mdui-list-item mdui-ripple">
-                <div class="mdui-list-item-content">
-                  <div class="mdui-list-item-title">Brunch this weekend?</div>
-                  <div class="mdui-list-item-text mdui-list-item-one-line"><span class="mdui-text-color-theme-text">All Connors</span> - I'll be in your neighborhood ...</div>
-                </div>
-              </li>
-              <li class="mdui-divider-inset mdui-m-y-0"></li>
-              <li class="mdui-list-item mdui-ripple">
-
-                <div class="mdui-list-item-content">
-                  <div class="mdui-list-item-title">Summer BBQ</div>
-                  <div class="mdui-list-item-text mdui-list-item-one-line"><span class="mdui-text-color-theme-text">to Alex, Scott, Jennifer</span> - Wish I could ...</div>
-                </div>
-              </li>
-              <li class="mdui-divider-inset mdui-m-y-0"></li>
-              <li class="mdui-list-item mdui-ripple">
-
-                <div class="mdui-list-item-content">
-                  <div class="mdui-list-item-title">Oui oui</div>
-                  <div class="mdui-list-item-text mdui-list-item-one-line"><span class="mdui-text-color-theme-text">Sandra Adams</span> - Do you have Paris reco ...</div>
-                </div>
-              </li>
-            </ul>
+            <br><div class="mdui-divider"></div><br>
+            <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}"></ul>
           </div>
           <div id="tab2" class="mdui-p-a-2">
             <p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p>

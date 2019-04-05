@@ -23,10 +23,11 @@ def db_connection(name, params, func):
     try:
         conn = sqlite3.connect(PATH)
         c = conn.cursor()
-        return func(c, params)
+        ret = func(c, conn, params)
+        return ret
     except Exception as err:
         print(name, err)
-        return jsonify({"status": -2, "msg": "Server Error"})
+        return jsonify({"status": -2, "msg": "Server Error : " + str(err)})
     finally:
         c.close()
         conn.close()
@@ -111,7 +112,7 @@ def user_verify():
 
 @api.route('/user/room', methods = ['GET', 'POST'])
 def user_room():
-    def func(c, params):
+    def func(c, conn, params):
         if ("SID" not in params) or ("UID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID = params["SID"], params["UID"]
         Offset, Delta = 0, 10
@@ -143,7 +144,7 @@ def user_room():
             ret.append({"RID": res[0], "Nickname": res[1], "sCNT": res[2], "dCNT": res[3], "Details": res[4]})
 
         auth = 0
-        if Authority == 4: auth = 1
+        if Authority >= 3: auth = 1
 
         return jsonify({"status": 0, "info": {"arr":ret, "cnt":cnt, "allow": auth}})
 
@@ -155,31 +156,56 @@ def user_room():
 
 @api.route('/user/modify_room', methods = ['GET', 'POST'])
 def user_modify_room():
-    def func(c, params):
+    def func(c, conn, params):
         if ("SID" not in params) or ("UID" not in params) or ("RID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
-        SID, UID, RID = params["SID"], params["UID"], params["UID"]
+        SID, UID, RID = params["SID"], params["UID"], params["RID"]
         Delete, Details = 0, None
-        if "Delete" in params: Delete = params["Offset"]
-        if "Details" in params: Details = params["Delta"]
+        if "Delete" in params: Delete = int(params["Delete"])
+        if "Details" in params: Details = params["Details"]
+        print(Details, Delete)
 
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
-        if res[0] < 4: return jsonify({"status": -4, "msg": "Invalid Authority"})
+        if res[0] < 3: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         if Delete == 1:
             cursor = c.execute("DELETE from Room where RID=?", (RID))
+            cursor = c.execute("DELETE from rUser where RID=?", (RID))
+            cursor = c.execute("DELETE from rHardware where RID=?", (RID))
             conn.commit()
         elif Details is not None:
             cursor = c.execute("UPDATE Room set Details = ? where RID=?", (Details, RID))
             conn.commit()
-
         return jsonify({"status": 0, "info": conn.total_changes})
 
     if request.method == 'GET':
         return db_connection("Modify_Room", request.args.to_dict(), func)
     if request.method == 'POST':
         return db_connection("Modify_Room", request.form.to_dict(), func)
+
+@api.route('/user/add_room', methods = ['GET', 'POST'])
+def user_add_room():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params) or ("Nickname" not in params) or ("Details" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, Nickname, Details = params["SID"], params["UID"], params["Nickname"], params["Details"]
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < 3: return jsonify({"status": -4, "msg": "Invalid Authority"})
+
+        sql = "INSERT INTO Room (Nickname, SensorCNT, DeviceCNT, Details) VALUES ('%s', 0, 0, '%s')" %(str(Nickname), str(Details))
+        print(sql)
+        c.execute(sql)
+
+        conn.commit()
+        return jsonify({"status": 0, "info": conn.total_changes})
+
+    if request.method == 'GET':
+        return db_connection("Add_Room", request.args.to_dict(), func)
+    if request.method == 'POST':
+        return db_connection("Add_Room", request.form.to_dict(), func)
 
 def main():
     print(DBInit.md5("admin"))
