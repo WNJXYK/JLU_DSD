@@ -50,6 +50,7 @@
       </div>
     </div>
 
+    <!-- 应用内容 -->
     <div class="mdui-container-fluid">
       <div class="mdui-row">
         <div class="mdui-col-xs-12 mdui-col-sm-8 mdui-col-md-6 mdui-col-offset-sm-2 mdui-col-offset-md-3">
@@ -63,9 +64,6 @@
             <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}"></ul>
           </div>
           <div id="tab2" class="mdui-p-a-2">
-            <p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p>
-            <p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p>
-            <p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p><p>test</p>
           </div>
           <div id="tab-user" class="mdui-p-a-2">
             <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="loginDialog();">Please, Login</button></div>
@@ -88,6 +86,7 @@
 
     <script type="text/javascript">
         $$(function(){
+          // 初始登陆检查
           loginWelcome();
           
           // 给导航 TAB 增加监听事件
@@ -95,6 +94,9 @@
             let idx = event._detail.index;
             changeTabForRoom(idx);
           });
+
+          // 定时更新硬件信息
+          updateHardwareTimer();
         });
     </script>
   </body>

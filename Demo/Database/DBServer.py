@@ -32,6 +32,7 @@ def db_connection(name, params, func):
         c.close()
         conn.close()
 
+# 用户登陆
 @api.route('/user/login', methods = ['GET', 'POST'])
 def user_login():
 
@@ -75,6 +76,7 @@ def user_login():
         conn.close()
 
 
+# 用户验证登陆状态
 @api.route('/user/verify', methods = ['GET', 'POST'])
 def user_verify():
     try:
@@ -110,6 +112,7 @@ def user_verify():
         c.close()
         conn.close()
 
+# 获取用户可查看房间
 @api.route('/user/room', methods = ['GET', 'POST'])
 def user_room():
     def func(c, conn, params):
@@ -153,7 +156,7 @@ def user_room():
     if request.method == 'POST':
         return db_connection("Room", request.form.to_dict(), func)
 
-
+# 修改房间
 @api.route('/user/modify_room', methods = ['GET', 'POST'])
 def user_modify_room():
     def func(c, conn, params):
@@ -170,20 +173,19 @@ def user_modify_room():
         if res[0] < 3: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         if Delete == 1:
-            cursor = c.execute("DELETE from Room where RID=?", (RID))
-            cursor = c.execute("DELETE from rUser where RID=?", (RID))
-            cursor = c.execute("DELETE from rHardware where RID=?", (RID))
+            c.execute("DELETE from Room where RID=?", (RID))
+            c.execute("DELETE from rUser where RID=?", (RID))
+            c.execute("DELETE from rHardware where RID=?", (RID))
             conn.commit()
         elif Details is not None:
-            cursor = c.execute("UPDATE Room set Details = ? where RID=?", (Details, RID))
+            c.execute("UPDATE Room set Details = ? where RID=?", (Details, RID))
             conn.commit()
         return jsonify({"status": 0, "info": conn.total_changes})
 
-    if request.method == 'GET':
-        return db_connection("Modify_Room", request.args.to_dict(), func)
-    if request.method == 'POST':
-        return db_connection("Modify_Room", request.form.to_dict(), func)
+    if request.method == 'GET': return db_connection("Modify_Room", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Modify_Room", request.form.to_dict(), func)
 
+# 增加房间
 @api.route('/user/add_room', methods = ['GET', 'POST'])
 def user_add_room():
     def func(c, conn, params):
@@ -202,26 +204,52 @@ def user_add_room():
         conn.commit()
         return jsonify({"status": 0, "info": conn.total_changes})
 
-    if request.method == 'GET':
-        return db_connection("Add_Room", request.args.to_dict(), func)
-    if request.method == 'POST':
-        return db_connection("Add_Room", request.form.to_dict(), func)
+    if request.method == 'GET': return db_connection("Add_Room", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Add_Room", request.form.to_dict(), func)
+
+# 查询房间硬件
+@api.route('/user/hardware', methods = ['GET', 'POST'])
+def user_hardware():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params) or ("RID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, RID = params["SID"], params["UID"], params["RID"]
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < 3:
+            cursor = c.execute("SELECT * rUser from User where UID=? and RID=?", (UID, RID))
+            res = cursor.fetchone()
+            if res is None: return jsonify({"status": -4, "msg": "Invalid Authority"})
+
+        cursor = c.execute("SELECT HID, Nickname, Type, Ctrl FROM Hardware\
+                  WHERE HID IN (SELECT HID FROM rHardware WHERE RID=?)", (RID))
+
+        ret = []
+        while True:
+            res = cursor.fetchone()
+            if res is None: break
+            ret.append({"HID": res[0], "Nickname": res[1], "Type": res[2], "Ctrl": res[3]})
+
+        conn.commit()
+        return jsonify({"status": 0, "info": ret})
+
+    if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
+
 
 def main():
-    print(DBInit.md5("admin"))
+    # Init DB
+    if not os.path.isfile(PATH):
+        DBInit.create_user_table()
+        DBInit.create_room_table()
+        DBInit.create_hardware_table()
+        DBInit.create_rHardware_table()
+        DBInit.create_rUser_table()
 
-    global PATH, conn
-    try:
-        if not os.path.isfile(PATH):
-            DBInit.create_user_table()
-            DBInit.create_room_table()
-            DBInit.create_hardware_table()
-            DBInit.create_rHardware_table()
-            DBInit.create_rUser_table()
+    # Init Server
+    api.run(host='0.0.0.0', port=50001, threaded=True)
 
-        # Init Server
-        api.run(host='0.0.0.0', port=50001, threaded=True)
-    finally: conn.close()
 
 
 

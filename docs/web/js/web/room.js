@@ -1,7 +1,9 @@
-var ROOM_LOCATION = "/interface/user/room";
+var ROOM = "/interface/user/room";
 var ROOM_MODIFY = "/interface/user/modify_room";
 var ROOM_ADD = "/interface/user/add_room";
+var HARDWARE = "/interface/user/hardware";
 var room_fab = new mdui.Fab('#fab-room');
+
 
 // 分页功能
 var room_offset = 0, room_delta = 1, room_count = 0, room_page=0, room_total_page = 0;
@@ -158,7 +160,7 @@ function updateRoomPage(){
   // 发送请求
   $$.ajax({
     method: 'POST',
-    url: SERVER + ROOM_LOCATION,
+    url: SERVER + ROOM,
     data: {
       SID: SID,
       UID: UID,
@@ -178,7 +180,7 @@ function updateRoomPage(){
         $$("#room-list").html("");
         for (var i=0; i<arr.length; ++i){
           let item = $$('<li class="mdui-list-item mdui-ripple">\
-                <div class="mdui-list-item-content">\
+                <div class="mdui-list-item-content" onclick="openHardwarePage(' + arr[i]['RID'] + ');">\
                   <div class="mdui-list-item-title">' + arr[i]["Nickname"]+ '</div>\
                   <div class="mdui-list-item-text mdui-list-item-one-line">' + 'Room ID: ' + arr[i]['RID'] + ' | Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</div>\
                   <div class="mdui-list-item-text mdui-list-item-one-line">' + 'Description: ' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"])+ '</div>\
@@ -194,7 +196,7 @@ function updateRoomPage(){
                 <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Room ID: ' + arr[i]['RID'] + '</li>\
                   <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</li>\
                   <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Description: ' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"])+ '</li>\
-                  <li class="mdui-list-item mdui-ripple">View & Modify Hardwares</li>\
+                  <li class="mdui-list-item mdui-ripple" onclick="openHardwarePage(' + arr[i]['RID'] + ');">View & Modify Hardwares</li>\
                   <li class="mdui-list-item mdui-ripple" onclick="modifyRoomDescriptionDialog(' + arr[i]['RID'] + ');">Modify Description</li>\
                   <li class="mdui-list-item mdui-ripple" onclick="deleteRoomDialog(' + arr[i]['RID'] + ');">Delete Room</li>\
                 </ul>\

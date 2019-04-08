@@ -29,6 +29,8 @@ def create_user_table():
             VALUES ('管理员', '%s', 'admin@gmail.com', '%s', 4)" % (md5("admin"), md5(str(time.time()))))
     c.execute("INSERT INTO User (Nickname, Password, Email, SID, Authority) \
                 VALUES ('喂你脚下有坑', '%s', 'wnjxyk@gmail.com', '%s', 2)" % (md5("wnjxyk"), md5(str(time.time()))))
+    c.execute("INSERT INTO User (Nickname, Password, Email, SID, Authority) \
+                    VALUES ('老师', '%s', 'teacher@gmail.com', '%s', 3)" % (md5("teacher"), md5(str(time.time()))))
     conn.commit()
 
     conn.close()
@@ -43,16 +45,14 @@ def create_room_table():
     c.execute('''CREATE TABLE Room
            (RID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
            Nickname TEXT NOT NULL,
-           SensorCNT INTEGER NOT NULL,
-           DeviceCNT INTEGER NOT NULL,
+           SensorCNT INTEGER,
+           DeviceCNT INTEGER,
            Details TEXT);
            ''')
 
     # Add Init Info
-    c.execute("INSERT INTO Room (Nickname, SensorCNT, DeviceCNT) \
-            VALUES ('Zero', 0, 1)")
-    c.execute("INSERT INTO Room (Nickname, SensorCNT, DeviceCNT) \
-                VALUES ('NULL', 0, 0)")
+    c.execute("INSERT INTO Room (Nickname, Details) VALUES ('Zero', '树莓派测试房间')")
+    c.execute("INSERT INTO Room (Nickname, Details) VALUES ('Computer', '电脑控制房间')")
     conn.commit()
 
     conn.close()
@@ -72,8 +72,9 @@ def create_hardware_table():
                ''')
 
     # Add Init Info
-    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) \
-                VALUES ('Raspi', '测试小灯', 'Light', 1)")
+    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('raspi', '测试小灯', 'Light', 1)")
+    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('qwerty', '寝室灯', 'Light', 1)")
+    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('popoqqq', '寝室摄像头', 'CameraSensor', 0)")
     conn.commit()
 
     conn.close()
@@ -91,8 +92,7 @@ def create_rUser_table():
                FOREIGN KEY (UID) REFERENCES User(UID),
                FOREIGN KEY (RID) REFERENCES Room(RID));
                ''')
-    c.execute("INSERT INTO rUser (RID, UID) \
-                VALUES (1, 2)")
+    c.execute("INSERT INTO rUser (RID, UID) VALUES (1, 2)")
     conn.commit()
 
     conn.close()
@@ -111,8 +111,9 @@ def create_rHardware_table():
                FOREIGN KEY (HID) REFERENCES Hardware(HID));
                ''')
     # Add Init Info
-    c.execute("INSERT INTO rHardware (HID, RID) \
-                VALUES ('Raspi', 1)")
+    c.execute("INSERT INTO rHardware (HID, RID) VALUES ('raspi', 1)")
+    c.execute("INSERT INTO rHardware (HID, RID) VALUES ('popoqqq', 2)")
+    c.execute("INSERT INTO rHardware (HID, RID) VALUES ('qwerty', 2)")
     conn.commit()
 
     conn.close()
