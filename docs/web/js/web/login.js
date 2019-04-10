@@ -57,6 +57,7 @@ function setServerDialog(){
         text: 'Confirm',
         onClick: function(inst){
           SERVER = $$("#Server-Input").val();
+          $$.setCookie("SERVER", SERVER, 365*100);
         }
       }
     ]

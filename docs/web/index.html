@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="renderer" content="webkit">
     <meta http-equiv="Cache-Control" content="no-siteapp"/>
-    <title>文档 - MDUI 开发文档, Material Design 前端框架</title>
+    <title>Intelligence Hardware</title>
     <link rel="stylesheet" href="./css/mdui.min.css?v=0.4.2"/>
   </head>
   <body class="mdui-appbar-with-toolbar mdui-appbar-with-tab-larger mdui-theme-primary-indigo mdui-theme-accent-pink">
@@ -63,7 +63,6 @@
             <br><div class="mdui-divider"></div><br>
             <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}"></ul>
           </div>
-          </div>
           <div id="tab-user" class="mdui-p-a-2">
             <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="loginDialog();">Please, Login</button></div>
           </div>
@@ -72,14 +71,7 @@
     </div>
 
     <script src="./js/mdui.min.js?v=0.4.2"></script>
-    <script>
-      var $$=mdui.JQ;
-      var SERVER = "http://127.0.0.1:443";
-      // Account
-      var UID=null, SID=null, Authority=null, Email=null, Nickname=null;
-      // Building
-      var BuildingName="All buildings", BuildingID=0;
-    </script>
+    <script>var $$=mdui.JQ;</script>
 
     <script src="./js/utils/md5.js"></script>
     <script src="./js/utils/cookie.js"></script>
@@ -87,6 +79,16 @@
     <script src="./js/web/room.js"></script>
     <script src="./js/web/building.js"></script>
     <script src="./js/web/hardware.js"></script>
+
+    <script>
+      var $$=mdui.JQ;
+      var SERVER = $$.getCookie("SERVER");
+      if (SERVER==null) SERVER = "http://127.0.0.1:443";
+      // Account
+      var UID=null, SID=null, Authority=null, Email=null, Nickname=null;
+      // Building
+      var BuildingName="All buildings", BuildingID=0;
+    </script>
 
     <script type="text/javascript">
         $$(function(){
