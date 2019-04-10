@@ -34,6 +34,7 @@ class Light(Hardware):
         :param cmd_str: 指令 / Command
         '''
         cmd = json.loads(cmd_str)
+        print(cmd)
 
         goal = None
         if cmd['data'] == 'on':

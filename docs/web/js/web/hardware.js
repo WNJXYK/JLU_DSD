@@ -25,7 +25,10 @@ function solveCheckbox(HID, ID, type){
         var objs = JSON.parse(data);
         if (objs["status"]==0){
           mdui.snackbar({message: "Command Sent"});
-        }else mdui.snackbar({message: objs["msg"]});
+        }else {
+          mdui.snackbar({message: objs["msg"]});
+          refreshHardwareDialog();
+        }
       }
     });
 }
@@ -102,7 +105,7 @@ function refreshHardwareDialog() {
 
 // 定时更新硬件信息
 function updateHardwareTimer(){
-  var t1=window.setInterval(refreshHardwareDialog, 5000);
+  var t1=window.setInterval(refreshHardwareDialog, 1000);
 }
 
 // 打开硬件页
@@ -143,7 +146,7 @@ function viewHardwareDialog(RID){
         mdui.dialog({
           title: '<div class="mdui-row-xs-1">\
                       <div class="mdui-col">\
-                        <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="refreshHardwareInfo();">Hardware List (Refresh)</button>\
+                        <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="refreshHardwareDialog();">Hardware List (Refresh)</button>\
                       </div>\
                     </div>',
           content: list.html()

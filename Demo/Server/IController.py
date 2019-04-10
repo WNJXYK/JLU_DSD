@@ -92,6 +92,8 @@ class IController(object):
 
         # 不允许用户操作传感器 / User cannot operator a sensor
         info = self.db.getHardware(hid)
+        flag = False
+        message = "No Device"
 
         if info["ctrl"] != 1 :
             return { "status": -1, "msg": "You can not operate a sensor."}
@@ -100,7 +102,6 @@ class IController(object):
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
         rooms = self.db.getRoomRID(hid);
-
 
         # 获取用户信息 / Get User Info
         user = self.db.getUser(uid)
@@ -118,12 +119,15 @@ class IController(object):
             }
 
             # 控制 / Control
-            msg = self.controller.Cmd(param)
+            msg, flag, message = self.controller.Cmd(param)
 
             # 向设备发送控制信号 / Send a signal to hardware
-            for device in devices: self.socket.outQue.put((device["hid"], msg))
 
-        return {"status": 0, "msg": "Message sent."}
+            for device in devices:
+                print(device["hid"], msg)
+                self.socket.outQue.put((device["hid"], msg))
+
+        return {"status": (0 if flag else -1), "msg": message}
 
     def heartbeat_thread(self, duration):
         '''
