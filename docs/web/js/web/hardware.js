@@ -8,11 +8,11 @@ function updateHardwareTimer(){
     var list = device_list.slice(0);
     device_list = []
     for (var i=0; i<list.length; i++){
-      if ($$("#HD-"+list[i]).length>0){
+      if ($$("#"+list[i]["ID"]).length>0){
         device_list.push(list[i]);
+        // updateHardware(list[i]["HID"], "#"+list[i]["ID"], list[i]["Type"]);
       }
     }
-    console.log("ready");
   }
 }
 
@@ -37,15 +37,16 @@ function openHardwarePage(RID){
               list.append($$('<li class="mdui-list-item mdui-ripple">\
                     <div class="mdui-list-item-content">' + arr[i]["Nickname"] + ' (' + arr[i]["HID"] + ') - ' + arr[i]["Type"] + '</div>\
                     <label class="mdui-switch">\
-                      <input type="checkbox" checked id="HD-' + arr[i]["HID"] + '"/>\
+                      <input type="checkbox" checked id="HC-' + arr[i]["HID"] + '"/>\
                       <i class="mdui-switch-icon"></i>\
                     </label>\
                   </li>'));
-              device_list.push(arr[i]["HID"]);
+              device_list.push({"HID": arr[i]["HID"], "ID": "HC-" + arr[i]["HID"], "Type" : 1});
           }else{
             list.append($$('<li class="mdui-list-item mdui-ripple">\
-                 <div class="mdui-list-item-content">' + arr[i]["Nickname"] +' ('+arr[i]["HID"] + ') - ' + arr[i]["Type"] + '</div>\
+                 <div class="mdui-list-item-content" id="HV-' + arr[i]["HID"] + '">' + arr[i]["Nickname"] +' ('+arr[i]["HID"] + ') - ' + arr[i]["Type"] + '</div>\
                </li>'));
+            device_list.push({"HID": arr[i]["HID"], "ID": "HV-" + arr[i]["HID"], "Type" : 0});
           }
         }
         // 生成对话框

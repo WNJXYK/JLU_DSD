@@ -54,17 +54,20 @@ function prevRoomPage(){
   }else mdui.snackbar({message: 'This is the first page.'});
 }
 
-function modifyRoomDescriptionDialog(RID){
+function modifyRoomDescriptionDialog(RID, DES, BID){
   mdui.dialog({
-    title: 'Room ' + RID + '\'s Description',
+    title: 'Modify Room ' + RID,
     content: '<div class="mdui-textfield">\
-                <input class="mdui-textfield-input" type="text" id="room-description"/>\
+                <label class="mdui-textfield-label">Description</label>\
+                <input class="mdui-textfield-input" type="text" id="room-description" value="' + DES + '"/>\
+                <label class="mdui-textfield-label">Building it belongs</label>\
+                <input class="mdui-textfield-input" type="text" id="room-building" value="' + BID + '"/>\
               </div>',
     buttons: [
       { text: 'Cancel'},
       {
         text: 'Confirm',
-        onClick: function(inst){ modifyRoom(RID, $$("#room-description").val(), 0); }
+        onClick: function(inst){ modifyRoom(RID, $$("#room-description").val(), $$("#room-building").val(), 0); }
       }
     ]
   });
@@ -77,20 +80,22 @@ function deleteRoomDialog(RID){
       { text: 'Cancel'},
       {
         text: 'Confirm',
-        onClick: function(inst){ modifyRoom(RID, null, 1); }
+        onClick: function(inst){ modifyRoom(RID, null, null, 1); }
       }
     ]
   });
 }
 
-function modifyRoom(RID, des, del){
+function modifyRoom(RID, des, buildings, del){
   data_pack = {
     SID: SID,
     UID: UID,
     RID: RID
   };
   if (des != null) data_pack["Details"] = des;
+  if (buildings != null) data_pack["BID"] = parseInt(buildings);
   if (del == 1) data_pack["Delete"] = 1;
+  console.log(data_pack)
   // 发送请求
   $$.ajax({
     method: 'POST',
@@ -165,7 +170,8 @@ function updateRoomPage(){
       SID: SID,
       UID: UID,
       Offset: room_offset,
-      Delta: room_delta
+      Delta: room_delta,
+      BID: BuildingID
     },
     success: function (data) {
       var objs = JSON.parse(data);
@@ -174,7 +180,8 @@ function updateRoomPage(){
         room_count = objs["info"]["cnt"];
         room_total_page = parseInt((room_count+room_delta-1)/room_delta);
         // 更新房间标签
-        $$("#room-info").html('Page: '+(room_page+1)+'/' + room_total_page);
+        $$("#building-info").html('Building: ' + BuildingName);
+        $$("#room-info").html('Page: '+(room_page+1) + '/' + room_total_page);
         // 更新显示房间信息
         arr = objs["info"]["arr"];
         $$("#room-list").html("");
@@ -194,10 +201,11 @@ function updateRoomPage(){
                 </div>\
                 <ul class="mdui-collapse-item-body mdui-list mdui-list-dense">\
                 <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Room ID: ' + arr[i]['RID'] + '</li>\
-                  <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</li>\
+                <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Belongs to Building: ' + arr[i]['BID'] + '</li>\
+                  <!--li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</li-->\
                   <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Description: ' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"])+ '</li>\
                   <li class="mdui-list-item mdui-ripple" onclick="openHardwarePage(' + arr[i]['RID'] + ');">View & Modify Hardwares</li>\
-                  <li class="mdui-list-item mdui-ripple" onclick="modifyRoomDescriptionDialog(' + arr[i]['RID'] + ');">Modify Description</li>\
+                  <li class="mdui-list-item mdui-ripple" onclick="modifyRoomDescriptionDialog(' + arr[i]['RID'] + ',\'' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"]) +'\',' + arr[i]['BID'] + ');">Modify Room</li>\
                   <li class="mdui-list-item mdui-ripple" onclick="deleteRoomDialog(' + arr[i]['RID'] + ');">Delete Room</li>\
                 </ul>\
               </li>');

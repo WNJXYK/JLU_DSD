@@ -13,14 +13,16 @@ from Demo.Controller.Controller import Controller
 from Demo.Server.Hardware import Hardware
 from Demo.Server.IController import IController
 from Demo.Server.Socket import Socket
+from Demo.Server.IDatabase import IDatabase
 
 
 # Global
 manager = Manager()
+db = IDatabase()
 hardware = Hardware(manager)
 socket = Socket(manager, hardware)
 controller = Controller()
-iController = IController(hardware, controller, socket)
+iController = IController(hardware, controller, socket, db)
 DB_SERVER = "http://0.0.0.0:50001"
 
 # API Service

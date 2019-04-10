@@ -1,5 +1,4 @@
 from threading import Thread
-from Demo.Database import Database
 import time
 
 
@@ -9,10 +8,11 @@ class IController(object):
     Interface between controller and server
     '''
 
-    def __init__(self, hardware, controller, socket):
+    def __init__(self, hardware, controller, socket, idb):
         self.hardware = hardware
         self.controller = controller
         self.socket = socket
+        self.db = idb
 
         # 监听硬件消息线程 / A thread that listening message from hardware
         thread = Thread(target=self.report_thread)
@@ -34,13 +34,18 @@ class IController(object):
         :param rid: 房间编号 / Room ID
         :returns: 传感器数据列表, 设备编号 / Sensors's data list, Device ID
         '''
-        hardware_list = Database.get_hardwareList(rid)
-        device_id = Database.get_roomDevice(rid)
+        # hardware_list = Database.get_hardwareList(rid)
+        # device_id = Database.get_roomDevice(rid)
+        # print("S",rid, self.db.getSensor(rid), hardware_list)
+        # print("D",rid, self.db.getDevice(rid))
+        hardware_list = list(self.db.getSensor(rid))
+        device_id = list(self.db.getDevice(rid))
         sensors = []
+
         for hid in hardware_list:
             if device_id == hid : continue
             sensors.append(self.hardware.get(hid))
-        return sensors, device_id
+        return sensors, device_id[0]
 
     def report(self, hid):
         '''
@@ -49,12 +54,13 @@ class IController(object):
         '''
 
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
-        info = Database.get_hardwareInfo(hid)
-        if info["type"] == 1:
-            return
+        # info = Database.get_hardwareInfo(hid)
+        info = self.db.getHardware(hid)
+        if info["ctrl"] == 1: return
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
-        rooms = Database.get_roomList(hid, False)
+        # rooms = Database.get_roomList(hid, False)
+        rooms = self.db.getRoom(hid);
 
         for rid in rooms:
             # 生成控制数据 / Generate data which controller needed
@@ -86,17 +92,23 @@ class IController(object):
         '''
 
         # 不允许用户操作传感器 / User cannot operator a sensor
-        info = Database.get_hardwareInfo(hid)
-        if info["type"] != 1 :
+        # info = Database.get_hardwareInfo(hid)
+        info = self.db.getHardware(hid)
+
+        if info["ctrl"] != 1 :
             return { "status": -1, "msg": "You can not operate a sensor."}
         if self.hardware.get(hid)["online"] == 0:
             return {"status": -2, "msg": "Device is offline."}
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
-        rooms = Database.get_roomList(hid, False)
+        rooms = self.db.getRoom(hid);
+        # rooms = Database.get_roomList(hid, False)
+        # print("R")
+
 
         # 获取用户信息 / Get User Info
-        user = Database.get_user(uid)
+        # user = Database.get_user(uid)
+        user = self.db.getUser(uid)
 
         for rid in rooms:
             # 生成控制数据 / Generate data which controller needed
@@ -125,7 +137,9 @@ class IController(object):
         while True:
             try:
                 # 定时激活所有房间
-                rooms = Database.get_allRoom()
+                rooms = self.db.getAllRoom()
+                # rooms = Database.get_allRoom()
+                # print("R", rooms)
 
                 for rid in rooms:
                     # 生成控制数据 / Generate data which controller needed
@@ -143,7 +157,8 @@ class IController(object):
 
                 # 定时睡眠
                 time.sleep(duration)
-            except: pass
+            except Exception as err:
+                print(err)
 
     def heartbeat(self, duration):
         '''

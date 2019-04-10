@@ -4,11 +4,11 @@ class Controller(object):
         self.cnt = 0
 
     def Run(self, info):
-        print(info)
+        # print(info)
         self.cnt = self.cnt+1
         if self.cnt%2 == 0: return '{"data":"on"}'
         return '{"data":"off"}'
 
     def Cmd(self, info):
-        print(info)
+        #print(info)
         return '{"data":"%s"}'%info["cmd"]

@@ -55,6 +55,9 @@
       <div class="mdui-row">
         <div class="mdui-col-xs-12 mdui-col-sm-8 mdui-col-md-6 mdui-col-offset-sm-2 mdui-col-offset-md-3">
           <div id="tab-room" class="mdui-p-a-2">
+            <div class="mdui-row-xs-1">
+            <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="building-info" disabled>...</button></div>
+              </div>
             <div class="mdui-row-xs-3">
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="prevRoomPage();">Prev</button></div>
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="room-info" disabled>...</button></div>
@@ -75,7 +78,10 @@
     <script src="./js/mdui.min.js?v=0.4.2"></script>
     <script>
       var $$=mdui.JQ;
+      // Account
       var UID=null, SID=null, Authority=null, Email=null, Nickname=null;
+      // Building
+      var BuildingName="All buildings", BuildingID=0;
       var SERVER = "http://127.0.0.1:443";
     </script>
 
