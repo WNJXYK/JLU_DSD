@@ -8,7 +8,7 @@ from flask_cors import *
 
 import urllib
 
-from Demo.Database import Database
+# from Demo.Database import Database
 from Demo.Controller.Controller import Controller
 from Demo.Server.Hardware import Hardware
 from Demo.Server.IController import IController
@@ -19,8 +19,8 @@ from Demo.Server.IDatabase import IDatabase
 # Global
 manager = Manager()
 db = IDatabase()
-hardware = Hardware(manager)
-socket = Socket(manager, hardware)
+hardware = Hardware(manager, db)
+socket = Socket(manager, hardware, db)
 controller = Controller()
 iController = IController(hardware, controller, socket, db)
 DB_SERVER = "http://0.0.0.0:50001"
@@ -34,7 +34,7 @@ def api_hardware():
     uid = request.args.get("uid")
     sid = request.args.get("sid")
     hid = request.args.get("hid")
-    if not Database.check_userAuthority(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
+    if not db.checkUserHardware(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
     return jsonify(hardware.query(hid))
 
 
@@ -44,7 +44,7 @@ def api_command():
     sid = request.args.get("sid")
     hid = request.args.get("hid")
     cmd = request.args.get("cmd")
-    if not Database.check_userAuthority(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
+    if not db.checkUserHardware(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
     return jsonify(iController.command(hid, uid, cmd))
 
 
@@ -75,7 +75,7 @@ def redirect(typ, task):
 
 def main():
     # Virtual Init Database
-    Database.virtual_init()
+    # Database.virtual_init()
 
     # Get Option
     addr = ('0.0.0.0', 1024)

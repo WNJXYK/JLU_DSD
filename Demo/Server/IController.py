@@ -34,12 +34,9 @@ class IController(object):
         :param rid: 房间编号 / Room ID
         :returns: 传感器数据列表, 设备编号 / Sensors's data list, Device ID
         '''
-        # hardware_list = Database.get_hardwareList(rid)
-        # device_id = Database.get_roomDevice(rid)
-        # print("S",rid, self.db.getSensor(rid), hardware_list)
-        # print("D",rid, self.db.getDevice(rid))
         hardware_list = list(self.db.getSensor(rid))
         device_id = list(self.db.getDevice(rid))
+        print(hardware_list, device_id)
         sensors = []
 
         for hid in hardware_list:
@@ -54,12 +51,10 @@ class IController(object):
         '''
 
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
-        # info = Database.get_hardwareInfo(hid)
         info = self.db.getHardware(hid)
         if info["ctrl"] == 1: return
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
-        # rooms = Database.get_roomList(hid, False)
         rooms = self.db.getRoom(hid);
 
         for rid in rooms:
@@ -92,7 +87,6 @@ class IController(object):
         '''
 
         # 不允许用户操作传感器 / User cannot operator a sensor
-        # info = Database.get_hardwareInfo(hid)
         info = self.db.getHardware(hid)
 
         if info["ctrl"] != 1 :
@@ -102,12 +96,9 @@ class IController(object):
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
         rooms = self.db.getRoom(hid);
-        # rooms = Database.get_roomList(hid, False)
-        # print("R")
 
 
         # 获取用户信息 / Get User Info
-        # user = Database.get_user(uid)
         user = self.db.getUser(uid)
 
         for rid in rooms:
@@ -138,8 +129,7 @@ class IController(object):
             try:
                 # 定时激活所有房间
                 rooms = self.db.getAllRoom()
-                # rooms = Database.get_allRoom()
-                # print("R", rooms)
+                print(rooms)
 
                 for rid in rooms:
                     # 生成控制数据 / Generate data which controller needed

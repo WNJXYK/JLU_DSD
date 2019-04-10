@@ -1,16 +1,17 @@
 import socket, json
 from threading import Thread
-from Demo.Database import Database
+# from Demo.Database import Database
 
 
 class Socket(object):
-    def __init__(self, manager, hardware):
+    def __init__(self, manager, hardware, idb):
         self.socket_connection = manager.dict()
         self.socket_server = None
         self.hardware = hardware
         self.inQue = manager.Queue(100)
         self.outQue = manager.Queue(100)
         self.auth = "WNJXYK"
+        self.db = idb
 
     def run(self, address=('0.0.0.0', 3389), auth = "WNJXYK"):
         '''
@@ -81,7 +82,7 @@ class Socket(object):
                 return
 
             # 与数据库核对硬件是否注册 / Check this hardware is registered in database
-            if not Database.is_hardware(hid):
+            if not self.db.isHardware(hid):
                 client.send('{"status":-3, "msg":"Not An Registered Hardware."}'.encode("utf8"))
                 client.close()
                 print("%s(%s) is not a registered hardware." % (typ, hid))
@@ -136,7 +137,7 @@ class Socket(object):
         '''
 
         # 验证设备是否可以接收命令 / Authenticate whether this hardware is operable
-        if not Database.is_device(hid):
+        if not self.db.isDevice(hid):
             client.send('{"status":-2, "msg":"Not An Registered Device."}'.encode("utf8"))
             client.close()
             print("%s(%s) : Not A Registered Device." % (typ, hid))

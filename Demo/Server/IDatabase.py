@@ -44,11 +44,19 @@ class IDatabase(object):
         if obj["status"] != 0: return []
         return obj["info"]
 
+    def isHardware(self, HID):
+        return len(self.getHardware(HID))>0
+
+    def isDevice(self, HID):
+        info = self.getHardware(HID)
+        if len(info)<=0: return False
+        return info["ctrl"]==1
+
     def getUser(self, UID):
         res = self.post(self.DBS + "/server/user", {"UID": UID})
         obj = json.loads(res)
         if obj["status"] != 0: return []
         return obj["info"]
 
-    def checkUserHardware(self, UID, HID): return True
+    def checkUserHardware(self, UID, SID, HID): return True
 

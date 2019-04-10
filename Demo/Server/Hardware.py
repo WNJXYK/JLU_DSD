@@ -1,5 +1,5 @@
 import time, json
-from Demo.Database import Database
+# from Demo.Database import Database
 
 
 class Hardware(object):
@@ -8,12 +8,13 @@ class Hardware(object):
     Hardware Class: Aim for updating, saving and sensors's and devices's data And packing them when needed.
     '''
 
-    def __init__(self, manager, heartbeat=5):
+    def __init__(self, manager, idb, heartbeat=5):
         '''
         构造函数 / Construct function
         :param manager: 为了创建线程安全变量 / For creating thread-safe variable
         '''
         self.data = manager.dict()
+        self.db = idb
         self.heartbeat = heartbeat
 
     def init(self, hid):
@@ -112,16 +113,17 @@ class Hardware(object):
         :param hid: 硬件ID / Hardware ID
         :return: 硬件信息 / Hardware info
         '''
-        info = Database.get_hardwareInfo(hid)
+        info = self.db.getHardware(hid)
         ret = {
             "id": hid,
-            "nickname": info["nickname"]
+            "nickname": info["nickname"],
+            "type": info["type"]
         }
         info = self.get(hid)
         ret["online"] = info["online"]
         if info["online"] == 1:
             ret["data"] = info["data"]
-            ret["type"] = info["type"]
+            # ret["type"] = info["type"]
             ret["last"] = info["last"]
 
         return ret
