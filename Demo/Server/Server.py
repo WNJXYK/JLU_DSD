@@ -31,19 +31,19 @@ CORS(api)
 
 @api.route('/api/hardware')
 def api_hardware():
-    uid = request.args.get("uid")
-    sid = request.args.get("sid")
-    hid = request.args.get("hid")
+    uid = request.args.get("UID")
+    sid = request.args.get("SID")
+    hid = request.args.get("HID")
     if not db.checkUserHardware(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
     return jsonify(hardware.query(hid))
 
 
 @api.route('/api/command')
 def api_command():
-    uid = request.args.get("uid")
-    sid = request.args.get("sid")
-    hid = request.args.get("hid")
-    cmd = request.args.get("cmd")
+    uid = request.args.get("UID")
+    sid = request.args.get("SID")
+    hid = request.args.get("HID")
+    cmd = request.args.get("CMD")
     if not db.checkUserHardware(uid, sid, hid): return jsonify({"status" : -1, "msg" : "Access Denied."})
     return jsonify(iController.command(hid, uid, cmd))
 

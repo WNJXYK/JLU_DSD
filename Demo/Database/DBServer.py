@@ -300,7 +300,7 @@ def server_hardware():
 def server_room():
     def func(c, conn, params):
         if "HID" in params:
-            cursor = c.execute("SELECT DISTINCT RID FROM rHardware WHERE HID=?", (int(params["HID"])))
+            cursor = c.execute("SELECT DISTINCT RID FROM rHardware WHERE HID = '%s'" % params["HID"])
         else:
             cursor = c.execute("SELECT RID FROM Room")
 
@@ -309,6 +309,8 @@ def server_room():
             res = cursor.fetchone()
             if res is None: break
             ret.append(res[0])
+
+        print(ret)
 
         return jsonify({"status": 0, "info": ret})
 
@@ -321,26 +323,21 @@ def server_room():
 @api.route('/server/hardwareInfo', methods = ['GET', 'POST'])
 def server_hardwareInfo():
     def func(c, conn, params):
-        cursor = c.execute("SELECT HID, Nickname, Type, Ctrl FROM Hardware WHERE HID = ?)", (int(params["HID"])))
-
-        ret = []
-        while True:
-            res = cursor.fetchone()
-            if res is None: break
-            ret.append({"hid":res[0], "nickname":res[1], "type" : res[2], "ctrl" : res[3]})
-
+        cursor = c.execute("SELECT HID, Nickname, Type, Ctrl FROM Hardware WHERE HID = '%s'" % params["HID"])
+        res = cursor.fetchone()
+        ret = {"hid":res[0], "nickname":res[1], "type" : res[2], "ctrl" : res[3]}
         return jsonify({"status": 0, "info": ret})
 
     if request.method == 'GET':
-        return db_connection("Room", request.args.to_dict(), func)
+        return db_connection("HardwareInfo", request.args.to_dict(), func)
     if request.method == 'POST':
-        return db_connection("Room", request.form.to_dict(), func)
+        return db_connection("HardwareInfo", request.form.to_dict(), func)
 
 # 服务器查询用户
 @api.route('/server/user', methods = ['GET', 'POST'])
 def server_user():
     def func(c, conn, params):
-        cursor = c.execute("SELECT UID, Nickname, Authority FROM User WHERE UID = ?)", (int(params["UID"])))
+        cursor = c.execute("SELECT UID, Nickname, Authority FROM User WHERE UID = ?", (int(params["UID"])))
 
         ret = []
         while True:
@@ -351,9 +348,9 @@ def server_user():
         return jsonify({"status": 0, "info": ret})
 
     if request.method == 'GET':
-        return db_connection("Room", request.args.to_dict(), func)
+        return db_connection("User", request.args.to_dict(), func)
     if request.method == 'POST':
-        return db_connection("Room", request.form.to_dict(), func)
+        return db_connection("User", request.form.to_dict(), func)
 
 
 def main():

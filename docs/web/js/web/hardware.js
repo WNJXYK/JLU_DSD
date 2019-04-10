@@ -1,4 +1,21 @@
 var device_list = []
+var SUPER_SERVER = "http://127.0.0.1:443"
+var HARDWARE_INFO = "/api/hardware";
+function updateHardware(HID, ID){
+  $$.ajax({
+    method: 'GET',
+    url: SUPER_SERVER + HARDWARE_INFO,
+    data: {
+      HID: HID,
+      SID: SID,
+      UID: UID
+    },
+    success: function (data) {
+      var objs = JSON.parse(data);
+      console.log(objs);
+    }
+  });
+}
 
 // 定时更新硬件信息
 function updateHardwareTimer(){
@@ -10,7 +27,7 @@ function updateHardwareTimer(){
     for (var i=0; i<list.length; i++){
       if ($$("#"+list[i]["ID"]).length>0){
         device_list.push(list[i]);
-        // updateHardware(list[i]["HID"], "#"+list[i]["ID"], list[i]["Type"]);
+        updateHardware(list[i]["HID"], "#"+list[i]["ID"], list[i]["Type"]);
       }
     }
   }

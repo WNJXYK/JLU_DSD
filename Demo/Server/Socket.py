@@ -2,7 +2,6 @@ import socket, json
 from threading import Thread
 # from Demo.Database import Database
 
-
 class Socket(object):
     def __init__(self, manager, hardware, idb):
         self.socket_connection = manager.dict()

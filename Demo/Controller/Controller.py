@@ -4,9 +4,11 @@ class Controller(object):
         self.cnt = 0
 
     def Run(self, info):
-        # print(info)
-        self.cnt = self.cnt+1
-        if self.cnt%2 == 0: return '{"data":"on"}'
+        if len(info["sensors"]) <= 0: return '{"data":"off"}'
+        # print(info["sensors"][0])
+        # self.cnt = self.cnt+1
+        sensors = info["sensors"][0]
+        if ('data' in sensors) and (sensors["data"] == 'True'): return '{"data":"on"}'
         return '{"data":"off"}'
 
     def Cmd(self, info):

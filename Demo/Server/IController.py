@@ -53,6 +53,7 @@ class IController(object):
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
         info = self.db.getHardware(hid)
         if info["ctrl"] == 1: return
+        print(info)
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
         rooms = self.db.getRoom(hid);
@@ -129,7 +130,6 @@ class IController(object):
             try:
                 # 定时激活所有房间
                 rooms = self.db.getAllRoom()
-                print(rooms)
 
                 for rid in rooms:
                     # 生成控制数据 / Generate data which controller needed
