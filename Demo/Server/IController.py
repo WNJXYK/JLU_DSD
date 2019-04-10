@@ -154,7 +154,8 @@ class IController(object):
                     msg = self.controller.Beat(param)
 
                     # 向设备发送控制信号 / Send a signal to hardware
-                    for device in devices: self.socket.outQue.put((device["hid"], msg))
+                    for device in devices:
+                        self.socket.outQue.put((device["hid"], msg))
 
                 # 定时睡眠
                 time.sleep(duration)

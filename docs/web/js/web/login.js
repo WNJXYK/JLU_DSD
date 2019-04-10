@@ -44,6 +44,25 @@ function loginVerify(){
   }else UID=SID=null;
 }
 
+function setServerDialog(){
+  mdui.dialog({
+    title: "Set Server",
+    content: '<div class="mdui-textfield">\
+              <label class="mdui-textfield-label">Server</label>\
+              <input class="mdui-textfield-input" type="text" id="Server-Input" value="' + SERVER + '"/>\
+            </div>',
+    buttons: [
+      { text: 'Cancel'},
+      {
+        text: 'Confirm',
+        onClick: function(inst){
+          SERVER = $$("#Server-Input").val();
+        }
+      }
+    ]
+  });
+}
+
 // 呼出登陆窗口
 // Call Login Dialog
 function loginDialog(){

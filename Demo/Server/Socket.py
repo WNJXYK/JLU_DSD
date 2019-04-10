@@ -46,7 +46,7 @@ class Socket(object):
         while True:
             (hid, msg) = self.outQue.get(True)
             try:
-                self.socket_connection[hid].send(msg.encode("utf8"))
+                if len(msg)>2: self.socket_connection[hid].send(msg.encode("utf8"))
             except: pass
 
     def accept(self):

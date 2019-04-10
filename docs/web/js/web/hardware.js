@@ -59,7 +59,7 @@ function parseSensor(type, online, data, ID){
 function parseDevice(type, online, data, ID){
   if (online == 0) {
     $$(ID).get(0).checked = false;
-    $$(ID).attr("disabled", true);
+    $$(ID+"-DIV").hide();
   }else{
     switch(type){
       case "Light":
@@ -68,7 +68,7 @@ function parseDevice(type, online, data, ID){
         }else $$(ID).get(0).checked = false;
         break;
     }
-    $$(ID).removeAttr("disabled");
+    $$(ID+"-DIV").show();
   }
 }
 
@@ -120,7 +120,7 @@ function viewHardwareDialog(RID){
     },
     success: function (data) {
       var objs = JSON.parse(data);
-      console.log(objs);
+      // console.log(objs);
       if (objs["status"]==0){
         let arr = objs["info"];
         // 生成硬件列表
@@ -129,10 +129,12 @@ function viewHardwareDialog(RID){
           if (arr[i]["Ctrl"]==1){
               list.append($$('<li class="mdui-list-item mdui-ripple">\
                     <div class="mdui-list-item-content">' + arr[i]["Nickname"] + ' (' + arr[i]["HID"] + ') - ' + arr[i]["Type"] + '</div>\
-                    <label class="mdui-switch">\
-                      <input type="checkbox" id="HC-' + arr[i]["HID"] + '" onclick="solveCheckbox(\''+ arr[i]["HID"] + '\',\'#HC-' + arr[i]["HID"] + '\',\'' + arr[i]["Type"] + '\');" checked/>\
-                      <i class="mdui-switch-icon"></i>\
-                    </label>\
+                    <div id="HC-' + arr[i]["HID"] + '-DIV">\
+                      <label class="mdui-switch">\
+                        <input type="checkbox" id="HC-' + arr[i]["HID"] + '" onclick="solveCheckbox(\''+ arr[i]["HID"] + '\',\'#HC-' + arr[i]["HID"] + '\',\'' + arr[i]["Type"] + '\');" checked/>\
+                        <i class="mdui-switch-icon"></i>\
+                      </label>\
+                    </div>\
                   </li>'));
               device_list.push({"HID": arr[i]["HID"], "ID": "HC-" + arr[i]["HID"], "Type" : 1});
           }else{

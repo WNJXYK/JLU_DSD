@@ -2,8 +2,9 @@ import json
 class Controller(object):
     def __init__(self):
         self.last = {}
-        self.BeatLimit = 30
+        self.RunLimit = 10
         self.CtrlLimit = 10
+        self.AuthLimit = 2
 
     def Init(self):
         pass
@@ -32,8 +33,7 @@ class Controller(object):
         return ret
 
     def Beat(self, info):
-        ret = {}
-        return json.dumps(ret)
+        return self.Run(info)
 
     def Run(self, info):
         ret = {}
@@ -41,40 +41,42 @@ class Controller(object):
         if len(info["device"]) <= 0: return json.dumps(ret)
         device = info["device"][0]
         if device["online"] == 0: return json.dumps(ret)
+        if device["data"] == "False": return json.dumps(ret)
 
         rid, now = info["rid"], info["time"]
 
-        if rid in self.last and (now - self.last[rid] <= self.BeatLimit): return json.dumps(ret)
+        if rid in self.last and (now - self.last[rid] <= self.RunLimit): return json.dumps(ret)
+        if "cmd" in device and "authority" in device["cmd"]:
+            cmd = json.loads(device["cmd"])
+            if cmd["authority"] > self.AuthLimit: return json.dumps(ret)
 
         sensors = self.getSensorData(info["sensors"])
 
-        print(sensors, map((lambda x, y: x or y), sensors))
-
-        if len(sensors) < 0 or map((lambda x, y: x or y), sensors)==False: ret["data"] = "off"
+        if len(sensors) <= 0 or (map((lambda x, y: x or y), sensors) == False): ret["data"] = "off"
 
         return json.dumps(ret)
 
     def Cmd(self, info):
-        print(info)
+        # print(info)
         ret = {}
         if len(info["device"]) <= 0: return json.dumps(ret), False, "No device."
         device = info["device"][0]
         if device["online"] == 0: return json.dumps(ret), False, "Device is not online."
 
         rid, now = info["rid"], info["time"]
-        print(rid, now)
+        # print(rid, now)
         auth = 0
         if "cmd" in device and "authority" in device["cmd"]:
-            print(device["cmd"])
+            # print(device["cmd"])
             cmd = json.loads(device["cmd"])
             auth = cmd["authority"]
-        print(auth)
+        # print(auth)
 
         user = info["user"]
         if rid in self.last and (now - self.last[rid] <= self.CtrlLimit):
             if user["authority"] < auth:
                 return json.dumps(ret), False, "Invalid Authority"
-        print(info["cmd"])
+        # print(info["cmd"])
         self.last[rid] = now
         ret["data"] = info["cmd"]
         ret["authority"] = user["authority"]

@@ -14,12 +14,12 @@
     <div class="mdui-appbar mdui-appbar-fixed">
       <!-- 导航条 -->
       <div class="mdui-toolbar mdui-color-theme">
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
+        <!--a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a-->
         <a href="javascript:;" class="mdui-typo-headline">Intelligent Hardware</a>
         <div class="mdui-toolbar-spacer"></div>
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
+        <!--a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a-->
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon" onclick="setServerDialog();"><i class="mdui-icon material-icons">more_vert</i></a>
       </div>
       <!-- 分页栏 -->
       <div class="mdui-tab mdui-color-theme" id="nav-tab" mdui-tab>
@@ -27,10 +27,7 @@
           <i class="mdui-icon material-icons">&#xe84f;</i>
           <label>Rooms</label>
         </a>
-        <a href="#tab2" class="mdui-ripple mdui-ripple-white">
-          <i class="mdui-icon material-icons">favorite</i>
-          <label>favorites</label>
-        </a>
+
         <a href="#tab-user" class="mdui-ripple mdui-ripple-white" id="tab_user_button">
           <i class="mdui-icon material-icons">&#xe851;</i>
           <label>Account</label>
@@ -66,7 +63,6 @@
             <br><div class="mdui-divider"></div><br>
             <ul class="mdui-list" id="room-list" mdui-collapse="{accordion: true}"></ul>
           </div>
-          <div id="tab2" class="mdui-p-a-2">
           </div>
           <div id="tab-user" class="mdui-p-a-2">
             <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="loginDialog();">Please, Login</button></div>
