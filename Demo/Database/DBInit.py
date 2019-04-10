@@ -45,14 +45,35 @@ def create_room_table():
     c.execute('''CREATE TABLE Room
            (RID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
            Nickname TEXT NOT NULL,
+           BID INTEGER,
            SensorCNT INTEGER,
            DeviceCNT INTEGER,
+           Details TEXT,
+           FOREIGN KEY (BID) REFERENCES Building(BID));
+           ''')
+
+    # Add Init Info
+    c.execute("INSERT INTO Room (Nickname, Details, BID) VALUES ('Zero', '树莓派测试房间', 1)")
+    c.execute("INSERT INTO Room (Nickname, Details, BID) VALUES ('Computer', '电脑控制房间', 2)")
+    conn.commit()
+
+    conn.close()
+
+def create_building_table():
+    global conn, PATH
+    conn = sqlite3.connect(PATH)
+
+    # Create Room Table
+    c = conn.cursor()
+    c.execute('''CREATE TABLE Building
+           (BID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+           Nickname TEXT NOT NULL,
            Details TEXT);
            ''')
 
     # Add Init Info
-    c.execute("INSERT INTO Room (Nickname, Details) VALUES ('Zero', '树莓派测试房间')")
-    c.execute("INSERT INTO Room (Nickname, Details) VALUES ('Computer', '电脑控制房间')")
+    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Zero', '树莓派测试大楼')")
+    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Dormitory', '电脑控制大楼')")
     conn.commit()
 
     conn.close()

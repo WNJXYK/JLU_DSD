@@ -44,7 +44,7 @@
         <i class="mdui-icon mdui-fab-opened material-icons">&#xe5d8;</i>
       </button>
       <div class="mdui-fab-dial">
-        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-red" onclick="addRoomDialog();"><i class="mdui-icon material-icons">&#xe145;</i></button>
+        <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-red" onclick="selectBuilding();"><i class="mdui-icon material-icons">&#xe0af;</i></button>
         <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-blue" onclick="modifyRoomDeltaDialog();"><i class="mdui-icon material-icons">&#xe8b8;</i></button>
         <button class="mdui-fab mdui-fab-mini mdui-ripple mdui-color-green" onclick="updateRoomPage();"><i class="mdui-icon material-icons">&#xe5d5;</i></button>
       </div>
@@ -83,17 +83,19 @@
     <script src="./js/utils/cookie.js"></script>
     <script src="./js/web/login.js"></script>
     <script src="./js/web/room.js"></script>
+    <script src="./js/web/building.js"></script>
+    <script src="./js/web/hardware.js"></script>
 
     <script type="text/javascript">
         $$(function(){
-          // 初始登陆检查
-          loginWelcome();
-          
           // 给导航 TAB 增加监听事件
           document.getElementById('nav-tab').addEventListener('change.mdui.tab', function (event) {
             let idx = event._detail.index;
             changeTabForRoom(idx);
           });
+
+          // 初始登陆检查
+          loginWelcome();
 
           // 定时更新硬件信息
           updateHardwareTimer();

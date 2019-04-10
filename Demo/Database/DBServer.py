@@ -237,10 +237,28 @@ def user_hardware():
     if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
     if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
 
+# 查询大楼列表
+@api.route('/user/building', methods = ['GET', 'POST'])
+def user_building():
+    def func(c, conn, params):
+        cursor = c.execute("SELECT BID, Nickname, Details from Building")
+
+        ret = []
+        while True:
+            res = cursor.fetchone()
+            if res is None: break
+            ret.append({"BID": res[0], "Nickname": res[1], "Details": res[2]})
+
+        conn.commit()
+        return jsonify({"status": 0, "info": ret})
+
+    if request.method == 'GET': return db_connection("Building", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Building", request.form.to_dict(), func)
 
 def main():
     # Init DB
     if not os.path.isfile(PATH):
+        DBInit.create_building_table();
         DBInit.create_user_table()
         DBInit.create_room_table()
         DBInit.create_hardware_table()
