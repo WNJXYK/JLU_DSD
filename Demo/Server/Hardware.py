@@ -24,9 +24,11 @@ class Hardware(object):
         :return:
         '''
         if hid not in self.data:
+            info = self.db.getHardware(hid)
             self.data[hid] = {
+                "hid": hid,
                 "online": 0,
-                "type": "???",
+                "type": info["type"],
                 "data": "offline",
                 "last": 0.0
             }

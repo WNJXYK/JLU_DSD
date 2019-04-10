@@ -81,7 +81,7 @@ class Socket(object):
                 return
 
             # 与数据库核对硬件是否注册 / Check this hardware is registered in database
-            if not self.db.isHardware(hid):
+            if not self.db.isHardware(hid) or self.hardware.get(hid)["type"] != typ:
                 client.send('{"status":-3, "msg":"Not An Registered Hardware."}'.encode("utf8"))
                 client.close()
                 print("%s(%s) is not a registered hardware." % (typ, hid))

@@ -9,6 +9,8 @@ from Demo.Database import DBInit
 
 # Constant
 PATH = "./database.db"
+QUERY_ROOM_AUTHORITY = 2
+MODIFY_ROOM_AUTHORITY = 4
 
 # API Service
 api = Flask(__name__)
@@ -144,7 +146,7 @@ def user_room():
                                                WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?) and BID = ?", (UID, BID))
         cnt = cursor.fetchone()[0]
 
-        if Authority >= 3:
+        if Authority >= QUERY_ROOM_AUTHORITY:
             if BID is not None:
                 cursor = c.execute("SELECT RID, Nickname, SensorCNT, DeviceCNT, Details, BID FROM Room WHERE BID = ? LIMIT ? OFFSET ?", (BID, Delta, Offset))
             else:
@@ -164,7 +166,7 @@ def user_room():
             ret.append({"RID": res[0], "Nickname": res[1], "sCNT": res[2], "dCNT": res[3], "Details": res[4], "BID": res[5]})
 
         auth = 0
-        if Authority >= 3: auth = 1
+        if Authority >= MODIFY_ROOM_AUTHORITY: auth = 1
 
         return jsonify({"status": 0, "info": {"arr":ret, "cnt":cnt, "allow": auth}})
 
@@ -183,12 +185,12 @@ def user_modify_room():
         if "Delete" in params: Delete = int(params["Delete"])
         if "Details" in params: Details = params["Details"]
         if "BID" in params: BID = int(params["BID"])
-        print(Details, Delete, BID)
+
 
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
-        if res[0] < 3: return jsonify({"status": -4, "msg": "Invalid Authority"})
+        if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         if Delete == 1:
             c.execute("DELETE from Room where RID=?", (RID))
@@ -213,10 +215,10 @@ def user_add_room():
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
-        if res[0] < 3: return jsonify({"status": -4, "msg": "Invalid Authority"})
+        if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         sql = "INSERT INTO Room (Nickname, SensorCNT, DeviceCNT, Details) VALUES ('%s', 0, 0, '%s')" %(str(Nickname), str(Details))
-        print(sql)
+
         c.execute(sql)
 
         conn.commit()
@@ -235,7 +237,7 @@ def user_hardware():
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
-        if res[0] < 3:
+        if res[0] < QUERY_ROOM_AUTHORITY:
             cursor = c.execute("SELECT * rUser from User where UID=? and RID=?", (UID, RID))
             res = cursor.fetchone()
             if res is None: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -310,7 +312,6 @@ def server_room():
             if res is None: break
             ret.append(res[0])
 
-        print(ret)
 
         return jsonify({"status": 0, "info": ret})
 
@@ -337,13 +338,10 @@ def server_hardwareInfo():
 @api.route('/server/user', methods = ['GET', 'POST'])
 def server_user():
     def func(c, conn, params):
-        cursor = c.execute("SELECT UID, Nickname, Authority FROM User WHERE UID = ?", (int(params["UID"])))
+        cursor = c.execute("SELECT UID, Nickname, Authority FROM User WHERE UID = %s" % params["UID"])
 
-        ret = []
-        while True:
-            res = cursor.fetchone()
-            if res is None: break
-            ret.append({"uid": res[0], "nickname": res[1], "authority": res[2]})
+        res = cursor.fetchone()
+        ret = {"uid": res[0], "nickname": res[1], "authority": res[2]}
 
         return jsonify({"status": 0, "info": ret})
 

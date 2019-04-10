@@ -37,14 +37,13 @@ class Light(Hardware):
 
         goal = None
         if cmd['data'] == 'on':
-            print("Light : On")
             goal = True
         if cmd['data'] == 'off':
-            print("Light : Off")
             goal = False
 
         if (goal is not None) and self.value.value != goal:
             self.value.value = goal
+            print("Light : ", goal)
             msg = self.msg.copy()
             msg["cmd"] = cmd_str
             self.msg = msg
@@ -55,7 +54,7 @@ def main():
     addr = ('127.0.0.1', 1024)
     auth = "WNJXYK"
     hid = "qwerty"
-    typ = "LightDevice"
+    typ = "Light"
     opts, args = getopt.getopt(sys.argv[1:], "i:p:k:t:h:")
     for op, value in opts:
         if op == "-i": addr = (value, addr[1])

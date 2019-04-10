@@ -14,25 +14,25 @@ class IDatabase(object):
         res = res.read()
         return res
 
-    def getSensor(self, RID):
+    def getSensorHID(self, RID):
         res = self.post(self.DBS + "/server/Hardware", {"RID": RID, "Ctrl": 0})
         obj = json.loads(res)
         if obj["status"] != 0: return []
         return obj["info"]
 
-    def getDevice(self, RID):
+    def getDeviceHID(self, RID):
         res = self.post(self.DBS + "/server/Hardware", {"RID": RID, "Ctrl": 1})
         obj = json.loads(res)
         if obj["status"] != 0: return []
         return obj["info"]
 
-    def getAllRoom(self):
+    def getAllRoomRID(self):
         res = self.post(self.DBS+"/server/room",{})
         obj = json.loads(res)
         if obj["status"]!=0: return []
         return obj["info"]
 
-    def getRoom(self, HID):
+    def getRoomRID(self, HID):
         res = self.post(self.DBS+"/server/room",{"HID":HID})
         obj = json.loads(res)
         if obj["status"]!=0: return []
@@ -41,7 +41,7 @@ class IDatabase(object):
     def getHardware(self, HID):
         res = self.post(self.DBS + "/server/hardwareInfo", {"HID": HID})
         obj = json.loads(res)
-        if obj["status"] != 0: return []
+        if obj["status"] != 0: return {}
         return obj["info"]
 
     def isHardware(self, HID):
@@ -56,6 +56,7 @@ class IDatabase(object):
         res = self.post(self.DBS + "/server/user", {"UID": UID})
         obj = json.loads(res)
         if obj["status"] != 0: return []
+
         return obj["info"]
 
     def checkUserHardware(self, UID, SID, HID): return True

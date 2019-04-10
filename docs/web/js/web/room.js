@@ -15,6 +15,7 @@ function changeTabForRoom(idx){
   }else room_fab.hide();
 }
 
+// 修改分页房间数量
 function modifyRoomDeltaDialog(){
   mdui.dialog({
     title: 'How many rooms in one page?',
@@ -36,6 +37,7 @@ function modifyRoomDeltaDialog(){
   });
 }
 
+// 分页：下一页
 function nextRoomPage(){
   var pages = room_total_page;
   if (room_page + 1 < pages){
@@ -45,6 +47,7 @@ function nextRoomPage(){
   }else mdui.snackbar({message: 'This is the last page.'});
 }
 
+// 分页：上一页
 function prevRoomPage(){
   var pages = room_total_page;
   if (room_page - 1 >= 0){
@@ -54,7 +57,8 @@ function prevRoomPage(){
   }else mdui.snackbar({message: 'This is the first page.'});
 }
 
-function modifyRoomDescriptionDialog(RID, DES, BID){
+// 修改房间对话框
+function modifyRoomDialog(RID, DES, BID){
   mdui.dialog({
     title: 'Modify Room ' + RID,
     content: '<div class="mdui-textfield">\
@@ -73,6 +77,7 @@ function modifyRoomDescriptionDialog(RID, DES, BID){
   });
 }
 
+// 删除房间对话框
 function deleteRoomDialog(RID){
   mdui.dialog({
     title: 'Are you sure to delete Room ' + RID,
@@ -86,6 +91,7 @@ function deleteRoomDialog(RID){
   });
 }
 
+// 修改房间函数
 function modifyRoom(RID, des, buildings, del){
   data_pack = {
     SID: SID,
@@ -111,6 +117,7 @@ function modifyRoom(RID, des, buildings, del){
   });
 }
 
+// 增加房间对话框
 function addRoomDialog(){
   mdui.dialog({
     title: 'Add New Room',
@@ -132,6 +139,7 @@ function addRoomDialog(){
   });
 }
 
+// 增加房间函数
 function addRoom(nick, des){
   $$.ajax({
     method: 'POST',
@@ -152,6 +160,7 @@ function addRoom(nick, des){
   });
 }
 
+// 更新房间页
 function updateRoomPage(){
   // 等待特效
   $$("#room-list").html('<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>');
@@ -187,9 +196,9 @@ function updateRoomPage(){
         $$("#room-list").html("");
         for (var i=0; i<arr.length; ++i){
           let item = $$('<li class="mdui-list-item mdui-ripple">\
-                <div class="mdui-list-item-content" onclick="openHardwarePage(' + arr[i]['RID'] + ');">\
+                <div class="mdui-list-item-content" onclick="viewHardwareDialog(' + arr[i]['RID'] + ');">\
                   <div class="mdui-list-item-title">' + arr[i]["Nickname"]+ '</div>\
-                  <div class="mdui-list-item-text mdui-list-item-one-line">' + 'Room ID: ' + arr[i]['RID'] + ' | Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</div>\
+                  <div class="mdui-list-item-text mdui-list-item-one-line">' + 'Room ID: ' + arr[i]['RID'] + ' | Belongs to Building: ' + arr[i]['BID'] + '</div>\
                   <div class="mdui-list-item-text mdui-list-item-one-line">' + 'Description: ' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"])+ '</div>\
                 </div>\
               </li>\
@@ -204,8 +213,8 @@ function updateRoomPage(){
                 <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Belongs to Building: ' + arr[i]['BID'] + '</li>\
                   <!--li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Device: ' + arr[i]['dCNT'] + ' | Sensor: ' + arr[i]['sCNT'] + '</li-->\
                   <li class="mdui-list-item mdui-ripple mdui-list-item-text ">' + 'Description: ' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"])+ '</li>\
-                  <li class="mdui-list-item mdui-ripple" onclick="openHardwarePage(' + arr[i]['RID'] + ');">View & Modify Hardwares</li>\
-                  <li class="mdui-list-item mdui-ripple" onclick="modifyRoomDescriptionDialog(' + arr[i]['RID'] + ',\'' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"]) +'\',' + arr[i]['BID'] + ');">Modify Room</li>\
+                  <li class="mdui-list-item mdui-ripple" onclick="viewHardwareDialog(' + arr[i]['RID'] + ');">Hardwares</li>\
+                  <li class="mdui-list-item mdui-ripple" onclick="modifyRoomDialog(' + arr[i]['RID'] + ',\'' + (arr[i]["Details"]==null?"No Description":arr[i]["Details"]) +'\',' + arr[i]['BID'] + ');">Modify Room</li>\
                   <li class="mdui-list-item mdui-ripple" onclick="deleteRoomDialog(' + arr[i]['RID'] + ');">Delete Room</li>\
                 </ul>\
               </li>');

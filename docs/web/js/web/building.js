@@ -21,7 +21,7 @@ function buildingList(){
 function selectBuilding(){
   arr = buildingList();
   str = '<option value="0">All Buildings</option>';
-  for (var i=0; i<arr.length; ++i) str+='<option value="' + arr[i]["BID"] + '">' + arr[i]["Nickname"] + '</option>';
+  for (var i=0; i<arr.length; ++i) str+='<option value="' + arr[i]["BID"] + '">#' + arr[i]["BID"] + '.' + arr[i]["Nickname"] + '</option>';
   str='<select class="mdui-select" id="select-building">'+str+'</select>';
 
   mdui.dialog({
@@ -43,6 +43,5 @@ function selectBuilding(){
       }
     ]
   });
-  
   mdui.mutation();
 }

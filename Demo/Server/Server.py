@@ -1,14 +1,12 @@
 import sys, getopt
-sys.path.append(sys.path[0] + "/../..")
-sys.path.append(sys.path[0] + "/..")
-
 from multiprocessing import Manager
 from flask import Flask, request, jsonify
 from flask_cors import *
-
 import urllib
 
-# from Demo.Database import Database
+sys.path.append(sys.path[0] + "/../..")
+sys.path.append(sys.path[0] + "/..")
+
 from Demo.Controller.Controller import Controller
 from Demo.Server.Hardware import Hardware
 from Demo.Server.IController import IController
@@ -23,7 +21,7 @@ hardware = Hardware(manager, db)
 socket = Socket(manager, hardware, db)
 controller = Controller()
 iController = IController(hardware, controller, socket, db)
-DB_SERVER = "http://0.0.0.0:50001"
+
 
 # API Service
 api = Flask(__name__)
@@ -50,7 +48,7 @@ def api_command():
 
 @api.route('/interface/<typ>/<task>', methods = ['GET', 'POST'])
 def redirect(typ, task):
-    global DB_SERVER
+    DB_SERVER = "http://0.0.0.0:50001"
     url = DB_SERVER + '/' + typ + '/' + task
 
     if request.method == 'GET':
@@ -74,9 +72,6 @@ def redirect(typ, task):
 
 
 def main():
-    # Virtual Init Database
-    # Database.virtual_init()
-
     # Get Option
     addr = ('0.0.0.0', 1024)
     auth = "WNJXYK"
@@ -90,7 +85,8 @@ def main():
     socket.run(addr, auth)
 
     # Heartbeat to IC
-    iController.heartbeat(5)
+    iController.init()
+    iController.heartbeat(60)
 
     # Init API
     api.run(host = '0.0.0.0', port = 443, threaded=True)

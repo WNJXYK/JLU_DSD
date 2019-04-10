@@ -1,5 +1,6 @@
 from threading import Thread
 import time
+import traceback
 
 
 class IController(object):
@@ -34,15 +35,16 @@ class IController(object):
         :param rid: 房间编号 / Room ID
         :returns: 传感器数据列表, 设备编号 / Sensors's data list, Device ID
         '''
-        hardware_list = list(self.db.getSensor(rid))
-        device_id = list(self.db.getDevice(rid))
-        print(hardware_list, device_id)
+        sensor_list = list(self.db.getSensorHID(rid))
+        device_list = list(self.db.getDeviceHID(rid))
         sensors = []
+        devices = []
 
-        for hid in hardware_list:
-            if device_id == hid : continue
+        for hid in sensor_list:
             sensors.append(self.hardware.get(hid))
-        return sensors, device_id[0]
+        for hid in device_list:
+            devices.append(self.hardware.get(hid))
+        return sensors, devices
 
     def report(self, hid):
         '''
@@ -53,24 +55,25 @@ class IController(object):
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
         info = self.db.getHardware(hid)
         if info["ctrl"] == 1: return
-        print(info)
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
-        rooms = self.db.getRoom(hid);
+        rooms = self.db.getRoomRID(hid);
 
         for rid in rooms:
             # 生成控制数据 / Generate data which controller needed
-            sensors, device = self.room_info(rid)
+            sensors, devices = self.room_info(rid)
             param = {
+                "rid": rid,
+                "time": time.time(),
                 "sensors": sensors,
-                "device": self.hardware.get(device),
+                "device": devices
             }
 
             # 控制 / Control
             msg = self.controller.Run(param)
 
             # 向设备发送控制信号 / Send a signal to hardware
-            self.socket.outQue.put((device, msg))
+            for device in devices: self.socket.outQue.put((device["hid"], msg))
 
     def command(self, hid, uid, cmd):
         '''
@@ -96,7 +99,7 @@ class IController(object):
             return {"status": -2, "msg": "Device is offline."}
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
-        rooms = self.db.getRoom(hid);
+        rooms = self.db.getRoomRID(hid);
 
 
         # 获取用户信息 / Get User Info
@@ -104,19 +107,21 @@ class IController(object):
 
         for rid in rooms:
             # 生成控制数据 / Generate data which controller needed
-            sensors, device = self.room_info(rid)
+            sensors, devices = self.room_info(rid)
             param = {
+                "rid": rid,
+                "time": time.time(),
                 "sensors": sensors,
-                "device": self.hardware.get(device),
+                "device": devices,
                 "cmd": cmd,
-                "authority": user["authority"]
+                "user": user
             }
 
             # 控制 / Control
             msg = self.controller.Cmd(param)
 
             # 向设备发送控制信号 / Send a signal to hardware
-            self.socket.outQue.put((device, msg))
+            for device in devices: self.socket.outQue.put((device["hid"], msg))
 
         return {"status": 0, "msg": "Message sent."}
 
@@ -129,26 +134,29 @@ class IController(object):
         while True:
             try:
                 # 定时激活所有房间
-                rooms = self.db.getAllRoom()
+                rooms = self.db.getAllRoomRID()
 
                 for rid in rooms:
                     # 生成控制数据 / Generate data which controller needed
-                    sensors, device = self.room_info(rid)
+                    sensors, devices = self.room_info(rid)
                     param = {
+                        "rid": rid,
+                        "time": time.time(),
                         "sensors": sensors,
-                        "device": self.hardware.get(device),
+                        "device": devices
                     }
 
                     # 控制 / Control
-                    msg = self.controller.Run(param)
+                    msg = self.controller.Beat(param)
 
                     # 向设备发送控制信号 / Send a signal to hardware
-                    self.socket.outQue.put((device, msg))
+                    for device in devices: self.socket.outQue.put((device["hid"], msg))
 
                 # 定时睡眠
                 time.sleep(duration)
             except Exception as err:
                 print(err)
+                print(traceback.print_exc())
 
     def heartbeat(self, duration):
         '''
@@ -159,3 +167,9 @@ class IController(object):
         thread = Thread(target = self.heartbeat_thread, args = (duration, ))
         thread.setDaemon(True)
         thread.start()
+
+    def init(self):
+        '''
+        初始化智能控制模块
+        '''
+        # Do something
