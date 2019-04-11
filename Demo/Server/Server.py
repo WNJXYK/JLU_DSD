@@ -86,7 +86,7 @@ def main():
 
     # Heartbeat to IC
     iController.init()
-    iController.heartbeat(5)
+    iController.heartbeat(10)
 
     # Init API
     api.run(host = '0.0.0.0', port = 443, threaded=True)
