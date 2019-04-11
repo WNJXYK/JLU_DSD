@@ -138,7 +138,7 @@ def user_room():
         Authority = res[0]
 
         cnt = 0
-        if Authority >= 3:
+        if Authority >= QUERY_ROOM_AUTHORITY:
             if BID is not None:
                 cursor = c.execute("SELECT COUNT(*) FROM Room WHERE BID = ?", (BID,))
             else:
