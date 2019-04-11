@@ -8,7 +8,7 @@ class Hardware(object):
     Hardware Class: Aim for updating, saving and sensors's and devices's data And packing them when needed.
     '''
 
-    def __init__(self, manager, idb, heartbeat=5):
+    def __init__(self, manager, idb, heartbeat = 30):
         '''
         构造函数 / Construct function
         :param manager: 为了创建线程安全变量 / For creating thread-safe variable
