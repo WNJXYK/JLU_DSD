@@ -1,4 +1,4 @@
-import socket
+import socket, os
 from multiprocessing import Manager
 from threading import Thread
 import json, time
@@ -17,6 +17,7 @@ class Hardware(object):
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
         self.online = self.manager.Value('b', False)
+        self.reconnect = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
@@ -44,7 +45,7 @@ class Hardware(object):
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-                
+
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
@@ -75,6 +76,7 @@ class Hardware(object):
                 print(err)
             finally:
                 self.online.value = False
+                self.reconnect.value = True
                 # 掉线重连 / Reconnect
                 socket_out.close()
                 print("Reporter Error : Wait 2s & Reconnecting...")
@@ -104,7 +106,13 @@ class Hardware(object):
                 while True:
                     try:
                         cmd = socket_in.recv(1024).decode("utf8")
-                        if len(cmd) == 0: break  # 掉线判断 / Judge whether offline
+                        
+                        # 掉线判断 / Judge whether offline
+                        if len(cmd) == 0: break
+                        if self.reconnect.value:
+                            self.reconnect.value = False
+                            break
+
                         # cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
                     except: print("Unknown command : %s" % cmd)
