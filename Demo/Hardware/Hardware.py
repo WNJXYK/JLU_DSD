@@ -17,7 +17,7 @@ class Hardware(object):
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
         self.online = self.manager.Value('b', False)
-        # self.reconn = self.manager.Value('b', False)
+        self.reconnnect = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
@@ -76,7 +76,9 @@ class Hardware(object):
             except Exception as err:
                 print(err)
             finally:
-                self.online.value = False
+                if self.online.value == True:
+                    self.reconnnect.value = True
+                    self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
                 print("Reporter Error : Wait 2s & Reconnecting...")
