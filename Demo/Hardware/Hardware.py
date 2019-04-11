@@ -17,7 +17,7 @@ class Hardware(object):
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
         self.online = self.manager.Value('b', False)
-        self.reconn = self.manager.Value('b', False)
+        # self.reconn = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
