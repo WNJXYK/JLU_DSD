@@ -105,13 +105,9 @@ class Hardware(object):
                 while True:
                     try:
                         cmd = socket_in.recv(1024).decode("utf8")
-                        print(cmd)
-                        # 掉线判断 / Judge whether offline
-                        if len(cmd) == 0: break
-
                         # cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
-                    except: print("Unknown command : %s" % cmd)
+                    except: pass
 
             except Exception as err:
                 print(err)
