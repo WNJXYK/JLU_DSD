@@ -97,6 +97,7 @@ function updateHardware(HID, ID, type){
 
 // 立即请求所有硬件信息
 function refreshHardwareDialog() {
+  console.log(Date.now()-LAST_COMMAND);
   if (Date.now()-LAST_COMMAND<1000) return;
   // console.log(device_list);
   var list = device_list.slice(0);
