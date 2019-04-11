@@ -1,6 +1,7 @@
 var device_list = []
 var HARDWARE_INFO = "/api/hardware";
 var HARDWARE_CMD = "/api/command";
+var LAST_COMMAND = 0;
 
 // 处理CheckBox
 function solveCheckbox(HID, ID, type){
@@ -25,6 +26,7 @@ function solveCheckbox(HID, ID, type){
         var objs = JSON.parse(data);
         if (objs["status"]==0){
           mdui.snackbar({message: "Command Sent"});
+          LAST_COMMAND = Date.now();
         }else {
           mdui.snackbar({message: objs["msg"]});
           refreshHardwareDialog();
@@ -95,6 +97,7 @@ function updateHardware(HID, ID, type){
 
 // 立即请求所有硬件信息
 function refreshHardwareDialog() {
+  if (Date.now()-LAST_COMMAND<1000) return;
   // console.log(device_list);
   var list = device_list.slice(0);
   device_list = [];
@@ -108,7 +111,7 @@ function refreshHardwareDialog() {
 
 // 定时更新硬件信息
 function updateHardwareTimer(){
-  var t1=window.setInterval(refreshHardwareDialog, 5000);
+  var t1=window.setInterval(refreshHardwareDialog, 2000);
 }
 
 // 打开硬件页
