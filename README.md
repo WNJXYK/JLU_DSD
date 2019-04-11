@@ -17,4 +17,18 @@
 * Hardware_Test 文件夹包含对树莓派传感器的测试代码
 
 ## 支持功能
-1. Building - 
+
+1. 分层管理：Building -> Room -> Hardware
+  * 添加、删除 Room
+  * 添加、删除 Hardware
+  * Hardware 与 Room 绑定
+  * 更改 Room 所属 Building
+  
+2. 多种传感器：Presence Sensor, Light Sensor, Button...
+  * 远程查看传感器在线状态与当前值
+  * 远程控制照明灯
+  
+3. 多种角色权限：Admin > Teacher > Student
+  * Teacher 以上可以强制开/关灯不受智能系统限制
+  * 低权限用户一定时间内（Demo中为30S）无法改变高权限用户开灯操作
+  * Student 一段时间无操作后，将照明灯将被智能控制系统接管
