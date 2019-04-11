@@ -94,7 +94,8 @@ class Hardware(object):
                 socket_in = socket.socket()
                 socket_in.connect(self.addr)
                 socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
-
+                socket_in.settimeout(5)
+                
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
                 if int(hello["status"]) != 0:
