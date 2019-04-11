@@ -17,7 +17,6 @@ class Hardware(object):
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
         self.online = self.manager.Value('b', False)
-        self.reconnnect = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
@@ -78,9 +77,6 @@ class Hardware(object):
                 print(err)
             finally:
                 if self.online.value == True:
-                    try:
-                        self.socket_in.close()
-                    except: pass
                     self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
@@ -101,7 +97,7 @@ class Hardware(object):
                 self.socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(self.socket_in.recv(1024).decode("utf8"))
+                hello = json.loads(self.socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Receiver Error : %s" % hello["msg"])
                     continue
@@ -123,9 +119,7 @@ class Hardware(object):
                 print(err)
             finally:
                 # 掉线重连 / Reconnect
-                try:
-                    self.socket_in.close()
-                except: pass
+                self.socket_in.close()
                 print("Receiver Error : Wait 2s & Reconnecting...")
                 time.sleep(2)
 
