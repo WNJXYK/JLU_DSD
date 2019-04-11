@@ -64,15 +64,20 @@ class Hardware(object):
                         if self.change.value:
                             msg = func()  # 生成汇报数据 / Generate reported data
                             socket_out.send(msg.encode("utf8"))
-                            ack = socket_out.recv(1024).decode("utf8")
-                            if len(ack)<=0 or str(ack)!="{}": break
-
                             self.change.value = False
                             self.heartbeat_rate = 0
+
+                            ack = socket_out.recv(1024).decode("utf8")
+                            print("Update", ack)
+                            if len(ack)<=0 or str(ack)!="{}": break
 
                         if self.heartbeat_rate > self.heartbeat > 0:
                             socket_out.send("{}".encode("utf8"))
                             self.heartbeat_rate = 0
+
+                            ack = socket_out.recv(1024).decode("utf8")
+                            print("Beat", ack)
+                            if len(ack) <= 0 or str(ack) != "{}": break
 
                         self.heartbeat_rate += 0.5
                         time.sleep(0.5)
