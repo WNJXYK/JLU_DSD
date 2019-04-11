@@ -108,7 +108,7 @@ class Hardware(object):
                 # 循环接收命令状态 / Receive command in a loop
                 while True:
                     try:
-                        cmd = socket_in.recv(1024).decode("utf8")
+                        cmd = socket_in.recv(1024, False).decode("utf8")
 
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
