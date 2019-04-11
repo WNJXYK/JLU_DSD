@@ -6,7 +6,7 @@ import json, time
 
 class Hardware(object):
 
-    def __init__(self, addr, hid, typ, auth, heartbeat = 14):
+    def __init__(self, addr, hid, typ, auth, heartbeat = 15):
         '''
         构造函数 / Construction
         :param addr: 服务器地址 / Server IP:Port
