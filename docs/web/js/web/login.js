@@ -8,7 +8,7 @@ function loginWelcome(){
   if (UID!=null && SID!=null){
     mdui.snackbar({message: 'Welcome ' + Nickname});
     updateUserTab();
-  }else loginDialog();
+  }//else loginDialog();
   $$("#tab_user_button").trigger("click");
 }
 
