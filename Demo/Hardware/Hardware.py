@@ -17,6 +17,7 @@ class Hardware(object):
         self.manager = Manager()
         self.change = self.manager.Value('b', False)
         self.online = self.manager.Value('b', False)
+        self.revive = self.manager.Value('b', False)
         self.addr = addr
         self.hid = hid
         self.typ = typ
@@ -44,7 +45,7 @@ class Hardware(object):
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-                socket_out.settimeout(10)
+
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
@@ -74,7 +75,9 @@ class Hardware(object):
             except Exception as err:
                 print(err)
             finally:
-                self.online.value = False
+                if self.online.value:
+                    self.revive.value = True
+                    self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
                 print("Reporter Error : Wait 2s & Reconnecting...")
@@ -105,14 +108,20 @@ class Hardware(object):
                 while True:
                     try:
                         cmd = socket_in.recv(1024).decode("utf8")
+
+                        # 掉线判断 / Judge whether offline
+                        if len(cmd) == 0: break
+
                         # cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
-                    except: pass
+                    except:
+                        if self.revive.value: break
 
             except Exception as err:
                 print(err)
             finally:
                 # 掉线重连 / Reconnect
+                self.revive.value = False
                 socket_in.close()
                 print("Receiver Error : Wait 2s & Reconnecting...")
                 time.sleep(2)
