@@ -13,6 +13,7 @@ function solveCheckbox(HID, ID, type){
       }else cmd = "off";
       break;
   }
+  LAST_COMMAND = Date.now();
   $$.ajax({
       method: 'GET',
       url: SERVER + HARDWARE_CMD,
@@ -26,7 +27,6 @@ function solveCheckbox(HID, ID, type){
         var objs = JSON.parse(data);
         if (objs["status"]==0){
           mdui.snackbar({message: "Command Sent"});
-          LAST_COMMAND = Date.now();
         }else {
           mdui.snackbar({message: objs["msg"]});
           refreshHardwareDialog();
@@ -97,7 +97,6 @@ function updateHardware(HID, ID, type){
 
 // 立即请求所有硬件信息
 function refreshHardwareDialog() {
-  console.log(Date.now()-LAST_COMMAND);
   if (Date.now()-LAST_COMMAND<1000) return;
   // console.log(device_list);
   var list = device_list.slice(0);
