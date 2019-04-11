@@ -21,6 +21,7 @@ function addHardwareDialog(){
                   <option value="Light" selected>Light</option>\
                   <option value="PresenceSensor">Presence Sensor</option>\
                   <option value="LightSensor">Light Sensor</option>\
+                  <option value="ButtonSensor">Button</option>\
                 </select>\
               </div>',
     buttons: [

@@ -13,7 +13,7 @@ PATH = "./database.db"
 QUERY_ROOM_AUTHORITY = 2
 MODIFY_ROOM_AUTHORITY = 4
 MODIFY_HARDWARE_AUTHORITY = 4
-SENSOR_TYPE = ["PresenceSensor", "LightSensor"]
+SENSOR_TYPE = ["PresenceSensor", "LightSensor", "ButtonSensor"]
 DEVICE_TYPE = ["Light"]
 
 # API Service

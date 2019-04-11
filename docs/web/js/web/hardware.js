@@ -43,12 +43,15 @@ function parseSensor(type, online, data, ID){
       case "LightSensor":
         str = str + "Light Intensity : " + data;
         break;
-      case "CameraSensor":
+      case "PresenceSensor":
         if (data == "False") {
           str = str + "Object Detect : Nothing";
         }else{
           str = str + "Object Detect : Find";
         }
+        break;
+      case "ButtonSensor":
+        str = str + "Button is Online";
         break;
     }
   }
