@@ -6,7 +6,7 @@ import json, time
 
 class Hardware(object):
 
-    def __init__(self, addr, hid, typ, auth, heartbeat = 15):
+    def __init__(self, addr, hid, typ, auth, heartbeat = 5):
         '''
         构造函数 / Construction
         :param addr: 服务器地址 / Server IP:Port
@@ -45,7 +45,7 @@ class Hardware(object):
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-                socket_out.settimeout(10)
+                socket_out.settimeout(5)
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
@@ -68,7 +68,7 @@ class Hardware(object):
                             self.heartbeat_rate = 0
 
                             ack = socket_out.recv(1024).decode("utf8")
-                            print("Update", ack)
+                            # print("Update", ack)
                             if len(ack)<=0 or str(ack)!="{}": break
 
                         if self.heartbeat_rate > self.heartbeat > 0:
@@ -76,13 +76,13 @@ class Hardware(object):
                             self.heartbeat_rate = 0
 
                             ack = socket_out.recv(1024).decode("utf8")
-                            print("Beat", ack)
+                            # print("Beat", ack)
                             if len(ack) <= 0 or str(ack) != "{}": break
 
                         self.heartbeat_rate += 0.5
                         time.sleep(0.5)
                     except:
-                        print("GG")
+                        # print("GG")
                         break
 
             except Exception as err:
@@ -108,7 +108,7 @@ class Hardware(object):
                 socket_in = socket.socket()
                 socket_in.connect(self.addr)
                 socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
-                socket_in.settimeout(10)
+                socket_in.settimeout(5)
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_in.recv(1024).decode("utf8"))

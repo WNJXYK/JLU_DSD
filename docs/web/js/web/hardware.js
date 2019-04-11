@@ -108,7 +108,7 @@ function refreshHardwareDialog() {
 
 // 定时更新硬件信息
 function updateHardwareTimer(){
-  var t1=window.setInterval(refreshHardwareDialog, 1000);
+  var t1=window.setInterval(refreshHardwareDialog, 2500);
 }
 
 // 打开硬件页
