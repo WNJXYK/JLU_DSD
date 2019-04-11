@@ -44,7 +44,7 @@ class Hardware(object):
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-                
+                socket_out.settimeout(10)
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
