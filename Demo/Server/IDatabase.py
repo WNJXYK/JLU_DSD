@@ -53,7 +53,7 @@ class IDatabase(object):
         return info["ctrl"]==1
 
     def getUser(self, UID):
-        res = self.post(self.DBS + "/server/user", {"UID": UID})
+        res = self.post(self.DBS + "/server/userInfo", {"UID": UID})
         obj = json.loads(res)
         if obj["status"] != 0: return []
 

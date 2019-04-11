@@ -151,7 +151,7 @@ function viewHardwareDialog(RID){
                         <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="refreshHardwareDialog();">Hardware List (Refresh)</button>\
                       </div>\
                     </div>',
-          content: list.html()
+          content: $$('<p></p>').append(list).html()
         });
         refreshHardwareDialog();
       }else mdui.snackbar({message: objs["msg"]});

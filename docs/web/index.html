@@ -52,9 +52,12 @@
       <div class="mdui-row">
         <div class="mdui-col-xs-12 mdui-col-sm-8 mdui-col-md-6 mdui-col-offset-sm-2 mdui-col-offset-md-3">
           <div id="tab-room" class="mdui-p-a-2">
+            <div class="mdui-row-xs-1" id="add-room">
+              <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="addRoomDialog();">Add Room</button></div>
+            </div>
             <div class="mdui-row-xs-1">
-            <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="building-info" disabled>...</button></div>
-              </div>
+              <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="building-info" disabled>...</button></div>
+            </div>
             <div class="mdui-row-xs-3">
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="prevRoomPage();">Prev</button></div>
               <div class="mdui-col"><button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" id="room-info" disabled>...</button></div>
@@ -80,6 +83,7 @@
     <script src="./js/web/room.js"></script>
     <script src="./js/web/building.js"></script>
     <script src="./js/web/hardware.js"></script>
+    <script src="./js/web/admin.js"></script>
 
     <script>
       var $$=mdui.JQ;
@@ -93,6 +97,10 @@
 
     <script type="text/javascript">
         $$(function(){
+          $$("#tab_user_button").trigger("click");
+          room_fab.hide();
+
+
           // 给导航 TAB 增加监听事件
           document.getElementById('nav-tab').addEventListener('change.mdui.tab', function (event) {
             let idx = event._detail.index;

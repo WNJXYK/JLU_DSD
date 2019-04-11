@@ -1,9 +1,8 @@
-var ROOM = "/interface/user/room";
-var ROOM_MODIFY = "/interface/user/modify_room";
-var ROOM_ADD = "/interface/user/add_room";
-var HARDWARE = "/interface/user/hardware";
+var ROOM = "/interface/room";
+var ROOM_MODIFY = "/interface/modify_room";
+var ROOM_ADD = "/interface/add_room";
+var HARDWARE = "/interface/hardware";
 var room_fab = new mdui.Fab('#fab-room');
-
 
 // 分页功能
 var room_offset = 0, room_delta = 1, room_count = 0, room_page=0, room_total_page = 0;
@@ -126,6 +125,10 @@ function addRoomDialog(){
                 <input class="mdui-textfield-input" type="text" id="room-nickname"/>\
               </div>\
               <div class="mdui-textfield">\
+                <label class="mdui-textfield-label">Building ID</label>\
+                <input class="mdui-textfield-input" type="text" id="room-bid"/>\
+              </div>\
+              <div class="mdui-textfield">\
                 <label class="mdui-textfield-label">Description</label>\
                 <input class="mdui-textfield-input" type="text" id="room-description"/>\
               </div>',
@@ -133,20 +136,21 @@ function addRoomDialog(){
       { text: 'Cancel'},
       {
         text: 'Confirm',
-        onClick: function(inst){ addRoom($$("#room-nickname").val(), $$("#room-description").val()); }
+        onClick: function(inst){ addRoom($$("#room-nickname").val(), $$("#room-bid").val(), $$("#room-description").val()); }
       }
     ]
   });
 }
 
 // 增加房间函数
-function addRoom(nick, des){
+function addRoom(nick, bid, des){
   $$.ajax({
     method: 'POST',
     url: SERVER + ROOM_ADD,
     data: {
       SID: SID,
       UID: UID,
+      BID: bid,
       Nickname: nick,
       Details: des
     },
@@ -162,6 +166,9 @@ function addRoom(nick, des){
 
 // 更新房间页
 function updateRoomPage(){
+  //初始化
+  $$("#add-room").hide();
+
   // 等待特效
   $$("#room-list").html('<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>');
   $$("#room-info").html('...');
@@ -218,8 +225,9 @@ function updateRoomPage(){
                   <li class="mdui-list-item mdui-ripple" onclick="deleteRoomDialog(' + arr[i]['RID'] + ');">Delete Room</li>\
                 </ul>\
               </li>');
-          if (objs["info"]["allow"]) $$("#room-list").append(itemEx); else $$("#room-list").append(item);
+          if (objs["info"]["Modify"]) $$("#room-list").append(itemEx); else $$("#room-list").append(item);
         }
+        if (objs["info"]["Modify"]) $$("#add-room").show();
       }else console.log(objs["msg"]);
     }
   });

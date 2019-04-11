@@ -46,10 +46,11 @@ def api_command():
     return jsonify(iController.command(hid, uid, cmd))
 
 
-@api.route('/interface/<typ>/<task>', methods = ['GET', 'POST'])
-def redirect(typ, task):
+@api.route('/interface/<task>', methods = ['GET', 'POST'])
+def redirect(task):
     DB_SERVER = "http://0.0.0.0:50001"
-    url = DB_SERVER + '/' + typ + '/' + task
+    url = DB_SERVER + '/user/' + task
+    # print(url)
 
     if request.method == 'GET':
         data = urllib.parse.urlencode(request.args.to_dict())

@@ -1,4 +1,4 @@
-var BUILDING = "/interface/user/building";
+var BUILDING = "/interface/building";
 
 function buildingList(){
   var ret = [];

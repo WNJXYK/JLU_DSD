@@ -109,7 +109,7 @@ def create_hardware_table():
     # Add Init Info
     c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('raspi', '测试小灯', 'Light', 1)")
     c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('qwerty', '寝室灯', 'Light', 1)")
-    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('popoqqq', '寝室摄像头', 'CameraSensor', 0)")
+    c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('popoqqq', '寝室摄像头', 'PresenceSensor', 0)")
     conn.commit()
 
     conn.close()

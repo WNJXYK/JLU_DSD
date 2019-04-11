@@ -29,7 +29,7 @@ def main():
     addr = ('127.0.0.1', 1024)
     auth = "WNJXYK"
     hid = "popoqqq"
-    typ = "CameraSensor"
+    typ = "PresenceSensor"
     opts, args = getopt.getopt(sys.argv[1:], "i:p:k:t:h:")
     for op, value in opts:
         if op == "-i": addr = (value, addr[1])

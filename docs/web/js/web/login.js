@@ -1,5 +1,5 @@
-var LOGIN_LOCATION = "/interface/user/login";
-var VERIFY_LOCATION = "/interface/user/verify";
+var LOGIN_LOCATION = "/interface/login";
+var VERIFY_LOCATION = "/interface/verify";
 
 // 账户欢迎处理
 // Welcome for User Account
@@ -9,7 +9,6 @@ function loginWelcome(){
     mdui.snackbar({message: 'Welcome ' + Nickname});
     updateUserTab();
   }//else loginDialog();
-  $$("#tab_user_button").trigger("click");
 }
 
 // 检验用户登陆状态
@@ -38,6 +37,7 @@ function loginVerify(){
           // Verified
           $$.setCookie("Authority", objs["info"]["Authority"], 7);
           $$.setCookie("Nickname", objs["info"]["Nickname"], 7);
+          $$.setCookie("Admin", objs["info"]["Admin"], 7);
         }else UID=SID=null;
       }
     });
@@ -143,21 +143,23 @@ function updateUserTab(){
 		  </div>\
 		  \
 		  <!-- 卡片的标题和副标题 -->\
-		  <div class="mdui-card-primary">\
-		    <div class="mdui-card-primary-title">Title</div>\
-		    <div class="mdui-card-primary-subtitle">Subtitle</div>\
-		  </div>\
-		  <!-- 卡片的内容 -->\
-		  <div class="mdui-card-content">子曰：「学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知，而不愠，不亦君子乎？」</div>\
-		  <!-- 卡片的按钮 -->\
-		  <div class="mdui-card-actions">\
-		    <button class="mdui-btn mdui-ripple">action 1</button>\
-		    <button class="mdui-btn mdui-ripple">action 2</button>\
-		    <button class="mdui-btn mdui-btn-icon mdui-float-right"><i class="mdui-icon material-icons">expand_more</i></button>\
+		  <div id="Admin-Tool">\
+        <div class="mdui-card-primary">\
+          <div class="mdui-card-primary-title">Admin Menu</div>\
+          <!--div class="mdui-card-primary-subtitle">Subtitle</div-->\
+        </div>\
+        <!-- 卡片的内容 -->\
+        <!--div class="mdui-card-content">子曰：「学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知，而不愠，不亦君子乎？」</div-->\
+        <!-- 卡片的按钮 -->\
+        <div class="mdui-card-actions">\
+          <button class="mdui-btn mdui-ripple" onclick="addHardwareDialog();" >Register Hardware</button>\
+          <button class="mdui-btn mdui-ripple" onclick="bindHardwareDialog();" >Bind Hardware</button>\
+          <button class="mdui-btn mdui-ripple" onclick="allHardwareDialog();" >View & Delete Hardware</button>\
+        </div>\
 		  </div>\
 		</div>\
 	');
-
 	$$("#tab-user").html("");
 	$$("#tab-user").append(user_tab);
+	if ($$.getCookie("Admin")==1) $$("#Admin-Tool").show(); else $$("#Admin-Tool").hide();
 }

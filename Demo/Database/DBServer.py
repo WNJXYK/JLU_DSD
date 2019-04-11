@@ -1,4 +1,5 @@
 import os, sys, getopt
+import traceback
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
@@ -11,6 +12,9 @@ from Demo.Database import DBInit
 PATH = "./database.db"
 QUERY_ROOM_AUTHORITY = 2
 MODIFY_ROOM_AUTHORITY = 4
+MODIFY_HARDWARE_AUTHORITY = 4
+SENSOR_TYPE = ["PresenceSensor", "LightSensor"]
+DEVICE_TYPE = ["Light"]
 
 # API Service
 api = Flask(__name__)
@@ -29,6 +33,7 @@ def db_connection(name, params, func):
         return ret
     except Exception as err:
         print(name, err)
+        traceback.print_stack()
         return jsonify({"status": -2, "msg": "Server Error : " + str(err)})
     finally:
         c.close()
@@ -96,7 +101,7 @@ def user_verify():
         if UID is None or SID is None:
             return jsonify({"status": -1, "msg": "Invalid Request"})
 
-        print("Verify", UID, SID)
+        # print("Verify", UID, SID)
 
         cursor = c.execute("SELECT UID, Authority, Nickname from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
@@ -104,7 +109,8 @@ def user_verify():
         if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
 
         UID, Authority, Nickname = res[0], res[1], res[2]
-        return jsonify({"status": 0, "msg": "Valid User", "info": {"UID": UID, "Authority": Authority, "Nickname": Nickname}})
+        Admin = 0 if Authority < MODIFY_HARDWARE_AUTHORITY else 1
+        return jsonify({"status": 0, "msg": "Valid User", "info": {"UID": UID, "Authority": Authority, "Nickname": Nickname, "Admin": Admin}})
 
     except Exception as err:
         print("Verify", err)
@@ -134,13 +140,13 @@ def user_room():
         cnt = 0
         if Authority >= 3:
             if BID is not None:
-                cursor = c.execute("SELECT COUNT(*) FROM Room WHERE BID = ?", (BID))
+                cursor = c.execute("SELECT COUNT(*) FROM Room WHERE BID = ?", (BID,))
             else:
                 cursor = c.execute("SELECT COUNT(*) FROM Room")
         else:
             if BID is None:
                 cursor = c.execute("SELECT COUNT(*) FROM Room \
-                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?)", (UID))
+                               WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?)", (UID,))
             else:
                 cursor = c.execute("SELECT COUNT(*) FROM Room \
                                                WHERE RID IN (SELECT DISTINCT RID FROM rUser WHERE UID = ?) and BID = ?", (UID, BID))
@@ -168,7 +174,7 @@ def user_room():
         auth = 0
         if Authority >= MODIFY_ROOM_AUTHORITY: auth = 1
 
-        return jsonify({"status": 0, "info": {"arr":ret, "cnt":cnt, "allow": auth}})
+        return jsonify({"status": 0, "info": {"arr":ret, "cnt":cnt, "Modify": auth}})
 
     if request.method == 'GET':
         return db_connection("Room", request.args.to_dict(), func)
@@ -193,9 +199,9 @@ def user_modify_room():
         if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         if Delete == 1:
-            c.execute("DELETE from Room where RID=?", (RID))
-            c.execute("DELETE from rUser where RID=?", (RID))
-            c.execute("DELETE from rHardware where RID=?", (RID))
+            c.execute("DELETE from Room where RID=?", (RID,))
+            c.execute("DELETE from rUser where RID=?", (RID,))
+            c.execute("DELETE from rHardware where RID=?", (RID,))
             conn.commit()
         else:
             c.execute("UPDATE Room set Details = ? , BID = ? where RID=?", (Details, BID, RID))
@@ -209,15 +215,15 @@ def user_modify_room():
 @api.route('/user/add_room', methods = ['GET', 'POST'])
 def user_add_room():
     def func(c, conn, params):
-        if ("SID" not in params) or ("UID" not in params) or ("Nickname" not in params) or ("Details" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
-        SID, UID, Nickname, Details = params["SID"], params["UID"], params["Nickname"], params["Details"]
+        if ("SID" not in params) or ("UID" not in params) or ("Nickname" not in params) or ("Details" not in params) or ("BID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, Nickname, Details, BID = params["SID"], params["UID"], params["Nickname"], params["Details"], params["BID"]
 
         cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
-        sql = "INSERT INTO Room (Nickname, SensorCNT, DeviceCNT, Details) VALUES ('%s', 0, 0, '%s')" %(str(Nickname), str(Details))
+        sql = "INSERT INTO Room (Nickname, SensorCNT, DeviceCNT, Details, BID) VALUES ('%s', 0, 0, '%s', %d)" %(str(Nickname), str(Details), int(BID))
 
         c.execute(sql)
 
@@ -243,7 +249,7 @@ def user_hardware():
             if res is None: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
         cursor = c.execute("SELECT HID, Nickname, Type, Ctrl FROM Hardware\
-                  WHERE HID IN (SELECT HID FROM rHardware WHERE RID=?)", (RID))
+                  WHERE HID IN (SELECT HID FROM rHardware WHERE RID=?)", (RID,))
 
         ret = []
         while True:
@@ -257,9 +263,124 @@ def user_hardware():
     if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
     if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
 
+# 查询房间硬件
+@api.route('/user/allHardware', methods = ['GET', 'POST'])
+def user_allHardware():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID = params["SID"], params["UID"]
 
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
 
-# 查询大楼列表
+        cursor = c.execute("SELECT HID, Nickname, Type, Ctrl FROM Hardware")
+
+        ret = []
+        while True:
+            res = cursor.fetchone()
+            if res is None: break
+            ret.append({"HID": res[0], "Nickname": res[1], "Type": res[2], "Ctrl": res[3]})
+
+        conn.commit()
+        return jsonify({"status": 0, "info": ret})
+
+    if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
+
+# 查询房间硬件
+@api.route('/user/del_hardware', methods = ['GET', 'POST'])
+def user_del_Hardware():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params) or ("HID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, HID = params["SID"], params["UID"], params["HID"]
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
+
+        c.execute("DELETE from Hardware where HID=?", (HID,))
+        c.execute("DELETE from rHardware where HID=?", (HID,))
+
+        conn.commit()
+        return jsonify({"status": 0, "info": conn.total_changes})
+
+    if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
+
+# 增加硬件设备
+@api.route('/user/add_hardware', methods = ['GET', 'POST'])
+def user_add_hardware():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params) or ("HID" not in params) or ("Type" not in params) or ("Nickname" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, HID, Type, Nickname = params["SID"], params["UID"], params["HID"], params["Type"], params["Nickname"]
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
+        if Type not in SENSOR_TYPE and Type not in DEVICE_TYPE: return jsonify({"status": -5, "msg": "Invalid Type"})
+
+        sql = "INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('%s', '%s', '%s', %d)"%(str(HID), str(Nickname), str(Type), (1 if Type in DEVICE_TYPE else 0))
+        c.execute(sql)
+
+        conn.commit()
+        return jsonify({"status": 0})
+
+    if request.method == 'GET': return db_connection("Add Hardware", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Add Hardware", request.form.to_dict(), func)
+
+# 绑定硬件与房间
+@api.route('/user/bind_hardware', methods = ['GET', 'POST'])
+def user_bind_hardware():
+    def func(c, conn, params):
+        if ("SID" not in params) or ("UID" not in params) or ("HID" not in params) or ("RID" not in params) or ("Bind" not in params) : return jsonify({"status": -1, "msg": "Invalid Request"})
+        SID, UID, HID, RID, Bind = params["SID"], params["UID"], params["HID"], params["RID"], int(params["Bind"])
+
+        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
+        if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
+
+        # No Hardware
+        cursor = c.execute("SELECT HID from Hardware where HID = ?", (HID,))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -7, "msg": "No such hardware"})
+
+        # No Room
+        cursor = c.execute("SELECT RID from Room where RID=?", (RID,))
+        res = cursor.fetchone()
+        if res is None: return jsonify({"status": -8, "msg": "No such room"})
+
+        # Already Bind / Unbind
+        cursor = c.execute("SELECT HID from rHardware where HID=? and RID=?", (HID, RID))
+        res = cursor.fetchone()
+        if Bind == 1 and res is not None: return jsonify({"status": -5, "msg": "Relation existed"})
+        if Bind == 0 and res is None: return jsonify({"status": -6, "msg": "Relation is not existed"})
+
+        # One Device One Room
+        if Bind == 1:
+            cursor = c.execute("SELECT HID from rHardware where HID = ? and (SELECT Ctrl from Hardware where HID=?) = ?", (HID, HID, 1))
+            res = cursor.fetchone()
+            if res is not None: return jsonify({"status": -9, "msg": "A device can only bind with one room"})
+            cursor = c.execute("SELECT RID, HID from rHardware where RID = ? and HID in (SELECT HID from Hardware where Ctrl = ?) and (SELECT Ctrl from Hardware where HID=?) = ?", (RID, 1, HID, 1))
+            res = cursor.fetchone()
+            if res is not None: return jsonify({"status": -10, "msg": "A room can only contains one device"})
+
+        if Bind == 1:
+            c.execute("INSERT INTO rHardware (HID, RID) VALUES ('%s', %d)" % (str(HID), int(RID)))
+        else:
+            c.execute("DELETE from rHardware where HID = ? and RID = ?",(HID, RID))
+
+        conn.commit()
+        return jsonify({"status": 0})
+
+    if request.method == 'GET': return db_connection("Bind Hardware", request.args.to_dict(), func)
+    if request.method == 'POST': return db_connection("Bind Hardware", request.form.to_dict(), func)
+
+# 查询大楼列表列表
 @api.route('/user/building', methods = ['GET', 'POST'])
 def user_building():
     def func(c, conn, params):
@@ -277,7 +398,7 @@ def user_building():
     if request.method == 'GET': return db_connection("Building", request.args.to_dict(), func)
     if request.method == 'POST': return db_connection("Building", request.form.to_dict(), func)
 
-# 服务器查询房间硬件
+# 服务器查询房间硬件列表
 @api.route('/server/Hardware', methods = ['GET', 'POST'])
 def server_hardware():
     def func(c, conn, params):
@@ -297,7 +418,7 @@ def server_hardware():
     if request.method == 'GET': return db_connection("Hardware", request.args.to_dict(), func)
     if request.method == 'POST': return db_connection("Hardware", request.form.to_dict(), func)
 
-# 服务器查询房间
+# 服务器查询房间列表
 @api.route('/server/room', methods = ['GET', 'POST'])
 def server_room():
     def func(c, conn, params):
@@ -311,7 +432,6 @@ def server_room():
             res = cursor.fetchone()
             if res is None: break
             ret.append(res[0])
-
 
         return jsonify({"status": 0, "info": ret})
 
@@ -335,8 +455,8 @@ def server_hardwareInfo():
         return db_connection("HardwareInfo", request.form.to_dict(), func)
 
 # 服务器查询用户
-@api.route('/server/user', methods = ['GET', 'POST'])
-def server_user():
+@api.route('/server/userInfo', methods = ['GET', 'POST'])
+def server_userInfo():
     def func(c, conn, params):
         cursor = c.execute("SELECT UID, Nickname, Authority FROM User WHERE UID = %s" % params["UID"])
 
