@@ -79,8 +79,7 @@ function loginDialog(){
                 <input class="mdui-textfield-input" type="password" id="login_password"/>\
               </div>',
     buttons: [
-      { text: 'Cancel'
-      },
+      { text: 'Cancel'},
       {
         text: 'Login',
         onClick: function(inst){
@@ -100,7 +99,7 @@ function loginDialog(){
                   $$.setCookie("SID", objs["info"]["SID"], 7);
                   $$.setCookie("Authority", objs["info"]["Authority"], 7);
                   $$.setCookie("Nickname", objs["info"]["Nickname"], 7);
-                  self.location.reload();
+                  
               }else{
                   mdui.snackbar({message: 'Login Failed : ' + objs["msg"]});
               }
