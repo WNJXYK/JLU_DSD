@@ -74,8 +74,7 @@ class Hardware(object):
             except Exception as err:
                 print(err)
             finally:
-                if self.online.value == True:
-                    self.online.value = False
+                self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
                 print("Reporter Error : Wait 2s & Reconnecting...")
@@ -93,7 +92,7 @@ class Hardware(object):
                 socket_in = socket.socket()
                 socket_in.connect(self.addr)
                 socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
-                socket_in.settimeout(5)
+                socket_in.settimeout(10)
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
@@ -106,7 +105,7 @@ class Hardware(object):
                 while True:
                     try:
                         cmd = socket_in.recv(1024).decode("utf8")
-
+                        print(cmd)
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
 
