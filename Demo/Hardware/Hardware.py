@@ -24,6 +24,7 @@ class Hardware(object):
         self.auth = auth
         self.heartbeat = heartbeat
         self.heartbeat_rate = 0
+        self.socket_in = None
 
     def commit_report(self):
         '''
@@ -77,8 +78,9 @@ class Hardware(object):
                 print(err)
             finally:
                 if self.online.value == True:
-                    print("YES")
-                    self.reconnnect.value = True
+                    try:
+                        self.socket_in.close()
+                    except: pass
                     self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
@@ -94,12 +96,12 @@ class Hardware(object):
         while True:
             try:
                 # 连接并发送注册数据包 / Connect and send register package
-                socket_in = socket.socket()
-                socket_in.connect(self.addr)
-                socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
-                socket_in.setblocking(False)
+                self.socket_in = socket.socket()
+                self.socket_in.connect(self.addr)
+                self.socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
+
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(socket_in.recv(1024).decode("utf8"))
+                hello = json.loads(self.socket_in.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Receiver Error : %s" % hello["msg"])
                     continue
@@ -108,14 +110,10 @@ class Hardware(object):
                 # 循环接收命令状态 / Receive command in a loop
                 while True:
                     try:
-                        cmd = socket_in.recv(1024).decode("utf8")
+                        cmd = self.socket_in.recv(1024).decode("utf8")
 
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
-                        if self.reconnnect.value == True:
-                            self.reconnnect.value = False
-                            print("Out")
-                            break
 
                         # cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
@@ -125,7 +123,9 @@ class Hardware(object):
                 print(err)
             finally:
                 # 掉线重连 / Reconnect
-                socket_in.close()
+                try:
+                    self.socket_in.close()
+                except: pass
                 print("Receiver Error : Wait 2s & Reconnecting...")
                 time.sleep(2)
 
