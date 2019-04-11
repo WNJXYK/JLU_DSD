@@ -1,8 +1,7 @@
-import sys, getopt, json
+import sys, json
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
-import time
 import RPi.GPIO as GPIO
 from Demo.Hardware.Hardware import Hardware
 
