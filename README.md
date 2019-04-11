@@ -19,9 +19,9 @@
 ## 支持功能
 
 1. 分层管理：Building -> Room -> Hardware
-  * 添加、删除 Room
+  * 添加、修改、删除 Room
   * 添加、删除 Hardware
-  * Hardware 与 Room 绑定
+  * Hardware 与 Room 绑定与解绑
   * 更改 Room 所属 Building
   
 2. 多种传感器：Presence Sensor, Light Sensor, Button...
@@ -32,3 +32,8 @@
   * Teacher 以上可以强制开/关灯不受智能系统限制
   * 低权限用户一定时间内（Demo中为30S）无法改变高权限用户开灯操作
   * Student 一段时间无操作后，将照明灯将被智能控制系统接管
+
+## 来自各势力的需求修改
+- [ ] 自定义开关灯时间段 [2019.4.x] [Deleted]
+- [x] 增加 Building 概念 [2019.4.4]
+- [ ] 新建 / 删除 Building 功能 [2019.4.11]
