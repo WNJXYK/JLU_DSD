@@ -1,10 +1,12 @@
-import sys, getopt, json
+import sys, getopt
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
 import time
 import RPi.GPIO as GPIO
 from Demo.Hardware.Hardware import Hardware
+
+
 
 class Light(Hardware):
 
@@ -15,7 +17,6 @@ class Light(Hardware):
         '''
         super(Light, self).__init__(addr, hid, typ, auth)
         self.value = self.manager.Value('b', False)
-        self.msg = self.manager.dict()
 
     def get_reportdata(self):
         '''
@@ -23,33 +24,27 @@ class Light(Hardware):
         Get(or generate) the data which is aim for reporting
         :return: data
         '''
-        msg = self.msg.copy()
-        self.msg.clear()
-        msg["data"] = str(self.value.value)
-        return json.dumps(msg)
+        return '{"data":"%s"}' % str(self.value.value)
 
-    def handle_cmd(self, cmd_str):
+    def handle_cmd(self, cmd):
         '''
         处理来自服务器的指令
         Handle the command from server
-        :param cmd_str: 指令 / Command
+        :param cmd: 指令 / Command
         '''
-        cmd = json.loads(cmd_str)
-        print(cmd)
-
         goal = None
         if cmd['data'] == 'on':
+            print("Light : On")
             goal = True
         if cmd['data'] == 'off':
+            print("Light : Off")
             goal = False
 
         if (goal is not None) and self.value.value != goal:
             self.value.value = goal
-            print("Light : ", goal)
-            msg = self.msg.copy()
-            msg["cmd"] = cmd_str
-            self.msg = msg
-            self.commit_report()
+            self.change.value = True
+        else:
+            self.change.value = False
 
 def main():
     # GPIO
@@ -60,7 +55,7 @@ def main():
     # 新建硬件对象 / Create hardware object
     # 服务器地址, 硬件ID, 硬件类型, 验证口令
     # Server, Hardware Id, Hardware type, Authenicate key
-    light = Light(('39.106.7.29', 1024), "raspi", "Light", "WNJXYK")
+    light = Light(('95.179.154.249', 50001), "raspi", "LightDevice", "QQQ")
 
     # 开启发送数据线程 / Start the thread for reporting data
     light.report(light.get_reportdata)
