@@ -55,7 +55,7 @@ class Controller(object):
 
         rid, now = info["rid"], info["time"]
         sensors, button = self.getSensorData(info["sensors"])
-        print(sensors, button)
+        # print(sensors, button)
 
         # Solve Button
         if flag and button:
@@ -67,20 +67,20 @@ class Controller(object):
         # No Need to do anything
         if device["data"] == "False": return json.dumps(ret)
 
-        print(rid, now - self.last[rid])
+        # print(rid, now - self.last[rid])
 
         # Auto Close
         if rid in self.last and (now - self.last[rid] <= self.RunLimit): return json.dumps(ret)
         if "cmd" in device and "authority" in device["cmd"]:
             cmd = json.loads(device["cmd"])
-            print(cmd["authority"])
+            # print(cmd["authority"])
             if cmd["authority"] > self.AutoLimit: return json.dumps(ret)
 
         v = False
         for x in sensors: v = v or x
 
         if len(sensors) <= 0 or (v == False): ret["data"] = "off"
-        print(v, ret)
+        # print(v, ret)
 
         return json.dumps(ret)
 
