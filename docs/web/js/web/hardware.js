@@ -5,6 +5,7 @@ var LAST_COMMAND = 0;
 
 // 处理CheckBox
 function solveCheckbox(HID, ID, type){
+  LAST_COMMAND = Date.now();
   var cmd = "";
   switch(type){
     case "Light":
@@ -13,7 +14,6 @@ function solveCheckbox(HID, ID, type){
       }else cmd = "off";
       break;
   }
-  LAST_COMMAND = Date.now();
   $$.ajax({
       method: 'GET',
       url: SERVER + HARDWARE_CMD,
