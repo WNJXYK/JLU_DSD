@@ -23,7 +23,6 @@ class Hardware(object):
         self.auth = auth
         self.heartbeat = heartbeat
         self.heartbeat_rate = 0
-        self.socket_in = None
 
     def commit_report(self):
         '''
@@ -45,7 +44,6 @@ class Hardware(object):
                 socket_out = socket.socket()
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
-
 
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
@@ -77,6 +75,7 @@ class Hardware(object):
                 print(err)
             finally:
                 if self.online.value == True:
+                    self.thread.
                     self.online.value = False
                 # 掉线重连 / Reconnect
                 socket_out.close()
@@ -92,12 +91,12 @@ class Hardware(object):
         while True:
             try:
                 # 连接并发送注册数据包 / Connect and send register package
-                self.socket_in = socket.socket()
-                self.socket_in.connect(self.addr)
-                self.socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
+                socket_in = socket.socket()
+                socket_in.connect(self.addr)
+                socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
 
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(self.socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
+                hello = json.loads(socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Receiver Error : %s" % hello["msg"])
                     continue
@@ -106,7 +105,7 @@ class Hardware(object):
                 # 循环接收命令状态 / Receive command in a loop
                 while True:
                     try:
-                        cmd = self.socket_in.recv(1024).decode("utf8")
+                        cmd = socket_in.recv(1024).decode("utf8")
 
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
@@ -119,7 +118,7 @@ class Hardware(object):
                 print(err)
             finally:
                 # 掉线重连 / Reconnect
-                self.socket_in.close()
+                socket_in.close()
                 print("Receiver Error : Wait 2s & Reconnecting...")
                 time.sleep(2)
 
