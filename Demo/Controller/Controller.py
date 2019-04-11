@@ -5,8 +5,8 @@ class Controller(object):
     # 低等级开灯，自动关闭
     def __init__(self):
         self.last = {}
-        self.RunLimit = 10
-        self.CtrlLimit = 10
+        self.RunLimit = 60
+        self.CtrlLimit = 30
         self.AutoLimit = 2
 
     def Init(self):
@@ -67,13 +67,20 @@ class Controller(object):
         # No Need to do anything
         if device["data"] == "False": return json.dumps(ret)
 
-        # Auto Close
+        print(rid, now - self.last[rid])
 
+        # Auto Close
         if rid in self.last and (now - self.last[rid] <= self.RunLimit): return json.dumps(ret)
         if "cmd" in device and "authority" in device["cmd"]:
             cmd = json.loads(device["cmd"])
+            print(cmd["authority"])
             if cmd["authority"] > self.AutoLimit: return json.dumps(ret)
-        if len(sensors) <= 0 or (map((lambda x, y: x or y), sensors) == False): ret["data"] = "off"
+
+        v = False
+        for x in sensors: v = v or x
+
+        if len(sensors) <= 0 or (v == False): ret["data"] = "off"
+        print(v, ret)
 
         return json.dumps(ret)
 
