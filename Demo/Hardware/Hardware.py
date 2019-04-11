@@ -77,6 +77,7 @@ class Hardware(object):
                 print(err)
             finally:
                 if self.online.value == True:
+                    print("YES")
                     self.reconnnect.value = True
                     self.online.value = False
                 # 掉线重连 / Reconnect
@@ -113,8 +114,9 @@ class Hardware(object):
                         if len(cmd) == 0: break
                         if self.reconnnect.value == True:
                             self.reconnnect.value = False
+                            print("Out")
                             break
-                            
+
                         # cmd = json.loads(cmd)  # 格式化 Json 形式为 Dict / Turn json into dict
                         func(cmd)  # 执行指令
                     except: print("Unknown command : %s" % cmd)
