@@ -46,7 +46,7 @@ class Hardware(object):
                 socket_out.connect(self.addr)
                 socket_out.send(('{"id":"%s", "type":"%s", "socket":"in", "auth":"%s"}'%(self.hid, self.typ, self.auth)).encode("utf8"))
                 socket_out.settimeout(10)
-                
+
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_out.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
@@ -59,19 +59,24 @@ class Hardware(object):
 
                 # 循环汇报状态 / Report data in a loop
                 while True:
-                    self.online.value = True # 设置自身在线判断 / Set online or offline
-                    if self.change.value:
-                        msg = func()  # 生成汇报数据 / Generate reported data
-                        socket_out.send(msg.encode("utf8"))
-                        self.change.value = False
-                        self.heartbeat_rate = 0
+                    try:
+                        self.online.value = True # 设置自身在线判断 / Set online or offline
+                        if self.change.value:
+                            msg = func()  # 生成汇报数据 / Generate reported data
+                            socket_out.send(msg.encode("utf8"))
+                            ack = socket_out.recv(1024).decode("utf8")
+                            if len(ack)<=0: break
 
-                    if self.heartbeat_rate > self.heartbeat > 0:
-                        socket_out.send("{}".encode("utf8"))
-                        self.heartbeat_rate = 0
+                            self.change.value = False
+                            self.heartbeat_rate = 0
 
-                    self.heartbeat_rate += 0.5
-                    time.sleep(0.5)
+                        if self.heartbeat_rate > self.heartbeat > 0:
+                            socket_out.send("{}".encode("utf8"))
+                            self.heartbeat_rate = 0
+
+                        self.heartbeat_rate += 0.5
+                        time.sleep(0.5)
+                    except: break
 
             except Exception as err:
                 print(err)
@@ -99,7 +104,7 @@ class Hardware(object):
                 socket_in.settimeout(10)
 
                 # 收取服务器握手信息 / Receive server conform message
-                hello = json.loads(socket_in.recv(1024, socket.MSG_DONTWAIT).decode("utf8"))
+                hello = json.loads(socket_in.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
                     print("Receiver Error : %s" % hello["msg"])
                     continue
