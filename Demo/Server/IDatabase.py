@@ -11,9 +11,9 @@ class IDatabase(object):
         header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
         req = urllib.request.Request(url=url, data=data, headers=header_dict)
         res = urllib.request.urlopen(req)
-        res = res.read()
+        res = res.read().decode("utf-8")
         print(res)
-        return str(res)
+        return res
 
     def getSensorHID(self, RID):
         res = self.post(self.DBS + "/server/Hardware", {"RID": RID, "Ctrl": 0})
