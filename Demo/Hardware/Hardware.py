@@ -97,7 +97,7 @@ class Hardware(object):
                 socket_in = socket.socket()
                 socket_in.connect(self.addr)
                 socket_in.send(('{"id":"%s", "type":"%s", "socket":"out", "auth":"%s"}' % (self.hid, self.typ, self.auth)).encode("utf8"))
-
+                socket_in.setblocking(False)
                 # 收取服务器握手信息 / Receive server conform message
                 hello = json.loads(socket_in.recv(1024).decode("utf8"))
                 if int(hello["status"]) != 0:
@@ -108,7 +108,7 @@ class Hardware(object):
                 # 循环接收命令状态 / Receive command in a loop
                 while True:
                     try:
-                        cmd = socket_in.recv(1024, False).decode("utf8")
+                        cmd = socket_in.recv(1024).decode("utf8")
 
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
