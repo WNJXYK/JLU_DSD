@@ -12,6 +12,7 @@ class IDatabase(object):
         req = urllib.request.Request(url=url, data=data, headers=header_dict)
         res = urllib.request.urlopen(req)
         res = res.read()
+        print(res)
         return str(res)
 
     def getSensorHID(self, RID):
