@@ -103,7 +103,7 @@ def user_verify():
 
         # print("Verify", UID, SID)
 
-        cursor = c.execute("SELECT UID, Authority, Nickname from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT UID, Authority, Nickname from User where UID=?", (UID, ))
         res = cursor.fetchone()
 
         if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
@@ -132,7 +132,7 @@ def user_room():
         if "BID" in params: BID = params["BID"]
         if BID == "0": BID = None
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID, ))
         res = cursor.fetchone()
         if res is None: return jsonify({"status":-3, "msg":"Invalid User"})
         Authority = res[0]
@@ -192,8 +192,7 @@ def user_modify_room():
         if "Details" in params: Details = params["Details"]
         if "BID" in params: BID = int(params["BID"])
 
-
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -218,7 +217,7 @@ def user_add_room():
         if ("SID" not in params) or ("UID" not in params) or ("Nickname" not in params) or ("Details" not in params) or ("BID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID, Nickname, Details, BID = params["SID"], params["UID"], params["Nickname"], params["Details"], params["BID"]
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_ROOM_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -240,7 +239,7 @@ def user_hardware():
         if ("SID" not in params) or ("UID" not in params) or ("RID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID, RID = params["SID"], params["UID"], params["RID"]
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < QUERY_ROOM_AUTHORITY:
@@ -270,7 +269,7 @@ def user_allHardware():
         if ("SID" not in params) or ("UID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID = params["SID"], params["UID"]
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -296,7 +295,7 @@ def user_del_Hardware():
         if ("SID" not in params) or ("UID" not in params) or ("HID" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID, HID = params["SID"], params["UID"], params["HID"]
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -317,7 +316,7 @@ def user_add_hardware():
         if ("SID" not in params) or ("UID" not in params) or ("HID" not in params) or ("Type" not in params) or ("Nickname" not in params): return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID, HID, Type, Nickname = params["SID"], params["UID"], params["HID"], params["Type"], params["Nickname"]
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})
@@ -339,7 +338,7 @@ def user_bind_hardware():
         if ("SID" not in params) or ("UID" not in params) or ("HID" not in params) or ("RID" not in params) or ("Bind" not in params) : return jsonify({"status": -1, "msg": "Invalid Request"})
         SID, UID, HID, RID, Bind = params["SID"], params["UID"], params["HID"], params["RID"], int(params["Bind"])
 
-        cursor = c.execute("SELECT Authority from User where SID=? and UID=?", (SID, UID))
+        cursor = c.execute("SELECT Authority from User where UID=?", (UID,))
         res = cursor.fetchone()
         if res is None: return jsonify({"status": -3, "msg": "Invalid User"})
         if res[0] < MODIFY_HARDWARE_AUTHORITY: return jsonify({"status": -4, "msg": "Invalid Authority"})

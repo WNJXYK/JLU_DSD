@@ -93,6 +93,7 @@ function loginDialog(){
             success: function (data) {
               let objs = JSON.parse(data);
               console.log(objs);
+              console.log(objs["info"]);
               if (objs["status"]==0){
                   $$.setCookie("Email", $$("#login_email").val(), 7);
                   $$.setCookie("UID", objs["info"]["UID"], 7);

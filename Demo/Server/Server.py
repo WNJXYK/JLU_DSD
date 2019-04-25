@@ -1,4 +1,4 @@
-import sys, getopt
+import sys, getopt, json
 from multiprocessing import Manager
 from flask import Flask, request, jsonify
 from flask_cors import *
@@ -12,6 +12,7 @@ from Demo.Server.Hardware import Hardware
 from Demo.Server.IController import IController
 from Demo.Server.Socket import Socket
 from Demo.Server.IDatabase import IDatabase
+from Demo.Server.User import User
 
 
 # Global
@@ -21,6 +22,7 @@ hardware = Hardware(manager, db)
 socket = Socket(manager, hardware, db)
 controller = Controller()
 iController = IController(hardware, controller, socket, db)
+user = User(manager)
 
 
 # API Service
@@ -52,21 +54,63 @@ def redirect(task):
     url = DB_SERVER + '/user/' + task
     # print(url)
 
-    if request.method == 'GET':
-        data = urllib.parse.urlencode(request.args.to_dict())
-        header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'}
-        req = urllib.request.Request(url='%s%s%s' % (url, '?', data), headers=header_dict)
-        res = urllib.request.urlopen(req)
-        res = res.read()
-        return res
+    if task == "login":
+        data = None
+        if request.method == 'GET': data = request.args.to_dict()
+        if request.method == 'POST': data = request.form.to_dict()
+        if "email" not in data or "password" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
+        email, password = data["email"], data["password"]
 
-    if request.method == 'POST':
-        data = urllib.parse.urlencode(request.form.to_dict()).encode(encoding='utf-8')
         header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
-        req = urllib.request.Request(url=url, data=data, headers=header_dict)
+        req = urllib.request.Request(url=url, data=urllib.parse.urlencode({"email": email, "password": password}).encode(encoding='utf-8'), headers=header_dict)
         res = urllib.request.urlopen(req)
         res = res.read()
-        return res
+
+        obj = json.loads(res)
+        UID = obj["info"]["UID"]
+        Nickname = obj["info"]["Nickname"]
+        Authority = int(obj["info"]["Authority"])
+        SID = user.allocate(str(UID), Nickname , Authority)
+        return jsonify({"status": 0, "msg": "Login", "info": {"UID": UID, "SID": SID, "Authority": Authority, "Nickname": Nickname}})
+
+    elif task == "verify":
+        data = None
+        if request.method == 'GET': data = request.args.to_dict()
+        if request.method == 'POST': data = request.form.to_dict()
+        if "SID" not in data or "UID" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
+
+        sid, uid = data["SID"], data["UID"]
+        if user.check(str(uid), sid):
+            return jsonify({"status": 0, "info": user.get(uid)})
+        else:
+            return jsonify({"status": -3, "msg":"Invalid User"})
+
+    else:
+        data = None
+        if request.method == 'GET': data = request.args.to_dict()
+        if request.method == 'POST': data = request.form.to_dict()
+        if "SID" not in data or "UID" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
+        sid, uid = data["SID"], data["UID"]
+        if not user.check(str(uid), sid):
+            return jsonify({"status": -3, "msg": "Invalid User"})
+        else: print("Go")
+
+        if request.method == 'GET':
+            data = urllib.parse.urlencode(request.args.to_dict())
+            header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'}
+            req = urllib.request.Request(url='%s%s%s' % (url, '?', data), headers=header_dict)
+            res = urllib.request.urlopen(req)
+            res = res.read()
+            return res
+
+        if request.method == 'POST':
+            data = urllib.parse.urlencode(request.form.to_dict()).encode(encoding='utf-8')
+            header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',
+                           "Content-Type": "application/x-www-form-urlencoded"}
+            req = urllib.request.Request(url=url, data=data, headers=header_dict)
+            res = urllib.request.urlopen(req)
+            res = res.read()
+            return res
 
     return "Access Denied."
 
