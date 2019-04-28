@@ -5,7 +5,7 @@ function buildingList(){
   $$.ajax({
     method: 'POST',
     url: SERVER + BUILDING,
-    data: {},
+    data: {SID:SID, UID:UID},
     async: false,
     success: function (data) {
       var objs = JSON.parse(data);
