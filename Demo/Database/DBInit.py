@@ -55,6 +55,8 @@ def create_room_table():
     # Add Init Info
     c.execute("INSERT INTO Room (Nickname, Details, BID) VALUES ('Zero', '树莓派测试房间', 1)")
     c.execute("INSERT INTO Room (Nickname, Details, BID) VALUES ('Computer', '电脑控制房间', 2)")
+    for i in range(1000000):
+        c.execute("INSERT INTO Room (Nickname, Details, BID) VALUES ('Test Room %d', '压力测试房间', 3)" % i)
     conn.commit()
 
     conn.close()
@@ -74,10 +76,7 @@ def create_building_table():
     # Add Init Info
     c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Raspi', '树莓派测试大楼')")
     c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Computer', '电脑控制大楼')")
-    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building One', 'One')")
-    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Two', 'Two')")
-    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Three', 'Three')")
-    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Four', 'Four')")
+    c.execute("INSERT INTO Building (Nickname, Details) VALUES ('Building Test', '压力测试大楼')")
     conn.commit()
 
     conn.close()
@@ -101,6 +100,9 @@ def create_hardware_table():
     c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('qwerty', '电脑灯', 'Light', 1)")
     c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('popoqqq', '电脑摄像头', 'PresenceSensor', 0)")
     c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('hzwer', '电脑按钮', 'ButtonSensor', 0)")
+    for i in range(1000000):
+        c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('%d_Button', '测试按钮', 'ButtonSensor', 0)" % i)
+        c.execute("INSERT INTO Hardware (HID, Nickname, Type, Ctrl) VALUES ('%d_Light', '测试灯', 'Light', 1)" % i)
     conn.commit()
 
     conn.close()
@@ -141,6 +143,9 @@ def create_rHardware_table():
     c.execute("INSERT INTO rHardware (HID, RID) VALUES ('popoqqq', 2)")
     c.execute("INSERT INTO rHardware (HID, RID) VALUES ('qwerty', 2)")
     c.execute("INSERT INTO rHardware (HID, RID) VALUES ('hzwer', 2)")
+    for i in range(1000000):
+        c.execute("INSERT INTO rHardware (HID, RID) VALUES ('%d_Button', %d)" % (i, 3+i))
+        c.execute("INSERT INTO rHardware (HID, RID) VALUES ('%d_Light', %d)" % (i, 3+i))
     conn.commit()
 
     conn.close()
