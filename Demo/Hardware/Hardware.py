@@ -80,7 +80,7 @@ class Hardware(object):
                             if len(ack) <= 0 or str(ack) != "{}": break
 
                         self.heartbeat_rate += 0.5
-                        time.sleep(0.5)
+                        # time.sleep(0.5)
                     except:
                         # print("GG")
                         break

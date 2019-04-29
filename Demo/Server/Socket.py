@@ -24,7 +24,7 @@ class Socket(object):
         # 新建 Socket / Create a socket
         self.socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_server.bind(address)
-        self.socket_server.listen(5)
+        self.socket_server.listen(100000)
 
         # 监听线程 / Listening thread
         thread = Thread(target=self.accept)
