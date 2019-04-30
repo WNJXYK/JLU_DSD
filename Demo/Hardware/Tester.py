@@ -82,7 +82,7 @@ class Button(Hardware):
         return '{"data":"%s"}' % str(self.value.value)
 
 def main():
-    MAX_DEVICE = 10
+    MAX_DEVICE = 100
     global m_last
 
     # 获取调用参数 / Get Option
@@ -106,11 +106,8 @@ def main():
     # 批量链接
     for i in range(MAX_DEVICE):
         light[i].report(light[i].get_reportdata)
-        time.sleep(0.1)
         light[i].receive(light[i].handle_cmd)
-        time.sleep(0.1)
         button[i].report(button[i].get_reportdata)
-        time.sleep(0.1)
     print("Connect", time.time()-connect_time)
 
 
@@ -122,15 +119,13 @@ def main():
             m_last[i] = time.time()
             button[i].value.value = True
             button[i].commit_report()
-            time.sleep(0.1)
 
         time.sleep(5)
         for i in range(MAX_DEVICE):
             print(i, "Close")
             button[i].value.value = False
             button[i].commit_report()
-            time.sleep(0.5)
 
-        time.sleep(10)
+        time.sleep(5)
 
 if __name__ == '__main__': main()

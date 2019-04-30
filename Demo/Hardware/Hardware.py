@@ -122,6 +122,8 @@ class Hardware(object):
                     try:
                         cmd = socket_in.recv(1024).decode("utf8")
 
+                        print(cmd)
+
                         # 掉线判断 / Judge whether offline
                         if len(cmd) == 0: break
 
