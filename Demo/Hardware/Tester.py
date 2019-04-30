@@ -9,7 +9,7 @@ from Demo.Hardware.Hardware import Hardware
 manager = Manager()
 m_last = manager.dict()
 
-
+cnt_send_time = sum_send_time = 0
 
 class Light(Hardware):
     def __init__(self, addr, hid, typ, auth, idx):
@@ -112,8 +112,8 @@ def main():
 
 
     # 保持运行 & 额外处理 / Keep & Do something else
-    while True:
-        cnt_send_time = sum_send_time = 0
+    for i in range(100):
+
         for i in range(MAX_DEVICE):
             print(i, "Open")
             m_last[i] = time.time()

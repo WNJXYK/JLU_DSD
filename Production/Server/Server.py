@@ -84,6 +84,7 @@ def redirect(task):
         req = urllib.request.Request(url=url, data=urllib.parse.urlencode({"email": email, "password": password}).encode(encoding='utf-8'), headers=header_dict)
         res = urllib.request.urlopen(req)
         res = res.read()
+        res = res.decode(encoding='utf-8')
 
         obj = json.loads(res)
         UID = obj["info"]["UID"]
