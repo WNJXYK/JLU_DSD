@@ -36,11 +36,11 @@ def api_hardware():
     sid = request.args.get("SID")
     hid = request.args.get("HID")
 
+    # Check User's Identification
+    if user.check(str(uid), sid): return jsonify({"status" : -1, "msg" : "Access Denied."})
+
     # Log
     print("Hardware Query (%s, %s): %s" % (uid, sid, hid))
-
-    # Check User's Identification
-    if not user.check(str(uid), sid): return jsonify({"status" : -1, "msg" : "Access Denied."})
 
     # Get Hardware Info
     return jsonify(hardware.query(hid))
@@ -54,13 +54,11 @@ def api_command():
     hid = request.args.get("HID")
     cmd = request.args.get("CMD")
 
+    # Check User's Identification
+    if user.check(str(uid), sid): return jsonify({"status" : -1, "msg" : "Access Denied."})
+
     # Log
     print("API Command (%s, %s): %s <- %s" % (uid, sid, hid, cmd))
-
-    # Check User's Identification
-    if not user.check(str(uid), sid): return jsonify({"status" : -1, "msg" : "Access Denied."})
-
-
 
     # Send Command to IC
     return jsonify(iController.command(hid, uid, cmd))
