@@ -1,7 +1,5 @@
 import time, uuid
 
-
-
 class User(object):
     '''
     服务器用户类：管理用户身份
