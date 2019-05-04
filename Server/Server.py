@@ -7,12 +7,13 @@ import urllib
 sys.path.append(sys.path[0] + "/../..")
 sys.path.append(sys.path[0] + "/..")
 
-from Demo.Controller.Controller import Controller
-from Production.Server.Hardware import Hardware
-from Production.Server.IController import IController
-from Production.Server.Socket import Socket
-from Production.Server.IDatabase import IDatabase
-from Production.Server.User import User
+
+from Simulate.Controller.Controller import Controller
+from Hardware import Hardware
+from IController import IController
+from Socket import Socket
+from IDatabase import IDatabase
+from User import User
 
 
 # Global

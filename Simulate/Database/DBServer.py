@@ -6,7 +6,7 @@ sys.path.append(sys.path[0] + "/..")
 import hashlib, sqlite3, time
 from flask import Flask, request, jsonify
 from flask_cors import *
-from Demo.Database import DBInit
+from Simulate.Database import DBInit
 
 # Constant
 PATH = "./database.db"
