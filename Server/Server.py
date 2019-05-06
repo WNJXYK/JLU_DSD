@@ -4,11 +4,9 @@ from flask import Flask, request, jsonify
 from flask_cors import *
 import urllib
 
-sys.path.append(sys.path[0] + "/../..")
+
 sys.path.append(sys.path[0] + "/..")
 
-
-from Simulate.Controller.Controller import Controller
 from Hardware import Hardware
 from IController import IController
 from Socket import Socket
@@ -21,8 +19,7 @@ manager = Manager()
 db = IDatabase()
 hardware = Hardware(manager, db)
 socket = Socket(manager, hardware, db)
-controller = Controller()
-iController = IController(hardware, controller, socket, db)
+iController = IController(hardware, socket, db)
 user = User(manager)
 
 
@@ -61,8 +58,6 @@ def api_command():
     # Check User's Identification
     if not user.check(str(uid), sid): return jsonify({"status" : -1, "msg" : "Access Denied."})
 
-
-
     # Send Command to IC
     return jsonify(iController.command(hid, uid, cmd))
 
@@ -81,10 +76,10 @@ def redirect(task):
         if request.method == 'GET': data = request.args.to_dict()
         if request.method == 'POST': data = request.form.to_dict()
         if "email" not in data or "password" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
-        email, password = data["email"], data["password"]
+        UID, password = data["UID"], data["password"]
 
         header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
-        req = urllib.request.Request(url=url, data=urllib.parse.urlencode({"email": email, "password": password}).encode(encoding='utf-8'), headers=header_dict)
+        req = urllib.request.Request(url=url, data=urllib.parse.urlencode({"UID": UID, "password": password}).encode(encoding='utf-8'), headers=header_dict)
         res = urllib.request.urlopen(req)
         res = res.read()
         res = res.decode(encoding='utf-8')
@@ -138,7 +133,6 @@ def redirect(task):
     return "Access Denied."
 
 
-
 def main():
     # Get Option
     addr = ('0.0.0.0', 8888)
@@ -158,5 +152,6 @@ def main():
 
     # Init API
     api.run(host = '0.0.0.0', port = 8088, threaded=True)
+
 
 if __name__ == '__main__': main()

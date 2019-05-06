@@ -1,7 +1,13 @@
 from threading import Thread
-import time
-import traceback
+import time, json, urllib
+import Config
 
+
+
+# Command
+# 0 -> No command
+# 1 -> Command On
+# 2 -> Command Off
 
 class IController(object):
     '''
@@ -9,9 +15,8 @@ class IController(object):
     Interface between controller and server
     '''
 
-    def __init__(self, hardware, controller, socket, idb):
+    def __init__(self, hardware, socket, idb):
         self.hardware = hardware
-        self.controller = controller
         self.socket = socket
         self.db = idb
 
@@ -19,6 +24,20 @@ class IController(object):
         thread = Thread(target=self.report_thread)
         thread.setDaemon(True)
         thread.start()
+
+    def post(self, url, data):
+        '''
+        Post 请求封装函数
+        :param url: 请求地址 / Request Url
+        :param data: 请求数据 / Request Data
+        :return:
+        '''
+        data = urllib.parse.urlencode(data).encode(encoding='utf-8')
+        header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
+        req = urllib.request.Request(url=url, data=data, headers=header_dict)
+        res = urllib.request.urlopen(req)
+        res = res.read().decode("utf-8")
+        return res
 
     def report_thread(self):
         '''
@@ -46,6 +65,13 @@ class IController(object):
             devices.append(self.hardware.get(hid))
         return sensors, devices
 
+    def render_json(self, str):
+        obj = json.loads(str)
+        msg = obj["msg"]
+        flag = None if "flag" not in obj else obj["flag"]
+        message = None if "message" not in obj else obj["message"]
+        return msg, flag, message
+
     def report(self, hid):
         '''
         传感器、设备更新时，更新受影响的房间的设备状态 / When sensors' and device's data changed, update the state of device in affected rooms
@@ -54,7 +80,6 @@ class IController(object):
 
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
         info = self.db.getHardware(hid)
-        if info["ctrl"] == 1: return
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
         rooms = self.db.getRoomRID(hid);
@@ -66,11 +91,14 @@ class IController(object):
                 "rid": rid,
                 "time": time.time(),
                 "sensors": sensors,
-                "device": devices
+                "device": devices,
+                "source": hid,
+                "user": {},
+                "cmd": 0
             }
 
             # 控制 / Control
-            msg = self.controller.Run(param)
+            msg, _, _ = self.render_json(self.post(Config.ICServer, param))
 
             # 向设备发送控制信号 / Send a signal to hardware
             for device in devices: self.socket.outQue.put((device["hid"], msg))
@@ -114,12 +142,13 @@ class IController(object):
                 "time": time.time(),
                 "sensors": sensors,
                 "device": devices,
-                "cmd": cmd,
-                "user": user
+                "source": "",
+                "user": user,
+                "cmd": cmd
             }
 
             # 控制 / Control
-            msg, flag, message = self.controller.Cmd(param)
+            msg, flag, message = self.render_json(self.post(Config.ICServer, param))
 
             # 向设备发送控制信号 / Send a signal to hardware
 
@@ -128,7 +157,7 @@ class IController(object):
                     print(" * IController : Send command %s to %s" % (msg, device["hid"]))
                     self.socket.outQue.put((device["hid"], msg))
 
-        return {"status": (0 if flag else -1), "msg": message}
+        return {"status": flag, "msg": message}
 
     def heartbeat_thread(self, duration):
         '''
@@ -148,11 +177,14 @@ class IController(object):
                         "rid": rid,
                         "time": time.time(),
                         "sensors": sensors,
-                        "device": devices
+                        "device": devices,
+                        "source": "",
+                        "user": {},
+                        "cmd": 0
                     }
 
                     # 控制 / Control
-                    msg = self.controller.Beat(param)
+                    msg, _, _ = self.render_json(self.post(Config.ICServer, param))
 
                     # 向设备发送控制信号 / Send a signal to hardware
                     for device in devices:

@@ -1,10 +1,10 @@
 import json, urllib
+import Config
 
 class IDatabase(object):
 
-    def __init__(self, DBS = "http://127.0.0.1:50001"):
-        self.DBS = DBS
-        pass
+    def __init__(self):
+        self.DBS = Config.DBServer
 
     def post(self, url, data):
         data = urllib.parse.urlencode(data).encode(encoding='utf-8')

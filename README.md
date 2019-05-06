@@ -68,8 +68,6 @@
 
 ## Run Code
 
-
-
 1. Enter the `JLU_DSD` folder
 
 2. Run Fake DBServer
@@ -85,4 +83,8 @@
    ```
 
    **Attention : Server Service requires DB Service. Make sure the DBServer is running before Server Start.**
+
+## Tips
+
+You can use `screen` to run multi-tasks underground.
 
