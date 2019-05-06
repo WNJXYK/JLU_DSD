@@ -59,7 +59,7 @@ def main():
     # 新建硬件对象 / Create hardware object
     # 服务器地址, 硬件ID, 硬件类型, 验证口令
     # Server, Hardware Id, Hardware type, Authenicate key
-    light = Light(('39.106.7.29', 8088), "raspi", "Light", "WNJXYK")
+    light = Light(('39.106.7.29', 8888), "raspi", "Light", "WNJXYK")
 
     # 开启发送数据线程 / Start the thread for reporting data
     light.report(light.get_reportdata)
