@@ -15,45 +15,72 @@ class IDatabase(object):
         return res
 
     def getSensorHID(self, RID):
-        res = self.post(self.DBS + "/server/Hardware", {"RID": RID, "Ctrl": 0})
+        res = self.post(self.DBS + "/server_Sensor", RID)
         obj = json.loads(res)
         if obj["status"] != 0: return []
+
         return obj["info"]
 
     def getDeviceHID(self, RID):
-        res = self.post(self.DBS + "/server/Hardware", {"RID": RID, "Ctrl": 1})
+        res = self.post(self.DBS + "/server_Device", RID)
         obj = json.loads(res)
         if obj["status"] != 0: return []
+
         return obj["info"]
 
     def getAllRoomRID(self):
-        res = self.post(self.DBS+"/server/room",{})
+        res = self.post(self.DBS+"/server_room",{"HID":"0"})
         obj = json.loads(res)
         if obj["status"]!=0: return []
+        # ret = [str(x) for x in obj["info"]]
+
         return obj["info"]
 
     def getRoomRID(self, HID):
-        res = self.post(self.DBS+"/server/room",{"HID":HID})
+        res = self.post(self.DBS+"/server_room",{"HID" : HID})
         obj = json.loads(res)
         if obj["status"]!=0: return []
+
         return obj["info"]
 
     def getHardware(self, HID):
-        res = self.post(self.DBS + "/server/hardwareInfo", {"HID": HID})
+
+
+        res = self.post(self.DBS + "/server_hardwareInfo", {"HID": HID})
         obj = json.loads(res)
-        if obj["status"] != 0: return {}
-        return obj["info"]
+        if obj["status"] == 0:
+            hid = obj["HID"]
+            typ = obj["type"]
+            ret = {"hid": hid, "type":typ, "ctrl":0}
+
+            return ret
+
+        res = self.post(self.DBS + "/server_deviceInfo", {"LID": HID})
+        obj = json.loads(res)
+        if obj["status"] == 0:
+            hid = obj["LID"]
+            ret = {"hid": hid, "type": 0, "ctrl": 1}
+
+            return ret
+
+        return {}
+
 
     def isHardware(self, HID):
-        return len(self.getHardware(HID))>0
+        info = self.getHardware(HID)
+
+        return "hid" in info
+        # return True
 
     def isDevice(self, HID):
         info = self.getHardware(HID)
-        if len(info)<=0: return False
-        return info["ctrl"]==1
+
+        if not "hid" in info: return False
+        return info["ctrl"] == 1
+        # return True
 
     def getUser(self, UID):
-        res = self.post(self.DBS + "/server/userInfo", {"UID": UID})
+        res = self.post(self.DBS + "/server_userInfo", {"UID": UID})
         obj = json.loads(res)
         if obj["status"] != 0: return []
 

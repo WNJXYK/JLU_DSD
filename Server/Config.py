@@ -1,2 +1,2 @@
-DBServer = "http://127.0.0.1:50001"
-ICServer = "http://127.0.0.1:50002/api"
+DBServer = "http://192.168.8.124:8080/JsonTest"
+ICServer = "http://192.168.8.125:8888"

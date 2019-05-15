@@ -57,7 +57,7 @@ class User(object):
         '''
         self.modify(uid, "Last", time.time())
         self.modify(uid, "Nickname", nick)
-        self.modify(uid, "Authority", int(auth))
+        self.modify(uid, "Role", int(auth))
         self.modify(uid, "Admin", (1 if int(auth) >= 3 else 0))
         sid = str(uuid.uuid4())
         self.modify(uid, "SID", sid)

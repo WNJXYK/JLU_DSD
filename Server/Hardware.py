@@ -29,7 +29,7 @@ class Hardware(object):
                 "hid": hid,
                 "online": 0,
                 "type": info["type"],
-                "data": "offline",
+                "data": 0,
                 "last": 0.0
             }
 
@@ -104,8 +104,7 @@ class Hardware(object):
             self.modify(hid, "data", msg["data"])
 
         # 硬件上一条指令 / hardware's last command
-        if "cmd" in msg:
-            self.modify(hid, "cmd", msg["cmd"])
+        # if "cmd" in msg: self.modify(hid, "cmd", msg["cmd"])
 
         self.modify(hid, "last", time.time())
 
@@ -118,7 +117,7 @@ class Hardware(object):
         info = self.db.getHardware(hid)
         ret = {
             "id": hid,
-            "nickname": info["nickname"],
+            # "nickname": info["nickname"],
             "type": info["type"]
         }
         info = self.get(hid)

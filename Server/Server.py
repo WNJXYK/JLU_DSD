@@ -3,7 +3,7 @@ from multiprocessing import Manager
 from flask import Flask, request, jsonify
 from flask_cors import *
 import urllib
-
+import Config
 
 sys.path.append(sys.path[0] + "/..")
 
@@ -26,6 +26,10 @@ user = User(manager)
 # API Service
 api = Flask(__name__)
 CORS(api)
+
+@api.errorhandler(404)
+def page_not_found(e):
+    return "Opsss. This is a private page."
 
 @api.route('/api/hardware')
 def api_hardware():
@@ -64,8 +68,7 @@ def api_command():
 
 @api.route('/interface/<task>', methods = ['GET', 'POST'])
 def redirect(task):
-    DB_SERVER = "http://0.0.0.0:50001"
-    url = DB_SERVER + '/user/' + task
+    url = Config.DBServer + '/user_' + task
 
     # Log
     print("DB Request %s" % task)
@@ -75,21 +78,34 @@ def redirect(task):
         data = None
         if request.method == 'GET': data = request.args.to_dict()
         if request.method == 'POST': data = request.form.to_dict()
-        if "email" not in data or "password" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
+        print(request.method, data)
+        if "UID" not in data or "password" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
         UID, password = data["UID"], data["password"]
+        print(UID, password)
 
-        header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko', "Content-Type": "application/x-www-form-urlencoded"}
-        req = urllib.request.Request(url=url, data=urllib.parse.urlencode({"UID": UID, "password": password}).encode(encoding='utf-8'), headers=header_dict)
-        res = urllib.request.urlopen(req)
-        res = res.read()
-        res = res.decode(encoding='utf-8')
+        try:
+            header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',
+                           "Content-Type": "application/x-www-form-urlencoded"}
+            req = urllib.request.Request(url=url,
+                                         data=urllib.parse.urlencode({"UID": UID, "password": password}).encode(
+                                             encoding='utf-8'), headers=header_dict)
+            res = urllib.request.urlopen(req)
+            res = res.read()
+            res = res.decode(encoding='utf-8')
+            obj = json.loads(res)
 
-        obj = json.loads(res)
-        UID = obj["info"]["UID"]
-        Nickname = obj["info"]["Nickname"]
-        Authority = int(obj["info"]["Authority"])
-        SID = user.allocate(str(UID), Nickname , Authority)
-        return jsonify({"status": 0, "msg": "Login", "info": {"UID": UID, "SID": SID, "Authority": Authority, "Nickname": Nickname}})
+            if obj["status"] == 1:
+                return jsonify({"status": -1, "msg": "Login Failed"})
+            elif obj["status"] == 0:
+                name = obj["user"]["name"]
+                role = int(obj["user"]["role"])
+                SID = user.allocate(str(UID), name, role)
+                return jsonify(
+                    {"status": 0, "msg": "Login", "info": {"UID": UID, "SID": SID, "Nickname": name, "Role": role}})
+            else:
+                return jsonify({"status": -2, "msg": "DB ERROR"})
+        except Exception as err:
+            return jsonify({"status": -3, "msg": err})
 
     elif task == "verify":
         data = None
@@ -109,6 +125,9 @@ def redirect(task):
         if request.method == 'POST': data = request.form.to_dict()
         if "SID" not in data or "UID" not in data: return jsonify({"status": -1, "msg": "Invalid Request"})
         sid, uid = data["SID"], data["UID"]
+
+        print("DBRequest", url, data)
+
         if not user.check(str(uid), sid):
             return jsonify({"status": -3, "msg": "Invalid User"})
         else: print("Go")
@@ -119,6 +138,7 @@ def redirect(task):
             req = urllib.request.Request(url='%s%s%s' % (url, '?', data), headers=header_dict)
             res = urllib.request.urlopen(req)
             res = res.read()
+            print("DB Request", res)
             return res
 
         if request.method == 'POST':
@@ -148,7 +168,7 @@ def main():
 
     # Heartbeat to IC
     iController.init()
-    iController.heartbeat(10)
+    iController.heartbeat(30)
 
     # Init API
     api.run(host = '0.0.0.0', port = 8088, threaded=True)

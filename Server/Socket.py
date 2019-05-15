@@ -44,6 +44,7 @@ class Socket(object):
         监听命令队列
         Listen the command queue
         '''
+
         while True:
             (hid, msg) = self.outQue.get(True)
             try:
@@ -84,7 +85,8 @@ class Socket(object):
                 return
 
             # 与数据库核对硬件是否注册 / Check this hardware is registered in database
-            if not self.db.isHardware(hid) or self.hardware.get(hid)["type"] != typ:
+            print(self.db.isHardware(hid), self.hardware.get(hid)["type"], typ)
+            if (not self.db.isHardware(hid)) or int(self.hardware.get(hid)["type"]) != int(typ):
                 client.send('{"status":-3, "msg":"Not An Registered Hardware."}'.encode("utf8"))
                 client.close()
                 print("  * Socket : %s(%s) is not a registered hardware." % (typ, hid))

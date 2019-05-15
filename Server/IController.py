@@ -67,10 +67,11 @@ class IController(object):
 
     def render_json(self, str):
         obj = json.loads(str)
-        msg = obj["msg"]
-        flag = None if "flag" not in obj else obj["flag"]
+        print(obj)
+        cmd = obj["state"]
+        status = None if "status" not in obj else obj["status"]
         message = None if "message" not in obj else obj["message"]
-        return msg, flag, message
+        return cmd, status, message
 
     def report(self, hid):
         '''
@@ -80,6 +81,7 @@ class IController(object):
 
         # 当设备自更新时，不向控制器反馈 / When a device updated its self, don't report to controller
         info = self.db.getHardware(hid)
+        if info["ctrl"]==1: return
 
         # 获取受影响房间编号列表 / Get the list of affected rooms' ID
         rooms = self.db.getRoomRID(hid);
@@ -93,15 +95,20 @@ class IController(object):
                 "sensors": sensors,
                 "device": devices,
                 "source": hid,
-                "user": {},
+                "authority": 0,
                 "cmd": 0
             }
 
             # 控制 / Control
-            msg, _, _ = self.render_json(self.post(Config.ICServer, param))
+            print(param)
+            cmd, status, message = self.render_json(self.post(Config.ICServer, param))
 
             # 向设备发送控制信号 / Send a signal to hardware
-            for device in devices: self.socket.outQue.put((device["hid"], msg))
+            for device in devices:
+                if status == 0:
+                    print(" * IController : Send command %s to %s when heartbeat" % (cmd, device["hid"]))
+                    data = (str(device["hid"]), str(json.dumps({"data": cmd})))
+                    self.socket.outQue.put(data)
 
     def command(self, hid, uid, cmd):
         '''
@@ -120,7 +127,6 @@ class IController(object):
 
         # 不允许用户操作传感器 / User cannot operator a sensor
         info = self.db.getHardware(hid)
-        flag = False
         message = "No Device"
 
         if info["ctrl"] != 1 :
@@ -143,21 +149,22 @@ class IController(object):
                 "sensors": sensors,
                 "device": devices,
                 "source": "",
-                "user": user,
+                "authority": user["Role"],
                 "cmd": cmd
             }
 
             # 控制 / Control
-            msg, flag, message = self.render_json(self.post(Config.ICServer, param))
+            cmd, status, message = self.render_json(self.post(Config.ICServer, param))
 
             # 向设备发送控制信号 / Send a signal to hardware
 
             for device in devices:
-                if (len(msg) > 2):
-                    print(" * IController : Send command %s to %s" % (msg, device["hid"]))
-                    self.socket.outQue.put((device["hid"], msg))
+                if (status == 0):
+                    print(" * IController : Send command %s to %s when heartbeat" % (cmd, device["hid"]))
+                    data = (str(device["hid"]), str(json.dumps({"data": cmd})))
+                    self.socket.outQue.put(data)
 
-        return {"status": flag, "msg": message}
+        return {"status": status, "msg": message}
 
     def heartbeat_thread(self, duration):
         '''
@@ -169,30 +176,36 @@ class IController(object):
             try:
                 # 定时激活所有房间
                 rooms = self.db.getAllRoomRID()
-
                 for rid in rooms:
                     # 生成控制数据 / Generate data which controller needed
+                    print("Room:", rid)
                     sensors, devices = self.room_info(rid)
+                    if (len(sensors)<=0): continue
+                    if (len(devices)<=0): continue
+
                     param = {
                         "rid": rid,
                         "time": time.time(),
                         "sensors": sensors,
                         "device": devices,
                         "source": "",
-                        "user": {},
+                        "authority": 0,
                         "cmd": 0
                     }
 
                     # 控制 / Control
-                    msg, _, _ = self.render_json(self.post(Config.ICServer, param))
+                    print(param)
+                    cmd, status, _ = self.render_json(self.post(Config.ICServer, param))
 
                     # 向设备发送控制信号 / Send a signal to hardware
                     for device in devices:
-                        if (len(msg)>2):
-                            print(" * IController : Send command %s to %s when heartbeat" % (msg, device["hid"]))
-                            self.socket.outQue.put((device["hid"], msg))
+                        if status == 0:
+                            print(" * IController : Send command %s to %s when heartbeat" % (cmd, device["hid"]))
+                            data = (str(device["hid"]), str(json.dumps({"data":cmd})))
+                            self.socket.outQue.put(data)
 
                 # 定时睡眠
+                print("Sleep")
                 time.sleep(duration)
             except Exception as err:
                 print(" * IController : %s when heartbeat to IC" % err)
