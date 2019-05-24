@@ -1,6 +1,4 @@
 .idea/*
-Demo/Database/__pycache__/*
-Demo/Controller/__pycache__/*
-Demo/Server/__pycache__/*
-Demo/Hardware/__pycache__/*
+*.pyc
+*/__pycache__/*
 *.db
