@@ -13,6 +13,12 @@
     <link href="assets/css/demo.css" rel="stylesheet" />
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
+    <style>
+    table{
+      height:50px;
+      overflow:scroll;
+    }
+    </style>
   </head>
 
   <body>
@@ -65,7 +71,7 @@
                     <button class="btn btn-primary col-md-6" onclick="buildingList()">Refresh</button>
                     <button class="btn btn-info col-md-6 build-permission" onclick="addBuilding()">Add</button>
                   </div>
-                  <div class="content table-responsive table-full-width">
+                  <div style="max-height: 300px; overflow-y: auto;" class="content table-responsive table-full-width">
                     <table class="table table-hover table-striped">
                       <thead>
                       <th>#</th>
@@ -89,7 +95,7 @@
                     <button class="btn btn-primary col-md-6" onclick="roomList()" id="room-refresh-button" disabled>Refresh</button>
                     <button class="btn btn-info col-md-6 build-permission" onclick="addRoom()" id="room-add-button" disabled>Add</button>
                   </div>
-                  <div class="content table-responsive table-full-width">
+                  <div style="max-height: 300px; overflow-y: auto;" class="content table-responsive table-full-width pre-scroll">
                     <table class="table table-hover table-striped">
                       <thead>
                       <th>#</th>
@@ -114,7 +120,7 @@
                     <button class="btn btn-primary col-md-6" onclick="hardwareList()" id="hardware-refresh-button" disabled>Refresh</button>
                     <button class="btn btn-info col-md-6 build-permission" onclick="addHardware()" id="hardware-add-button" disabled>Add</button>
                   </div>
-                  <div class="content table-responsive table-full-width">
+                  <div style="max-height: 500px; overflow-y: auto;" class="content table-responsive table-full-width">
                     <table class="table table-hover table-striped">
                       <thead>
                       <th>#</th>
@@ -277,6 +283,13 @@
       $("#user-info").html(user_name + " (" + user_role + ")");
     });
 
+    var int=self.setInterval("clock()", 1000);
+    function clock(){
+      buildingList();
+      roomList();
+      hardwareList();
+    }
+
     var select_building=0, select_room=0;
     $(function(){
       buildingList();
@@ -422,6 +435,7 @@
     function hardwareList(room){
       room = room ? room : select_room;
       select_room = room;
+      if (select_room == 0) return;
       $("#hardware-refresh-button").attr('disabled',false);
       $("#hardware-add-button").attr('disabled',false);
       $.ajax({
@@ -471,7 +485,7 @@
       let cmd = {
         hardware: id,
         value: val,
-        type: (isForce()?"force":"")
+        type: (isForce()?"force":"0")
       }
       cmd = JSON.stringify(cmd);
       $.ajax({
@@ -587,6 +601,7 @@
     function roomList(building){
       building = building ? building : select_building;
       select_building = building;
+      if (select_building == 0) return;
       $("#room-refresh-button").attr('disabled',false);
       $("#room-add-button").attr('disabled',false);
       $.ajax({

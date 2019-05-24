@@ -22,33 +22,80 @@ mem = {}
 def control():
     def func(data):
         global mem
+        data = json.loads(data["info"])
         time = data["time"]
-        timeout = data["time"]
+        timeout = data["timeout"]
         priority = data["priority"]
         command = data["command"]
+        room_status = data["status"]
+        command_list = []
+        operate_flag = False
+
+        # Solve Command
         if len(command)>0:
             command = json.loads(command)
             hid, val, typ = str(command["hardware"]), command["value"], command["type"]
-            flag = False
             if hid not in mem:
                 if typ == "force":
                     mem[hid] = {"priority" : 0, "force": 1, "last": time}
                 else:
                     mem[hid] = {"priority": priority, "force": 0, "last": time}
-                flag = True
+                operate_flag = True
             else:
                 if typ == "force":
                     mem[hid] = {"priority": 0, "force": 1, "last": time}
-                    flag = True
+                    operate_flag = True
                 else:
-                    if mem[hid]["priority"]<=priority or time-mem[hid]["last"]>timeout:
+                    if (int(mem[hid]["priority"])<=int(priority) and int(mem[hid]["force"])==0) or float(time)-float(mem[hid]["last"])>float(timeout):
                         mem[hid] = {"priority": priority, "force": 0, "last": time}
-                        flag = True
-            if flag: return jsonify({"status":0, "message":"", "command":["Hardware.set_light(%s, %s)" % (hid, str(val))]})
+                        operate_flag = True
+            if operate_flag: command_list.append("Hardware.set_light(%s, %s)" % (hid, str(val)))
 
-            return jsonify({"status":1, "message":"Permission Denied"})
-        else:
-            return jsonify({"status":0, "message":"", "command":[]})
+        present_flag = False
+        light_flag = False
+        button_flag = False
+        panic_flag = False
+
+        for s in data["sensors"]:
+            hid, typ, val = str(s["id"]), int(s["type"]), int(s["value"])
+            if hid not in mem: mem[hid] = {"value": val}
+            if typ == 3 and val == 1: light_flag = True
+            if typ == 4 and val == 1: present_flag = True
+            if typ == 5 and mem[hid]["value"] == 0 and val == 1: button_flag = True
+            if typ == 6 and mem[hid]["value"] == 0 and val == 1: panic_flag = True
+            mem[hid] = {"value": val}
+
+        keep_alive = present_flag or light_flag
+
+        # Panic Switch
+        if panic_flag: command_list.append("Log.add_log(%s, %s)" % (data["building"], data["room"]))
+
+        # Solve Light
+        for s in data["devices"]:
+            hid, typ, val = str(s["id"]), int(s["type"]), int(s["value"])
+            if hid not in mem: mem[hid] = {"priority" : 0, "force": 0, "last": time}
+            # Emergency : Open Light
+            if room_status != 0 or panic_flag:
+                command_list.append("Hardware.set_light(%s, %s)" % (hid, 1))
+                mem[hid]["last"] = time
+            else:
+                # Close Emergency Light
+                if typ == 2: command_list.append("Hardware.set_light(%s, 0)" % hid)
+
+                # Solve Button
+                if button_flag and typ == 1:
+                    command_list.append("Hardware.set_light(%s, %s)" % (hid, str(1-val)))
+                    mem[hid]["last"] = time
+
+                # Light Timeout When No People
+                if typ == 1 and val == 1 and (not keep_alive) and float(time)-float(mem[hid]["last"])>float(timeout):
+                    if ("force" in mem[hid]) and int(mem[hid]["force"]) == 1:
+                        pass
+                    else:
+                        command_list.append("Hardware.set_light(%s, 0)" % hid)
+
+        if operate_flag: return jsonify({"status":0, "message":"", "command": command_list})
+        return jsonify({"status": 1, "message": "Permission Denied", "command": command_list})
 
 
     return render(request, [], func)

@@ -91,7 +91,17 @@ def add_hardware(name, type, host, gpio, room):
     if len(content) == 0: return 1, "No Such Raspberry Pi"
 
     content = json.loads(content[0][0])
-    print(content)
+
+    # Check GPIO
+    if gpio == "Camera" and int(type)==4:
+        pass
+    elif gpio == "I2C" and int(type)==3:
+        pass
+    else:
+        if int(type)==4: return 3, "Camera Must Use 'Camera' as GPIO ID"
+        if int(type)==3: return 4, "Light Sensor Must Use 'I2C' as GPIO ID"
+        if gpio in ["Camera" or "I2C"]: return 5, "Only Special Sensor Can Use Special GPIO ID"
+        if int(gpio) not in range(2, 27): return 6, "GPIO should in range [2, 26]"
     if str(gpio) in content["0"]: return 2, "GPIO Has Been Using"
     if str(gpio) in content["1"]: return 2, "GPIO Has Been Using"
 
@@ -104,7 +114,7 @@ def add_hardware(name, type, host, gpio, room):
     _, defaultValue = IDatabase.render("SELECT defaultValue FROM Room WHERE id = ?", (room,))
     defaultValue = defaultValue[0][0]
 
-    IDatabase.render("INSERT INTO Hardware (name, type, host, gpio, room, value, defaultValue, online) VALUES ('%s', %d, %d, %d, %d, 0, %d, 1)" % (name, type, host, gpio, room, int(defaultValue)))
+    IDatabase.render("INSERT INTO Hardware (name, type, host, gpio, room, value, defaultValue, online) VALUES ('%s', %d, %d, '%s', %d, 0, %d, 1)" % (name, type, host, str(gpio), room, int(defaultValue)))
     update_raspi(host)
 
     return 0, ""
@@ -186,6 +196,7 @@ def query_hardware(id):
 
     return 0, "", ret
 
+
 def set_light(id, state):
     if state not in [0, 1]: return 1, "Invalid State"
     _, cnt = IDatabase.render("SELECT COUNT(*) FROM Hardware WHERE id = ?", (id,))
@@ -193,3 +204,13 @@ def set_light(id, state):
 
     IDatabase.render("UPDATE Hardware SET value = ? WHERE id = ?", (state, id))
     return 0, ""
+
+
+def query_hardware_count():
+    _, cnt = IDatabase.render("SELECT COUNT(*) FROM Hardware")
+    return 0, "", cnt[0][0]
+
+
+def query_raspi_count():
+    _, cnt = IDatabase.render("SELECT COUNT(*) FROM Raspi")
+    return 0, "", cnt[0][0]

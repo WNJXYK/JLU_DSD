@@ -2,6 +2,7 @@ from urllib import parse, request
 from Server.Database import Room
 from Server.Database import Hardware
 from Server.Database import User
+from Server.Database import Log
 import time, json
 
 CONTROLLER_ADDR = "http://0.0.0.0:443/control/control"
@@ -55,7 +56,6 @@ def send(room_id, command = "", priority = ""):
               "priority": priority}
 
     for hardware in hardware_list:
-
         id, type, func, value = hardware["id"], hardware["type_id"], hardware["func"], hardware["value"]
         if int(func) == 1:
             params["devices"].append({"id": id, "type": type, "value": value})
@@ -63,17 +63,14 @@ def send(room_id, command = "", priority = ""):
             params["sensors"].append({"id": id, "type": type, "value": value})
 
     # Request
-    print(params)
     try:
-        res = post(CONTROLLER_ADDR, params)
+        res = post(CONTROLLER_ADDR, {"info" : json.dumps(params)})
         res = json.loads(res)
         for p in res["command"]: eval(p)
-
+        return res["status"], res["message"]
     except Exception as err:
         print(" * Controller : " + str(err))
+        return 1, str(err)
 
-    # Render Command
 
-    status, message = 0, ""
-    return status, message
 

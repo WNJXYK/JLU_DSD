@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from Server.Database import User
 from Server.Database import Hardware
 from Server.Database import Room
+from Server.Database import Log
 
 api = Blueprint("User_API", __name__)
 
@@ -67,6 +68,8 @@ def user():
             status, message = User.modify_user(id, name, role, permission)
             return jsonify({"status": status, "message": message})
 
+        return jsonify({"status": -2, "message": "No Such Command"})
+
 
     return render(request, ["option", "uid", "token"], func)
 
@@ -91,6 +94,8 @@ def raspi():
 
         if option == 3: return jsonify({"status": -2, "message": "No Such Command"})
 
+        return jsonify({"status": -2, "message": "No Such Command"})
+
     return render(request, ["option", "uid", "token"], func)
 
 @api.route("/hardware", methods = ['GET', 'POST'])
@@ -110,7 +115,7 @@ def hardware():
         if option == 1:
             flag, ret = check_param(["name", "type", "host", "gpio", "room"], data)
             if not flag: return ret
-            name, type, host, gpio, room = data["name"], int(data["type"]), int(data["host"]), int(data["gpio"]), int(data["room"])
+            name, type, host, gpio, room = data["name"], int(data["type"]), int(data["host"]), data["gpio"], int(data["room"])
             status, message = Hardware.add_hardware(name, type, host, gpio, room)
             return jsonify({"status": status, "message": message})
 
@@ -122,6 +127,8 @@ def hardware():
             return jsonify({"status": status, "message": message})
 
         if option == 3: return jsonify({"status": -2, "message": "No Such Command"})
+
+        return jsonify({"status": -2, "message": "No Such Command"})
 
     return render(request, ["option", "uid", "token"], func)
 
@@ -160,6 +167,8 @@ def room():
             status, message = Room.modify_room(id, name, timeout, defaultValue)
             return jsonify({"status": status, "message": message})
 
+        return jsonify({"status": -2, "message": "No Such Command"})
+
     return render(request, ["option", "uid", "token"], func)
 
 @api.route("/building", methods = ['GET', 'POST'])
@@ -188,7 +197,7 @@ def building():
 
         if option == 3: return jsonify({"status": -2, "message": "No Such Command"})
 
-
+        return jsonify({"status": -2, "message": "No Such Command"})
 
     return render(request, ["option", "uid", "token"], func)
 
@@ -206,4 +215,29 @@ def role():
             status, message = User.modify_role(data["id"], data["priority"])
             return jsonify({"status": status, "message": message})
 
+        return jsonify({"status": -2, "message": "No Such Command"})
+
     return render(request, ["option", "uid", "token"], func)
+
+@api.route("/log", methods = ['GET', 'POST'])
+def log():
+    def func(data):
+        option = int(data["option"])
+
+        if option == 0:
+            status, message, info = Log.list_log()
+            return jsonify({"status": status, "message": message, "info": info})
+
+        if option == 2:
+            flag, ret = check_param(["uid", "token", "id"], data)
+            if not flag: return ret
+
+            uid, token = data["uid"], data["token"]
+            if not User.query_permission(uid, token, "admin"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+
+            status, message = Log.del_log(data["id"])
+            return jsonify({"status": status, "message": message})
+
+        return jsonify({"status": -2, "message": "No Such Command"})
+
+    return render(request, ["option"], func)

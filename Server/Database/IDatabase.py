@@ -112,6 +112,14 @@ def install():
                status INTEGER NOT NULL);'''
     render(sql_table)
 
+    # Building
+    sql_table = '''CREATE TABLE Log
+                   (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                   room INTEGER NOT NULL,
+                   building INTEGER NOT NULL,
+                   solved INTEGER NOT NULL);'''
+    render(sql_table)
+
     # Insert Hardware Type
     render("INSERT INTO HardwareType (id, name, func) VALUES (1, 'Light', 1)")
     render("INSERT INTO HardwareType (id, name, func) VALUES (2, 'Alarm', 1)")

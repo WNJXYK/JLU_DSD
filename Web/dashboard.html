@@ -46,13 +46,59 @@
               <ul class="nav navbar-nav navbar-left"></ul>
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="#" id="user-info"><p></p></a></li>
-                <li><a href="#" onclick="logout()">Log out</a></li>
+                <li><a href="#" onclick="logout()" id="login">Log out</a></li>
                 <li class="separator hidden-lg hidden-md"></li>
               </ul>
             </div>
           </div>
         </nav>
 
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+
+              <div class="col-md-5">
+                <div class="card">
+                  <div class="header">
+                    <h4 class="title">Dashboard</h4>
+                    <p class="category">Settings and overall.</p>
+                  </div>
+                  <div class="content">
+                    <div class="input-group">
+                      <span class="input-group-addon">Server Url : </span>
+                      <input type="text" class="form-control" id="server-url" placeholder="http://127.0.0.1">
+                       <div class="input-group-btn">
+                        <button type="button" class="btn btn-default" id="server-url-submit">Submit</button>
+                      </div>
+                    </div>
+                    <p id="overall">
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-md-7">
+                <div class="card">
+                  <div class="header">
+                    <h4 class="title">Logs</h4>
+                    <p class="category">View Logs</p>
+                    <button class="btn btn-primary col-md-12" onclick="logList()" id="log-refresh-button">Refresh</button>
+                  </div>
+                  <div style="max-height: 300px; overflow-y: auto;" class="content table-responsive table-full-width pre-scroll">
+                    <table class="table table-hover table-striped">
+                      <thead>
+                      <th>#</th>
+                      <th>Building</th>
+                      <th>Room</th>
+                      <th>Operations</th>
+                      </thead>
+                      <tbody id="log-list">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
 
       </div>
     </div>
@@ -71,7 +117,6 @@
     var constant_server, user_id, user_token, user_name, user_role;
     $(function(){
       loadConfig();
-      checkLogin();
       disabledButtons();
       constant_server = $.cookie('global_server');
       user_id = $.cookie('global_uid');
@@ -79,6 +124,100 @@
       user_name = $.cookie('global_name');
       user_role = $.cookie('global_role');
       $("#user-info").html(user_name + " (" + user_role + ")");
+      $("#server-url").val(constant_server);
+      logList();
+      overall();
+      $("#server-url-submit").click(function(){
+        $.cookie('global_server', $("#server-url").val());
+        constant_server = $.cookie('global_server');
+        $.notify({
+          icon: "pe-7s-science",
+          message: "OK."
+        },{ type: "success", timer: 1000 });
+      });
     });
+
+    var int=self.setInterval("clock()", 1000);
+    function clock(){
+      overall(); logList();
+    }
+
+    function overall(){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/open/overall",
+        data: {},
+        success: function (data) {
+          if (data["status"]==0){
+            let overall = data["info"];
+            let ret = "<br><h5>Statistics</h5>";
+
+            for(let o in overall){
+              ret = ret+'<div class="input-group"><span class="input-group-addon">' + o + '</span><input type="text" class="form-control" value="' + overall[o] + '"disabled></div>';
+            }
+            $("#overall").html(ret);
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Load Logs failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function logList(){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/log",
+        data: {
+          option: 0
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            let logs = data["info"];
+            let ret = "";
+            for (let i=0; i<logs.length; i++){
+              let log = logs[i];
+              ret = ret + "<tr><td>" + "Alarm" + "</td>\
+                              <td>" + log["building"] +  "</td>\
+                              <td>" + log["room"] + "</td>\
+                              <td><button class=\"btn btn-success admin-permission\" onclick=\"delLog(" + log["id"] + ")\">Solved</button>";
+              ret= ret + "</tr>";
+            }
+            $("#log-list").html(ret);
+            disabledButtons();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Load Logs failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function delLog(id){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/log",
+        data: {
+          option: 2,
+          uid: user_id,
+          token: user_token,
+          id: id
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            logList();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Solve Log failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
   </script>
 </html>

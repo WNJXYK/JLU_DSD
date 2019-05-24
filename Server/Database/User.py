@@ -138,3 +138,8 @@ def query_role():
 
     return 0, "", ret
 
+
+def query_user_count():
+    _, cnt = IDatabase.render("SELECT COUNT(*) FROM User")
+    return 0, "", cnt[0][0]
+

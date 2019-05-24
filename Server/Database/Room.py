@@ -115,9 +115,16 @@ def modify_building_status(id, status):
 
     IDatabase.render("UPDATE Building SET status = ? WHERE id = ?", (status, id, ))
 
-    _, room = IDatabase.render("SELECT id, name, status FROM Room WHERE buliding = ?", (id, ))
-    for r in room: modify_room_status(r, status)
+    _, room = IDatabase.render("SELECT id, name, status FROM Room WHERE building = ?", (id, ))
+    for r in room: modify_room_status(r[0], status)
 
     return 0, ""
 
+def query_building_count():
+    _, cnt = IDatabase.render("SELECT COUNT(*) FROM Building")
+    return 0, "", cnt[0][0]
 
+
+def query_room_count():
+    _, cnt = IDatabase.render("SELECT COUNT(*) FROM Room")
+    return 0, "", cnt[0][0]
