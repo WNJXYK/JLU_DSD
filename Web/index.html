@@ -138,7 +138,9 @@
 
     var int=self.setInterval("clock()", 1000);
     function clock(){
-      overall(); logList();
+      if (!notLogin()){
+        overall(); logList();
+      }
     }
 
     function overall(){

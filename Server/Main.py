@@ -3,6 +3,8 @@ from flask import Flask
 from Server.Database import IDatabase
 from Server.Controller import IController
 from Server import Config
+import sys
+
 
 from threading import Thread
 import time
