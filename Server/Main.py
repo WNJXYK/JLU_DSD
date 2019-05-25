@@ -1,9 +1,12 @@
+import sys
+sys.path.append(sys.path[0] + "/..")
+
 from flask_cors import CORS
 from flask import Flask
 from Server.Database import IDatabase
 from Server.Controller import IController
 from Server import Config
-import sys
+
 
 
 from threading import Thread
