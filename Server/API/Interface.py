@@ -77,7 +77,7 @@ def user():
 def raspi():
     def func(data):
         option, uid, token = int(data["option"]), data["uid"], data["token"]
-        if not User.query_permission(uid, token, "admin"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+        if not User.query_permission(uid, token, "build"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
 
         if option == 0:
             status, message, info = Hardware.list_raspi()

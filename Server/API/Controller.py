@@ -28,6 +28,7 @@ def control():
         priority = data["priority"]
         command = data["command"]
         room_status = data["status"]
+        default_value = int(data["default"])
         command_list = []
         operate_flag = False
 
@@ -65,7 +66,7 @@ def control():
             if typ == 6 and mem[hid]["value"] == 0 and val == 1: panic_flag = True
             mem[hid] = {"value": val}
 
-        keep_alive = present_flag or light_flag
+        keep_alive = present_flag and light_flag
 
         # Panic Switch
         if panic_flag: command_list.append("Log.add_log(%s, %s)" % (data["building"], data["room"]))
@@ -73,7 +74,10 @@ def control():
         # Solve Light
         for s in data["devices"]:
             hid, typ, val = str(s["id"]), int(s["type"]), int(s["value"])
-            if hid not in mem: mem[hid] = {"priority" : 0, "force": 0, "last": time}
+            if hid not in mem:
+                mem[hid] = {"priority" : 0, "force": 0, "last": time}
+                command_list.append("Hardware.set_light(%s, %s)" % (hid, default_value))
+
             # Emergency : Open Light
             if room_status != 0 or panic_flag:
                 command_list.append("Hardware.set_light(%s, %s)" % (hid, 1))
@@ -85,6 +89,10 @@ def control():
                 # Solve Button
                 if button_flag and typ == 1:
                     command_list.append("Hardware.set_light(%s, %s)" % (hid, str(1-val)))
+                    mem[hid]["last"] = time
+
+                # Light KeepAlive When People There
+                if typ == 1 and val == 1 and keep_alive:
                     mem[hid]["last"] = time
 
                 # Light Timeout When No People

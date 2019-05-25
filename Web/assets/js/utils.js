@@ -34,21 +34,24 @@ function disabledButtons(){
   let admin_flag=false;
   let build_flag=false;
   let force_flag=false;
-  permission = permission.toString().split(",");
-  for (let i=0; i<permission.length; i++){
-    if (permission[i]=="admin") admin_flag=true;
-    if (permission[i]=="build") build_flag=true;
-    if (permission[i]=="force") force_flag=true;
+  
+  if (!isEmpty(permission)){
+    permission = permission.toString().split(",");
+    for (let i=0; i<permission.length; i++){
+      if (permission[i]=="admin") admin_flag=true;
+      if (permission[i]=="build") build_flag=true;
+      if (permission[i]=="force") force_flag=true;
+    }
   }
 
   if (admin_flag==false){
     $('#nav-user').hide();
-    $('#nav-raspi').hide();
     $('.admin-permission').hide();
   }
 
   if (build_flag==false){
     $('.build-permission').hide();
+    $('#nav-raspi').hide();
   }
 
   if (notLogin()){
