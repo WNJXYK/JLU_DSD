@@ -105,7 +105,7 @@ class Tools:
     @staticmethod
     def get_sensor(i):
         if i == "Camera": return 0
-        if i == "I2C": return 0
+        if i == "I2C": return 1
         return GPIO.input(int(i))
 
     @staticmethod

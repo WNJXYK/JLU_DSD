@@ -60,7 +60,7 @@ def control():
         for s in data["sensors"]:
             hid, typ, val = str(s["id"]), int(s["type"]), int(s["value"])
             if hid not in mem: mem[hid] = {"value": val}
-            if typ == 3 and val == 1: light_flag = True
+            if typ == 3 and val == 0: light_flag = True
             if typ == 4 and val == 1: present_flag = True
             if typ == 5 and mem[hid]["value"] == 0 and val == 1: button_flag = True
             if typ == 6 and mem[hid]["value"] == 0 and val == 1: panic_flag = True
