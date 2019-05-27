@@ -70,19 +70,11 @@
 
 1. Enter the `JLU_DSD` folder
 
-2. Run Fake DBServer
+2. Run Server
 
    ```
-   python3 Simulate/Database/DBServer.py
+   python3 Server/Main.py
    ```
-
-3. Run Server
-
-   ```
-   python3 Server/Server.py
-   ```
-
-   **Attention : Server Service requires DB Service. Make sure the DBServer is running before Server Start.**
 
 ## Tips
 
