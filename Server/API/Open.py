@@ -18,6 +18,7 @@ def render(request, param, func):
 def index():
     return "Open API Index"
 
+# This API is Legacy
 @api.route("/role", methods = ['GET', 'POST'])
 def role():
     def func(data):

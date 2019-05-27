@@ -206,7 +206,7 @@ def role():
     def func(data):
         option = int(data["option"])
 
-        if option == 1:
+        if option == 0:
             status, message, role = User.query_role()
             return jsonify({"status": status, "message": message, "info": role})
 
