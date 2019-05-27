@@ -82,7 +82,7 @@
    python3 Server/Server.py
    ```
 
-   ** Attention : Server Service requires DB Service. Make sure the DBServer is running before Server Start.**
+   **Attention : Server Service requires DB Service. Make sure the DBServer is running before Server Start.**
 
 ## Tips
 
