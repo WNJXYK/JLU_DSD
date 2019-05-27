@@ -120,6 +120,13 @@ def install():
                    solved INTEGER NOT NULL);'''
     render(sql_table)
 
+    # Config
+    sql_table = '''CREATE TABLE Config
+                   (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                   name TEXT NOT NULL,
+                   value TEXT NOT NULL);'''
+    render(sql_table)
+
     # Insert Hardware Type
     render("INSERT INTO HardwareType (id, name, func) VALUES (1, 'Light', 1)")
     render("INSERT INTO HardwareType (id, name, func) VALUES (2, 'Alarm', 1)")
@@ -138,6 +145,9 @@ def install():
     render("INSERT INTO User (user, name, password, role, token, permission) VALUES ('teacher', '教师', '%s', 2, '', '{}')" % md5("teacher" + "#" + "teacher"))
     render("INSERT INTO User (user, name, password, role, token, permission) VALUES ('wnjxyk', '喂你脚下有坑', '%s', 3, '', '{}')" % md5("wnjxyk" + "#" + "wnjxyk"))
     print(" * Database : Admin Password " + md5("admin" + "#" + "admin"))
+
+    # Insert Config
+    render("INSERT INTO Config (id, name, value) VALUES (1, 'Controller_Address', 'http://0.0.0.0:443/control/control')")
 
 if __name__ == '__main__':
     install()

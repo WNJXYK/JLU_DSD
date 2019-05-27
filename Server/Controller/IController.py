@@ -3,9 +3,9 @@ from Server.Database import Room
 from Server.Database import Hardware
 from Server.Database import User
 from Server.Database import Log
+from Server.Database import IDatabase
 import time, json
-
-CONTROLLER_ADDR = "http://0.0.0.0:443/control/control"
+from Server import Config
 
 def post(url, data):
     data = parse.urlencode(data).encode(encoding='utf-8')
@@ -37,7 +37,7 @@ def heart_beat():
             send(room["id"])
 
 
-def send(room_id, command = "", priority = ""):
+def send(room_id, command = "", priority = 0):
     # Query Rooms
     _, _, room = Room.query_room(room_id)
     room_id, room_timeout, room_defaultValue, room_status, room_building = room["id"], room["timeout"], room["defaultValue"], room["status"], room["building"]
@@ -64,7 +64,8 @@ def send(room_id, command = "", priority = ""):
 
     # Request
     try:
-        res = post(CONTROLLER_ADDR, {"info" : json.dumps(params)})
+        _, addr = IDatabase.render("SELECT value FROM Config WHERE name = ?", (Config.CONTROLLER_ADDRESS_NAME,))
+        res = post(addr[0][0], {"info" : json.dumps(params)})
         res = json.loads(res)
         for p in res["command"]: eval(p)
         return res["status"], res["message"]

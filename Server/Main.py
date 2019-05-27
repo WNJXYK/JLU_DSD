@@ -26,11 +26,13 @@ def API():
     from Server.API import Command
     from Server.API import Open
     from Server.API import Controller
+    from Server.API import Debug
     app.register_blueprint(Hardware.api, url_prefix="/hardware")
     app.register_blueprint(Interface.api, url_prefix="/interface")
     app.register_blueprint(Command.api, url_prefix="/command")
     app.register_blueprint(Open.api, url_prefix="/open")
     app.register_blueprint(Controller.api, url_prefix="/control")
+    app.register_blueprint(Debug.api, url_prefix="/debug")
     app.run(host='0.0.0.0', port=443, threaded=True, debug=True)
 
 
