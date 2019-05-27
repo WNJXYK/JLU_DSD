@@ -21,7 +21,7 @@ def index():
 def status():
     def func(data):
         uid, token, id, stus = data["uid"], data["token"], data["id"], data["status"]
-        if not User.query_permission(uid, token, "admin"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+        if not User.query_permission(uid, token, "admin"): return jsonify({"status": -2, "message": "Invalid User or Permission"})
 
         status, message = Room.modify_building_status(id, stus)
         return jsonify({"status": status, "message": message})
@@ -32,7 +32,7 @@ def status():
 def command():
     def func(data):
         uid, token, command = data["uid"], data["token"], data["command"]
-        if not User.query_permission(uid, token, ""): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+        if not User.query_permission(uid, token, ""): return jsonify({"status": -2, "message": "Invalid User or Permission"})
         user = User.query_user(uid)[2]
         status, message = IController.command(command, user["priority"], User.query_permission(uid, token, "force"))
         return jsonify({"status": status, "message": message})

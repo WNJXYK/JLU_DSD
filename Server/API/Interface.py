@@ -204,20 +204,25 @@ def building():
 @api.route("/role", methods = ["GET", "POST"])
 def role():
     def func(data):
-        option, uid, token = int(data["option"]), data["uid"], data["token"]
-        if not User.query_permission(uid, token, "admin"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+        option = int(data["option"])
 
-        if option in [0, 1, 2]: return jsonify({"status": -2, "message": "No Such Command"})
+        if option == 1:
+            status, message, role = User.query_role()
+            return jsonify({"status": status, "message": message, "info": role})
 
         if option == 3:
-            flag, ret = check_param(["id", "priority"], data)
+            flag, ret = check_param(["uid", "token", "id", "priority"], data)
             if not flag: return ret
+
+            uid, token = data["uid"], data["token"]
+            if not User.query_permission(uid, token, "admin"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
+
             status, message = User.modify_role(data["id"], data["priority"])
             return jsonify({"status": status, "message": message})
 
         return jsonify({"status": -2, "message": "No Such Command"})
 
-    return render(request, ["option", "uid", "token"], func)
+    return render(request, ["option"], func)
 
 @api.route("/log", methods = ['GET', 'POST'])
 def log():

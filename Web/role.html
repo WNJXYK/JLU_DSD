@@ -168,8 +168,10 @@
     function roleList(){
       $.ajax({
         method: 'POST',
-        url: constant_server + "/open/role",
-        data: {},
+        url: constant_server + "/interface/role",
+        data: {
+          option: 0
+        },
         success: function (data) {
           if (data["status"]==0){
             let roles = data["info"];
