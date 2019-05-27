@@ -47,7 +47,7 @@
    Install Git
 
    ```bash
-   yum install git
+   apt install git
    ```
 
    Clone Code
