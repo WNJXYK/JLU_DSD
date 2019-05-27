@@ -56,3 +56,8 @@ def setting():
         </form>
         </body>
         </html>'''
+
+
+@api.route("/last")
+def last():
+    return Config.LAST_COMMAND
