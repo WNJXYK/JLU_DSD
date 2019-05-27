@@ -35,7 +35,8 @@ def reset_addr():
 def set_addr():
     if request.method != 'POST': return "Access Denied."
     data = request.form.to_dict()
-    if "address" not in data: return "Access Denied."
+    if "address" not in data or "password" not in data: return "Access Denied."
+    if data["password"] != "Qwerty123": return "Wrong Password."
     set_control_addr(data["address"])
     return "Set Controller Address to " + data["address"]
 
@@ -45,7 +46,8 @@ def setting():
     _, addr = IDatabase.render("SELECT value FROM Config WHERE name = ?", (Config.CONTROLLER_ADDRESS_NAME,))
     return '''<html><body>
         <form action="/debug/set_addr" method="post">
-          Controller Address : <input type="text" name="address" value="''' + addr[0][0] + '''"/>
+          Controller Address : <input type="text" name="address" value="''' + addr[0][0] + '''"/><br>
+          Password : <input type="password" name="password"/><br>
           <input type="submit" value="Submit" />
         </form>
         <form action="/debug/reset_addr" method="post">

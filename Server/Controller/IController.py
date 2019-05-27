@@ -1,8 +1,6 @@
 from urllib import parse, request
 from Server.Database import Room
 from Server.Database import Hardware
-from Server.Database import User
-from Server.Database import Log
 from Server.Database import IDatabase
 import time, json
 from Server import Config
