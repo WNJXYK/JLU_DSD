@@ -71,7 +71,8 @@ def control():
         keep_alive = present_flag and light_flag
 
         # Panic Switch
-        if panic_flag: command_list.append("Log.add_log(%s, %s)" % (data["building"], data["room"]))
+        if panic_flag:
+            command_list.append("Log.add_log(%s, %s)" % (data["building"], data["room"]))
 
         # Solve Light
         for s in data["devices"]:
