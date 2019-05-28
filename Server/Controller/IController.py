@@ -24,7 +24,7 @@ def command(command, priority, force_flag):
     hardware = Hardware.query_hardware(hardware)[2]
     room_id = Room.query_room(hardware["room"])[2]["id"]
     command = json.dumps({"hardware": hardware["id"], "value":value, "type": type if force_flag else ""})
-    print(command)
+    # print(command)
     return send(room_id, command, priority)
 
 
