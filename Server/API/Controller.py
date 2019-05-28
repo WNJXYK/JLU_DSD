@@ -31,9 +31,11 @@ def control():
         default_value = int(data["default"])
         command_list = []
         operate_flag = False
+        nop_flag = True
 
         # Solve Command
         if len(command)>0:
+            nop_flag = False
             command = json.loads(command)
             hid, val, typ = str(command["hardware"]), command["value"], command["type"]
             if hid not in mem:
@@ -102,7 +104,8 @@ def control():
                     else:
                         command_list.append("Hardware.set_light(%s, 0)" % hid)
 
-        if operate_flag: return jsonify({"status":0, "message":"", "command": command_list})
+        if operate_flag or nop_flag: return jsonify({"status":0, "message":"", "command": command_list})
+
         return jsonify({"status": 1, "message": "Permission Denied", "command": command_list})
 
 

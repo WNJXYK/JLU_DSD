@@ -66,7 +66,11 @@ def send(room_id, command = "", priority = 0):
         res = post(addr[0][0], {"info" : json.dumps(params)})
         res = json.loads(res)
         for p in res["command"]: eval(p)
-        Config.LAST_COMMAND = json.dumps(params)
+
+        try:
+            Config.LAST_COMMAND.append({"Input":params, "Output":res})
+        except: pass
+
         return res["status"], res["message"]
     except Exception as err:
         print(" * Controller : " + str(err))

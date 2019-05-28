@@ -16,7 +16,7 @@ def add_room(name, building, timeout, defaultValue):
     except:
         return 2, "Invalid Timeout"
 
-    IDatabase.render("INSERT INTO Room (name, building, status, timeout, defaultValue) VALUES ('%s', %d, 0, %f, %d)" % (name, building, timeout, defaultValue))
+    IDatabase.render("INSERT INTO Room (name, building, status, timeout, defaultValue) VALUES ('%s', %d, 0, %f, %d)" % (name, building, timeout, int(defaultValue)))
     return 0, ""
 
 

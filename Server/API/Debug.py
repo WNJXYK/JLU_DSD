@@ -60,4 +60,10 @@ def setting():
 
 @api.route("/last")
 def last():
-    return Config.LAST_COMMAND
+    ret = []
+    try:
+        while True:
+            ret.append(Config.LAST_COMMAND.popleft())
+    except:
+        Config.LAST_COMMAND.clear()
+    return jsonify(ret)
