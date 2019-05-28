@@ -338,7 +338,9 @@
             uid: user_id,
             token: user_token,
             building: select_building,
-            name: $("#room-add-name").val()
+            name: $("#room-add-name").val(),
+            defaultValue: 0,
+            timeout: 10
           },
           success: function (data) {
             if (data["status"]==0){

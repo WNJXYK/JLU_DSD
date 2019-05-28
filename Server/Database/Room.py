@@ -2,11 +2,21 @@ from Server.Database import IDatabase
 from Server.Database import Hardware
 
 
-def add_room(name, building):
+def add_room(name, building, timeout, defaultValue):
     _, cnt = IDatabase.render("SELECT COUNT(*) FROM Building WHERE id = ?", (building,))
     if cnt[0][0] == 0: return 1, "No Such Building"
 
-    IDatabase.render("INSERT INTO Room (name, building, status, timeout, defaultValue) VALUES ('%s', %d, 0, 10, 0)" % (name, building, ))
+    try:
+        if int(defaultValue) not in [0, 1]: return 1, "Invalid Default Value"
+    except:
+        return 1, "Invalid Default Value"
+
+    try:
+        timeout = float(timeout)
+    except:
+        return 2, "Invalid Timeout"
+
+    IDatabase.render("INSERT INTO Room (name, building, status, timeout, defaultValue) VALUES ('%s', %d, 0, %f, %d)" % (name, building, timeout, defaultValue))
     return 0, ""
 
 

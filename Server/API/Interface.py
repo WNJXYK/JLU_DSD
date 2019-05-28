@@ -147,10 +147,10 @@ def room():
         if not User.query_permission(uid, token, "build"): return jsonify({"status": -1, "message": "Invalid User or Permission"})
 
         if option == 1:
-            flag, ret = check_param(["name", "building"], data)
+            flag, ret = check_param(["name", "building", "timeout", "defaultValue"], data)
             if not flag: return ret
-            name, building = data["name"], int(data["building"])
-            status, message = Room.add_room(name, building)
+            name, building, timeout, defaultValue = data["name"], int(data["building"]), data["timeout"], data["defaultValue"]
+            status, message = Room.add_room(name, building, timeout, defaultValue)
             return jsonify({"status": status, "message": message})
 
         if option == 2:
