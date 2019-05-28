@@ -147,7 +147,7 @@ def install():
     print(" * Database : Admin Password " + md5("admin" + "#" + "admin"))
 
     # Insert Config
-    render("INSERT INTO Config (id, name, value) VALUES (1, 'Controller_Address', 'http://0.0.0.0:443/control/control')")
+    render("INSERT INTO Config (id, name, value) VALUES (1, 'Controller_Address', 'http://0.0.0.0:8088/control/control')")
 
 if __name__ == '__main__':
     install()

@@ -27,8 +27,8 @@ def set_control_addr(addr):
 @api.route("/reset_addr", methods = ['POST'])
 def reset_addr():
     if request.method != 'POST': return "Access Denied."
-    set_control_addr("http://0.0.0.0:443/control/control")
-    return "Set Controller Address to " + "http://0.0.0.0:443/control/control"
+    set_control_addr("http://0.0.0.0:8088/control/control")
+    return "Set Controller Address to " + "http://0.0.0.0:8088/control/control"
 
 
 @api.route("/set_addr", methods = ['POST'])
