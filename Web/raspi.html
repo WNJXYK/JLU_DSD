@@ -67,6 +67,7 @@
                     <table class="table table-hover table-striped">
                       <thead>
                       <th>#</th>
+                      <th>Name</th>
                       <th>UID</th>
                       <th>Hardware</th>
                       <th>Online</th>
@@ -132,6 +133,7 @@
             for (let i=0; i<raspis.length; i++){
               let raspi=raspis[i];
               ret = ret + "<tr><td>" + raspi["id"] + "</td>\
+                              <td>" + raspi["name"] +  "</td>\
                               <td>" + raspi["uid"] +  "</td>\
                               <td>" + raspi["hardware"] +  "</td>\
                               <td>" + online[raspi["online"]] + "</td>\
