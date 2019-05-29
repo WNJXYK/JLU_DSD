@@ -3,12 +3,20 @@ import json
 import RPi.GPIO as GPIO
 from urllib import parse, request
 import configparser
+from threading import Thread
+from multiprocessing import Manager
+
+manager = Manager()
+camera_value = manager.Value("i", 0)
+light_value = manager.Value("i", 1)
 
 # Interface With Server
 class Interface:
-    def __init__(self):
-        self.CONFIG_FILE = "/home/pi/DSD_config.ini"
-        self.SERVER_ADDR = "http://39.106.7.29:443/hardware"
+    def __init__(self, file, addr, name):
+        self.CONFIG_FILE = file #"/home/pi/DSD_config.ini"
+        self.SERVER_ADDR = addr #"http://39.106.7.29:8088/hardware"
+        self.NAME = name #"Raspi"
+
         self.conf = configparser.ConfigParser()
         self.conf.read(self.CONFIG_FILE)
 
@@ -36,7 +44,7 @@ class Interface:
     def allocate_uid(self):
         url = self.SERVER_ADDR + "/allocate"
         while True:
-            obj = json.loads(Interface.post(url, {}))
+            obj = json.loads(Interface.post(url, {"name": self.NAME}))
             if obj['status'] == 0: return obj['info']
             time.sleep(5)
 
@@ -104,8 +112,9 @@ class Tools:
 
     @staticmethod
     def get_sensor(i):
-        if i == "Camera": return 0
-        if i == "I2C": return 1
+        global camera_value, light_value
+        if i == "Camera": return camera_value.value
+        if i == "I2C": return light_value.value
         return GPIO.input(int(i))
 
     @staticmethod
@@ -113,61 +122,85 @@ class Tools:
         GPIO.output(int(i),  GPIO.LOW if int(v)==0 else GPIO.HIGH)
 
 
+class Hardware:
+
+    def __init__(self, mem0, inter0):
+        self.mem = mem0
+        self.interface = inter0
+
+    def thread_func(self):
+        while True:
+            try:
+                content = {"0": {}, "1": {}, "2": {}}
+                gpio_list = list(range(40))
+                gpio_list.append("Camera")
+                gpio_list.append("I2C")
+
+                # Generate Sensors Data & Report to Server
+                for p in gpio_list:
+                    if not self.mem.get_boolean("Port", str(p)): continue
+                    if self.mem.get_boolean("Actuator", str(p)): continue
+                    content["0"][str(p)] = Tools.get_sensor(p)
+
+                obj = self.interface.request(content)
+
+                # Delete By Server
+                status = int(obj["status"])
+                if status != 0:
+                    self.interface.init_config()
+                    self.mem.clear()
+                    continue
+
+                # Close Nouse Port
+                content = obj["info"]
+                for p in gpio_list:
+                    if (str(p) not in content["0"]) and (str(p) not in content["1"]):
+                        self.mem.set_boolean("Port", str(p), False)
+
+                # Swith to Sensor
+                for p in content["0"]:
+                    if not self.mem.get_boolean("Port", str(p)) or self.mem.get_boolean("Actuator", str(p)):
+                        Tools.setup_sensor(p)
+
+                    self.mem.set_boolean("Actuator", str(p), False)
+                    self.mem.set_boolean("Port", str(p), True)
+
+                # Switch to Actuator and Setting
+                for p in content["1"]:
+                    if not self.mem.get_boolean("Port", str(p)) or not self.mem.get_boolean("Actuator", str(p)):
+                        Tools.setup_actuator(p, content["2"][str(p)])
+
+                    self.mem.set_boolean("Actuator", str(p), True)
+                    self.mem.set_boolean("Port", str(p), True)
+                    self.mem.set_int("Default", str(p), int(content["2"][str(p)]))
+                    Tools.set_actuator(p, content["1"][str(p)])
+
+            except Exception as err:
+                print(err)
+            time.sleep(0.5)
+
+    def start(self):
+        thread = Thread(target=self.thread_func)
+        thread.setDaemon(True)
+        thread.start()
+
+
 def main():
+    global camera_value, light_value
+
     # Init
     mem = Memory()
-    interface = Interface()
+    inter = Interface("/home/pi/DSD_config.ini", "http://39.106.7.29:8088/hardware", "Raspi")
     Tools.setup()
+    hardware = Hardware(mem, inter)
 
+    # Start
+    hardware.start()
+
+    # Process
     while True:
-        try:
-            content = {"0": {}, "1":{}, "2": {}}
-            gpio_list = list(range(40))
-            gpio_list.append("Camera")
-            gpio_list.append("I2C")
+        pass
 
-            # Generate Sensors Data & Report to Server
-            for p in gpio_list:
-                if not mem.get_boolean("Port", str(p)): continue
-                if mem.get_boolean("Actuator", str(p)): continue
-                content["0"][str(p)] = Tools.get_sensor(p)
-
-            obj = interface.request(content)
-
-            # Delete By Server
-            status = int(obj["status"])
-            if status != 0:
-                interface.init_config()
-                mem.clear()
-                continue
-
-            # Close Nouse Port
-            content = obj["info"]
-            for p in gpio_list:
-                if (str(p) not in content["0"]) and (str(p) not in content["1"]):
-                    mem.set_boolean("Port", str(p), False)
-
-            # Swith to Sensor
-            for p in content["0"]:
-                if not mem.get_boolean("Port", str(p)) or mem.get_boolean("Actuator", str(p)):
-                    Tools.setup_sensor(p)
-
-                mem.set_boolean("Actuator", str(p), False)
-                mem.set_boolean("Port", str(p), True)
-
-            # Switch to Actuator and Setting
-            for p in content["1"]:
-                if not mem.get_boolean("Port", str(p)) or not mem.get_boolean("Actuator", str(p)):
-                    Tools.setup_actuator(p, content["2"][str(p)])
-
-                mem.set_boolean("Actuator", str(p), True)
-                mem.set_boolean("Port", str(p), True)
-                mem.set_int("Default", str(p), int(content["2"][str(p)]))
-                Tools.set_actuator(p, content["1"][str(p)])
-
-        except Exception as err:
-            print(err)
-        time.sleep(0.5)
 
 if __name__ == "__main__":
     main()

@@ -53,6 +53,7 @@ def install():
     # Raspi Table
     sql_table = '''CREATE TABLE Raspi
                (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+               name TEXT NOT NULL,
                uid TEXT NOT NULL,
                content TEXT NOT NULL,
                online INTEGER NOT NULL,
@@ -112,7 +113,7 @@ def install():
                status INTEGER NOT NULL);'''
     render(sql_table)
 
-    # Building
+    # Log
     sql_table = '''CREATE TABLE Log
                    (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                    room INTEGER NOT NULL,

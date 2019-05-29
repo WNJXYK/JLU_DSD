@@ -4,7 +4,7 @@ from urllib import parse, request
 import configparser
 
 CONFIG_FILE = "config.ini"
-SERVER_ADDR = "http://0.0.0.0:443/hardware"
+SERVER_ADDR = "http://0.0.0.0:8088/hardware"
 
 
 def post(url, data):

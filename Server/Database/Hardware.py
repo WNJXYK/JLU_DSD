@@ -3,7 +3,7 @@ from Server import Config
 import json
 import uuid, time
 
-def add_raspi():
+def add_raspi(name = None):
     # Generate Unique ID
     uid_flag = True
     while uid_flag:
@@ -13,7 +13,7 @@ def add_raspi():
 
     # Insert Raspi
     content = json.dumps({"0": {}, "1": {}, "2": {}})
-    sql = "INSERT INTO Raspi (uid, content, online, last) VALUES ('%s', '%s', 1, %f)" % (uid, content, time.time())
+    sql = "INSERT INTO Raspi (uid, content, online, last, name) VALUES ('%s', '%s', 1, %f, '%s')" % (uid, content, time.time(), name if name is not None else "Legacy Version")
     IDatabase.render(sql)
 
     return 0, "", uid
@@ -36,7 +36,7 @@ def del_raspi(id):
     return 0, ""
 
 def list_raspi():
-    _, raspi = IDatabase.render("SELECT id, uid, online FROM Raspi")
+    _, raspi = IDatabase.render("SELECT id, uid, online, name FROM Raspi")
 
     ret = []
     for r in raspi:
@@ -44,7 +44,7 @@ def list_raspi():
 
         _, cnt = IDatabase.render("SELECT COUNT(*) FROM Hardware WHERE host = ?", (r[0],))
 
-        ret.append({"id": r[0], "uid": r[1], "online": r[2], "hardware": cnt[0][0]})
+        ret.append({"id": r[0], "uid": r[1], "online": r[2], "hardware": cnt[0][0], "name": r[3]})
 
     return 0, "", ret
 

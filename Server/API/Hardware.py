@@ -18,9 +18,14 @@ def index():
 
 @api.route("/allocate", methods = ['GET', 'POST'])
 def allocate():
-    status, message, uid = Hardware.add_raspi()
-    print(" * Server : Allocate new raspi " + uid)
-    return jsonify({"status": status, "message": message, "info": uid})
+    def func(data):
+        if "name" in data:
+            status, message, uid = Hardware.add_raspi(data["name"])
+        else:
+            status, message, uid = Hardware.add_raspi()
+        print(" * Server : Allocate new raspi " + uid)
+        return jsonify({"status": status, "message": message, "info": uid})
+    return render(request, [], func)
 
 @api.route("/report", methods = ['GET', 'POST'])
 def report():
