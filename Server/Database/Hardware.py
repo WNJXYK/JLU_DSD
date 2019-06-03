@@ -101,7 +101,8 @@ def add_hardware(name, type, host, gpio, room):
         if int(type)==4: return 3, "Camera Must Use 'Camera' as GPIO ID"
         if int(type)==3: return 4, "Light Sensor Must Use 'I2C' as GPIO ID"
         if gpio in ["Camera" or "I2C"]: return 5, "Only Special Sensor Can Use Special GPIO ID"
-        if int(gpio) not in range(2, 27): return 6, "GPIO should in range [2, 26]"
+        raspi_range = [7, 8, 10, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+        if int(gpio) not in raspi_range: return 6, "GPIO should in range [1, 40] without Power & Ground & I2C"
     if str(gpio) in content["0"]: return 2, "GPIO Has Been Using"
     if str(gpio) in content["1"]: return 2, "GPIO Has Been Using"
 
