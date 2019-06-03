@@ -8,7 +8,7 @@ import configparser
 class Interface:
     def __init__(self):
         self.CONFIG_FILE = "/home/pi/DSD_config.ini"
-        self.SERVER_ADDR = "http://39.106.7.29:443/hardware"
+        self.SERVER_ADDR = "http://39.106.7.29:8088/hardware"
         self.NAME = "Raspi"
         
         self.conf = configparser.ConfigParser()
