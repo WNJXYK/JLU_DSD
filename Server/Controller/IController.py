@@ -71,7 +71,8 @@ def send(room_id, command = "", priority = 0):
 
         try:
             Config.LAST_COMMAND.append({"Input":params, "Output":res})
-        except: pass
+        except Exception as err:
+            print(" * IController : " + str(err))
 
         return res["status"], res["message"]
     except Exception as err:
