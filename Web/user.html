@@ -185,7 +185,7 @@
       userList();
 
       $("#user-add").click(function(){
-        let encode_password = hex_md5($("#user-add-name").val() + "#" + $("#user-add-password").val());
+        let encode_password = hex_md5($("#user-add-user").val() + "#" + $("#user-add-password").val());
         $.ajax({
           method: 'POST',
           url: constant_server + "/interface/user",
