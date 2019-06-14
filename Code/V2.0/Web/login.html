@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="assets/img/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/css/animate.min.css" rel="stylesheet"/>
+    <link href="assets/css/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet"/>
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
+    <style>
+        /*web background*/
+        .container{display:table; height:100%;}
+        .row{display: table-cell;vertical-align: middle;}
+        .row-centered {text-align:center;}
+        .col-centered {display:inline-block;float:none;text-align:left;margin-right:-4px;}
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row row-centered">
+        <div class="well col-md-6 col-centered">
+          <h2>Welcome, Please Login~</h2>
+
+            <div class="input-group input-group-md">
+                <span class="input-group-addon"><i class="pe-7s-user" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" id="user" placeholder="User ID"/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon"><i class="pe-7s-lock"></i></span>
+                <input type="password" class="form-control" id="password" placeholder="Password"/>
+            </div>
+            <br/>
+            <button class="btn btn-success btn-block" id="login">Login</button>
+            <a class="btn btn-info btn-block" href="index.html">Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="assets/js/jquery.3.2.1.min.js" type="text/javascript"></script>
+  <script src="assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="assets/js/md5.js" type="text/javascript"></script>
+  <script src="assets/js/utils.js" type="text/javascript"></script>
+  <script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="assets/js/bootstrap-notify.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      loadConfig();
+      let uid = $.cookie('global_uid');
+      let token = $.cookie('global_token');
+      let server = $.cookie('global_server');
+      $("#login").click(function(){
+        let user = $("#user").val();
+        let password = $("#password").val();
+        let encode_password = hex_md5(user + "#" + password);
+        $.ajax({
+          method: 'POST',
+          url: server + "/interface/login",
+          data: {
+            user: user,
+            password: encode_password
+          },
+          success: function (data) {
+            if (data["status"]==0){
+              $.cookie('global_uid', data["info"]["id"]);
+              $.cookie('global_token', data["info"]["token"]);
+              $.cookie('global_name', data["info"]["name"]);
+              $.cookie('global_role', data["info"]["role"]);
+              $.cookie('global_permission', data["info"]["permission_str"]);
+              $.notify({
+                icon: "pe-7s-smile",
+                message: "Hello," + data["info"]["name"] + " (" + data["info"]["role"] + ")"
+              },{ type: "success", timer: 1000 });
+              window.location.href="./index.html";
+            }else{
+              $.notify({
+                icon: "pe-7s-attention",
+                message: "Login failed, " + data["message"] + "."
+              },{ type: "danger", timer: 1000 });
+            }
+          }
+        });
+      });
+    });
+  </script>
+</html>

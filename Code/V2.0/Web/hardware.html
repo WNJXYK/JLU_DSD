@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Controller - Lighting System</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/css/animate.min.css" rel="stylesheet"/>
+    <link href="assets/css/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet"/>
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
+    <style>
+    table{
+      height:50px;
+      overflow:scroll;
+    }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="sidebar" data-color="blue">
+        <div class="sidebar-wrapper">
+              <div class="logo"><a href="#" class="simple-text">Lighting System</a></div>
+              <ul class="nav">
+                <li id="nav-dashboard"><a href="index.html"><i class="pe-7s-graph"></i><p>Dashboard</p></a></li>
+                <li id="nav-hardware" class="active"><a href="hardware.html"><i class="pe-7s-global"></i><p>Controller</p></a></li>
+                <li id="nav-raspi"><a href="raspi.html"><i class="pe-7s-network"></i><p>Raspi</p></a></li>
+                <li id="nav-user"><a href="user.html"><i class="pe-7s-id"></i><p>Users</p></a></li>
+                <li id="nav-role"><a href="role.html"><i class="pe-7s-users"></i><p>Roles</p></a></li>
+              </ul>
+        </div>
+      </div>
+
+      <div class="main-panel">
+        <nav class="navbar navbar-default navbar-fixed">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example-2">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Controller</a>
+            </div>
+            <div class="collapse navbar-collapse">
+              <ul class="nav navbar-nav navbar-left"></ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="#" id="user-info"><p></p></a></li>
+                <li><a href="#" onclick="logout()">Log out</a></li>
+                <li class="separator hidden-lg hidden-md"></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+
+              <div class="col-md-5">
+                <div class="card">
+                  <div class="header">
+                    <h4 class="title">Building List</h4>
+                    <p class="category">Select Building Here</p>
+                    <!--<button class="btn btn-primary col-md-6" onclick="buildingList()">Refresh</button>-->
+                    <button class="btn btn-info col-md-12 build-permission" onclick="addBuilding()">Add</button>
+                  </div>
+                  <div style="max-height: 300px; overflow-y: auto;" class="content table-responsive table-full-width">
+                    <table class="table table-hover table-striped">
+                      <thead>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Status</th>
+                      <th>Operations</th>
+                      </thead>
+                      <tbody id="building-list">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-md-7">
+                <div class="card">
+                  <div class="header">
+                    <h4 class="title">Room List</h4>
+                    <p class="category" id="room-text">Please, select a building.</p>
+                    <!--<button class="btn btn-primary col-md-6" onclick="roomList()" id="room-refresh-button" disabled>Refresh</button>-->
+                    <button class="btn btn-info col-md-12 build-permission" onclick="addRoom()" id="room-add-button" disabled>Add</button>
+                  </div>
+                  <div style="max-height: 300px; overflow-y: auto;" class="content table-responsive table-full-width pre-scroll">
+                    <table class="table table-hover table-striped">
+                      <thead>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Status</th>
+                      <th>Timeout</th>
+                      <th>Default</th>
+                      <th>Operations</th>
+                      </thead>
+                      <tbody id="room-list">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="header">
+                    <h4 class="title">Hardware List</h4>
+                    <p class="category" id="hardware-text">Please, select a room.</p>
+                    <!--<button class="btn btn-primary col-md-6" onclick="hardwareList()" id="hardware-refresh-button" disabled>Refresh</button>-->
+                    <button class="btn btn-info col-md-12 build-permission" onclick="addHardware()" id="hardware-add-button" disabled>Add</button>
+                  </div>
+                  <div style="max-height: 500px; overflow-y: auto;" class="content table-responsive table-full-width">
+                    <table class="table table-hover table-striped">
+                      <thead>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Host</th>
+                      <th>GPIO</th>
+                      <th>Online</th>
+                      <th>Value</th>
+                      <th>Operations</th>
+                      </thead>
+                      <tbody id="hardware-list">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="modal fade" id="building-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add Building</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Name:</span>
+                <input type="text" class="form-control" id="building-add-name" placeholder="Building Name"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="building-add">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="room-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add Room</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Building:</span>
+                <input type="text" class="form-control" id="room-add-building" placeholder="Building ID" disabled/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Name:</span>
+                <input type="text" class="form-control" id="room-add-name" placeholder="Room Name"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="room-add">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="hardware-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add Hardware</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Room:</span>
+                <input type="text" class="form-control" id="hardware-add-room" placeholder="Hardware ID" disabled/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Name:</span>
+                <input type="text" class="form-control" id="hardware-add-name" placeholder="Hardware Name"/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Type:</span>
+                <!--<input type="text" class="form-control" id="hardware-add-type" placeholder="Type"/>-->
+                <select class="form-control" id="hardware-add-type">
+                  <option value = "1">Light</option>
+                  <option value = "2">Alarm</option>
+                  <option value = "3">Light Sensor</option>
+                  <option value = "4">Presence Sensor</option>
+                  <option value = "5">Button</option>
+                  <option value = "6">Panic Button</option>
+                </select>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Raspi:</span>
+                <input type="text" class="form-control" id="hardware-add-host" placeholder="Host Raspi"/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">GPIO:</span>
+                <input type="text" class="form-control" id="hardware-add-gpio" placeholder="GPIO"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="hardware-add">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="room-modify-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Modify Room</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">ID:</span>
+                <input type="text" class="form-control" id="room-modify-id" placeholder="Room ID" disabled/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Name:</span>
+                <input type="text" class="form-control" id="room-modify-name" placeholder="Room Name"/>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Default(0/1):</span>
+                <!--<input type="text" class="form-control" id="room-modify-default" placeholder="Light Default State"/>-->
+                <select class="form-control" id="room-modify-default">
+                  <option value = "0">Off</option>
+                  <option value = "1">On</option>
+                </select>
+            </div>
+            <div class="input-group input-group-md">
+                <span class="input-group-addon">Timeout(float):</span>
+                <input type="text" class="form-control" id="room-modify-timeout" placeholder="Timeout"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="room-modify">Modify</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+
+  <script src="assets/js/jquery.3.2.1.min.js" type="text/javascript"></script>
+  <script src="assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="assets/js/md5.js" type="text/javascript"></script>
+  <script src="assets/js/utils.js" type="text/javascript"></script>
+  <script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="assets/js/bootstrap-notify.js"></script>
+  <script src="assets/js/light-bootstrap-dashboard.js?v=1.4.0"></script>
+  <script type="text/javascript">
+    var constant_server, user_id, user_token, user_name, user_role;
+    $(function(){
+      loadConfig();
+      checkLogin();
+      disabledButtons();
+      constant_server = $.cookie('global_server');
+      user_id = $.cookie('global_uid');
+      user_token = $.cookie('global_token');
+      user_name = $.cookie('global_name');
+      user_role = $.cookie('global_role');
+      $("#user-info").html(user_name + " (" + user_role + ")");
+    });
+
+    var int=self.setInterval("clock()", 1000);
+    function clock(){
+      buildingList();
+      roomList();
+      hardwareList();
+    }
+
+    var select_building=0, select_room=0;
+    $(function(){
+      buildingList();
+
+      $("#building-add").click(function(){
+        $.ajax({
+          method: 'POST',
+          url: constant_server + "/interface/building",
+          data: {
+            option: 1,
+            uid: user_id,
+            token: user_token,
+            name: $("#building-add-name").val()
+          },
+          success: function (data) {
+            if (data["status"]==0){
+              $("#building-add-modal").modal('hide');
+              buildingList();
+            }else{
+              $.notify({
+                icon: "pe-7s-attention",
+                message: "Add Building failed, " + data["message"] + "."
+              },{ type: "danger", timer: 1000 });
+            }
+          }
+        });
+      });
+
+      $("#room-add").click(function(){
+        $.ajax({
+          method: 'POST',
+          url: constant_server + "/interface/room",
+          data: {
+            option: 1,
+            uid: user_id,
+            token: user_token,
+            building: select_building,
+            name: $("#room-add-name").val(),
+            defaultValue: 0,
+            timeout: 10
+          },
+          success: function (data) {
+            if (data["status"]==0){
+              $("#room-add-modal").modal('hide');
+              roomList();
+            }else{
+              $.notify({
+                icon: "pe-7s-attention",
+                message: "Add Room failed, " + data["message"] + "."
+              },{ type: "danger", timer: 1000 });
+            }
+          }
+        });
+      });
+
+      $("#hardware-add").click(function(){
+        $.ajax({
+          method: 'POST',
+          url: constant_server + "/interface/hardware",
+          data: {
+            option: 1,
+            uid: user_id,
+            token: user_token,
+            room: select_room,
+            name: $("#hardware-add-name").val(),
+            type: $("#hardware-add-type").val(),
+            host: $("#hardware-add-host").val(),
+            gpio: $("#hardware-add-gpio").val()
+          },
+          success: function (data) {
+            if (data["status"]==0){
+              $("#hardware-add-modal").modal('hide');
+              hardwareList();
+            }else{
+              $.notify({
+                icon: "pe-7s-attention",
+                message: "Add Hardware failed, " + data["message"] + "."
+              },{ type: "danger", timer: 1000 });
+            }
+          }
+        });
+      });
+
+      $("#room-modify").click(function(){
+        $.ajax({
+          method: 'POST',
+          url: constant_server + "/interface/room",
+          data: {
+            option: 3,
+            uid: user_id,
+            token: user_token,
+            id: $("#room-modify-id").val(),
+            timeout: $("#room-modify-timeout").val(),
+            name: $("#room-modify-name").val(),
+            defaultValue: $("#room-modify-default").val()
+          },
+          success: function (data) {
+            if (data["status"]==0){
+              $("#room-modify-modal").modal('hide');
+              roomList();
+            }else{
+              $.notify({
+                icon: "pe-7s-attention",
+                message: "Modify Room failed, " + data["message"] + "."
+              },{ type: "danger", timer: 1000 });
+            }
+          }
+        });
+      });
+    });
+
+    function buildingList(){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/building",
+        data: {
+          option: 0,
+          uid: user_id,
+          token: user_token
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            let buildings = data["info"];
+            let ret = "";
+            let status = ["Normal", "Emergency"]
+            for (let i=0; i<buildings.length; i++)
+              ret = ret + "<tr><td>" + buildings[i]["id"] + "</td>\
+                              <td>" + buildings[i]["name"] +  "</td>\
+                              <td>" + status[buildings[i]["status"]] + "</td>\
+                              <td><button class=\"btn btn-success\" onclick=\"roomList(" + buildings[i]["id"] + ")\">Select</button>\
+                              <button class=\"btn btn-danger build-permission\" onclick=\"delBuilding(" + buildings[i]["id"] + ")\">Delete</button></td>\
+                              </tr>";
+            $("#building-list").html(ret);
+            disabledButtons();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Load Buildings failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function hardwareList(room){
+      room = room ? room : select_room;
+      select_room = room;
+      if (select_room == 0) return;
+      $("#hardware-refresh-button").attr('disabled',false);
+      $("#hardware-add-button").attr('disabled',false);
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/hardware",
+        data: {
+          option: 0,
+          uid: user_id,
+          token: user_token,
+          room: room
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            let hardwares = data["info"];
+            let ret = "";
+            let status = ["Normal", "Emergency"];
+            let online = ["Offline", "Online"];
+            let command = ["Open", "Close"];
+            for (let i=0; i<hardwares.length; i++){
+              let hardware = hardwares[i];
+              ret = ret + "<tr><td>" + hardware["id"] + "</td>\
+                              <td>" + hardware["name"] +  "</td>\
+                              <td>" + hardware["type"] + "</td>\
+                              <td>" + hardware["host"] + "</td>\
+                              <td>" + hardware["gpio"] + "</td>\
+                              <td>" + online[hardware["online"]] + "</td>\
+                              <td>" + hardware["value"] + "</td>\
+                              <td><button class=\"btn btn-danger build-permission\" onclick=\"delHardware(" + hardware["id"] + ")\">Delete</button>";
+              if (hardware["func"]==1)
+                ret = ret + "<button class=\"btn\" onclick=\"ctrlHardware(" + hardware["id"] + "," + (1-hardware["value"]) + ")\">" + command[hardware["value"]] + "</button></td>";
+              ret= ret + "</tr>";
+            }
+            $("#hardware-text").html("Room #" + room);
+            $("#hardware-list").html(ret);
+            disabledButtons();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Load Hardwares failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function ctrlHardware(id, val){
+      let cmd = {
+        hardware: id,
+        value: val,
+        type: (isForce()?"force":"0")
+      }
+      cmd = JSON.stringify(cmd);
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/command/command",
+        data: {
+          uid: user_id,
+          token: user_token,
+
+          command: cmd
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            hardwareList();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Control Hardware failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function addBuilding(){
+      $("#building-add-modal").modal('show');
+    }
+
+    function addRoom(){
+      $("#room-add-modal").modal('show');
+      $("#room-add-building").val(select_building);
+    }
+
+    function addHardware(){
+      $("#hardware-add-modal").modal('show');
+      $("#hardware-add-room").val(select_room);
+    }
+
+    function delBuilding(id){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/building",
+        data: {
+          option: 2,
+          uid: user_id,
+          token: user_token,
+          id: id
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            buildingList();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Delete Building failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function delRoom(id){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/room",
+        data: {
+          option: 2,
+          uid: user_id,
+          token: user_token,
+          id: id
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            roomList();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Delete Room failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function delHardware(id){
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/hardware",
+        data: {
+          option: 2,
+          uid: user_id,
+          token: user_token,
+          id: id
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            hardwareList();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Delete Hardware failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+    function modifyRoom(id){
+      $("#room-modify-modal").modal('show');
+      $("#room-modify-id").val(id);
+    }
+
+    function roomList(building){
+      building = building ? building : select_building;
+      select_building = building;
+      if (select_building == 0) return;
+      $("#room-refresh-button").attr('disabled',false);
+      $("#room-add-button").attr('disabled',false);
+      $.ajax({
+        method: 'POST',
+        url: constant_server + "/interface/room",
+        data: {
+          option: 0,
+          uid: user_id,
+          token: user_token,
+          building: building
+        },
+        success: function (data) {
+          if (data["status"]==0){
+            let rooms = data["info"];
+            console.log(rooms);
+            let ret = "";
+            let status = ["Normal", "Emergency"];
+            let state = ["Off", "On"];
+            for (let i=0; i<rooms.length; i++){
+              room = rooms[i];
+              ret = ret + "<tr><td>" + room["id"] + "</td>\
+                              <td>" + room["name"] +  "</td>\
+                              <td>" + status[room["status"]] + "</td>\
+                              <td>" + room["timeout"] + "</td>\
+                              <td>" + state[room["defaultValue"]] + "</td>\
+                              <td><button class=\"btn btn-success\" onclick=\"hardwareList(" + room["id"] + ")\">Select</button>\
+                              <button class=\"btn btn-warning build-permission\" onclick=\"modifyRoom(" + room["id"] + ")\">Modify</button>\
+                              <button class=\"btn btn-danger build-permission\" onclick=\"delRoom(" + room["id"] + ")\">Delete</button>\</td>\
+                              </tr>";
+            }
+            $("#room-text").html("Building #" + building);
+            $("#room-list").html(ret);
+            disabledButtons();
+          }else{
+            $.notify({
+              icon: "pe-7s-attention",
+              message: "Load Rooms failed, " + data["message"] + "."
+            },{ type: "danger", timer: 1000 });
+          }
+        }
+      });
+    }
+
+  </script>
+</html>
