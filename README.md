@@ -17,6 +17,7 @@ Mogic's Website : https://dsd.keji.moe
 * SRS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SRS_For_Server-V1-4.10.docx
 * IS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/IS_For_Server-V1-4.10.docx
 * SDS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SDS_For_Server-V1-4.10.docx
+* PPT Slides : 
 * Server Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Server
 * Hardware Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Hardware
 * Simulated DB : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Database
