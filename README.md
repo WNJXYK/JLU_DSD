@@ -17,7 +17,7 @@ Mogic's Website : https://dsd.keji.moe
 * SRS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SRS_For_Server-V1-4.10.docx
 * IS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/IS_For_Server-V1-4.10.docx
 * SDS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SDS_For_Server-V1-4.10.docx
-* PPT Slides : 
+* PPT Slides : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/DSD%20For%20Mogic.pptx
 * Server Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Server
 * Hardware Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Hardware
 * Simulated DB : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Database
@@ -38,6 +38,7 @@ You can also find code and instructions for installing in `production` branch : 
 * IS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/IS_For_Server-V2-6.5.docx
 * SDS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/SDS_For_Server-V2-6.5.docx
 * Server Code ( Including a bulit-in Database and Controller ) : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Server
+* PPT Slides : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/DSD-Server-PPT.pptx
 * Hardware Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Hardware
 * Alternative Web Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Web
 * API Wiki :
@@ -51,6 +52,8 @@ You can also find code and instructions for installing in `V2` branch : https://
 #### Other
 
 Question Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/Other/2019.4.3-Questions_Version1.docx
+
+Test Report : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/Other/Module%20Test%20Report%20.xlsx
 
 Web Page : https://github.com/WNJXYK/JLU_DSD/tree/master/docs
 
