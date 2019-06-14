@@ -10,29 +10,94 @@ A light-controlling system that can control and monitor the sensor (including li
 
 #### Version 1
 
-* SRS Documents : 
+* SRS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SRS_For_Server-V1-4.10.docx
+* IS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/IS_For_Server-V1-4.10.docx
+* SDS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V1/SDS_For_Server-V1-4.10.docx
+* Server Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Server
+* Hardware Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Hardware
+* Simulated DB : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Database
+* Simulated Web : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Web
+* Simulated Controller : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V1.0/Controller
+* There are some legacy Wiki for V1:
+  * https://github.com/WNJXYK/JLU_DSD/wiki/%5BLegacy%5D-Interface
+  * https://github.com/WNJXYK/JLU_DSD/wiki/%5BLegacy%5D-System-Architecture
+  * https://github.com/WNJXYK/JLU_DSD/wiki/%5BLegacy%5D-数据库面向服务器的API
+  * https://github.com/WNJXYK/JLU_DSD/wiki/%5BLegacy%5D-数据库面向终端的API
+  * https://github.com/WNJXYK/JLU_DSD/wiki/%5BLegacy%5D-硬件如何与服务器交流
+
+You can also find code and instructions for installing in `production` branch : https://github.com/WNJXYK/JLU_DSD/tree/production
 
 #### Version 2
 
+* SRS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/SRS_For_All-V2-6.5.docx
+* IS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/IS_For_Server-V2-6.5.docx
+* SDS Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/V2/SDS_For_Server-V2-6.5.docx
+* Server Code ( Including a bulit-in Database and Controller ) : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Server
+* Hardware Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Hardware
+* Web Code : https://github.com/WNJXYK/JLU_DSD/tree/master/Code/V2.0/Web
+* API Wiki :
+  * https://github.com/WNJXYK/JLU_DSD/wiki/Command-API-Documents-For-V2
+  * https://github.com/WNJXYK/JLU_DSD/wiki/Hardware-API-Documents-For-V2
+  * https://github.com/WNJXYK/JLU_DSD/wiki/Interface-API-Documents-For-V2
+  * https://github.com/WNJXYK/JLU_DSD/wiki/Open-API-Documents-For-V2
+
+You can also find code and instructions for installing in `V2` branch : https://github.com/WNJXYK/JLU_DSD/tree/V2
+
+#### Other
+
+Question Documents : https://github.com/WNJXYK/JLU_DSD/blob/master/Documents/Other/2019.4.3-Questions_Version1.docx
+
+Web Page : https://github.com/WNJXYK/JLU_DSD/tree/master/docs
+
 ## Functions
 
-1. 分层管理：Building -> Room -> Hardware
-  * 添加、修改、删除 Room
-  * 添加、删除 Hardware
-  * Hardware 与 Room 绑定与解绑
-  * 更改 Room 所属 Building
-  
-2. 多种传感器：Presence Sensor, Light Sensor, Button...
-  * 远程查看传感器在线状态与当前值
-  * 远程控制照明灯
-  
-3. 多种角色权限：Admin > Teacher > Student
-  * Teacher 以上可以强制开/关灯不受智能系统限制
-  * 低权限用户一定时间内（Demo中为30S）无法改变高权限用户开灯操作
-  * Student 一段时间无操作后，将照明灯将被智能控制系统接管
+1. Building
 
-## 来自各势力的需求修改
-- [ ] 修改智能控制模块规则 [2019.3.x] [Partly Deleted]
-- [ ] 自定义开关灯时间段 [2019.4.x] [Deleted]
-- [x] 增加 Building 概念 [2019.4.4]
-- [ ] 新建 / 删除 Building 功能 [2019.4.11]
+   * Add a building
+   * Delete a building
+2. Room
+
+   * Add a room in a building
+   * Delete a room in a building
+   * Modify a room's attributes ( Including `timeout` and `default` for lights )
+3. Hardware
+
+   * Add hardware ( Based on a GPIO of a Raspberry PI)
+
+   * Delete hardware
+
+   * View sensors' real-time data
+
+   * Control light
+4. Raspberry PI
+   * View Raspberry PI which has registered in server
+   * Delete Raspberry PI
+5. User
+   * Add a user
+   * Delete a user
+   * Modify a user ( Give / Revoke permission of `build`, `admin` and `force`)
+6. Role
+   * Modify Role ( Change the command priority of role)
+7. Log
+   * View Emergency Log
+   * Solve Emergency Log
+
+
+
+Tips:
+
+About permission :
+
+`building` gives users the permission to ( add / del / modify) (room / building / hardware/ raspberry pi)
+
+`admin` gives users the permission to (add / modify / del) (user / role)
+
+`force` gives users the permission to force the light to be opened / closed.
+
+And user's initial permission is same as its role's permission.
+
+About Log : 
+
+When panic button is pressed, the building is entered emergency mode and the all the alarm and lights in this building is opened.
+
+When solving the emergency log, the alarm is closed at the same time and the lights will close when timeout.
