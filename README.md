@@ -8,7 +8,7 @@ A light-controlling system that can control and monitor the sensor (including li
 
 Mogic Group's responsibility is to build a server which could transfer data between other groups.
 
-Mogic's Website : https://dsd.keji.moe
+Mogic's Website : https://wnjxyk.github.io/JLU_DSD
 
 ## Content
 
